@@ -142,11 +142,33 @@ void write_fifo(u8 ep, u32 length, void *fifo_data)
 void read_fifo(u8 ep, u32 length, void *fifo_data)
 {
 	u8  *data = (u8 *)fifo_data;
+#ifdef CONFIG_OMAP3_AM3517EVM
+	int i;
+	u32 val;
+#endif
 
 	/* select the endpoint index */
 	writeb(ep, &musbr->index);
 
 	/* read the data to the fifo */
+#ifdef CONFIG_OMAP3_AM3517EVM
+	/* AM3517 FIFO should be read double word wise as bytewise
+	 * FIFO read corrupts the FIFO
+	 */
+	if (length > 4) {
+		for (i = 0; i < (length >> 2); i++) {
+			val = readl(&musbr->fifox[ep]);
+			memcpy(data, &val, 4);
+			data += 4;
+		}
+		length %= 4;
+	}
+	if (length > 0) {
+		val = readl(&musbr->fifox[ep]);
+		memcpy(data, &val, length);
+	}
+#else
 	while (length--)
 		*data++ = readb(&musbr->fifox[ep]);
+#endif
 }
