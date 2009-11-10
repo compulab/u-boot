@@ -206,6 +206,10 @@ static int smc911x_send(struct eth_device *dev,
 static void smc911x_halt(struct eth_device *dev)
 {
 	smc911x_reset(dev);
+
+#ifdef CONFIG_SMC911X_KEEP_MAC
+	smc911x_handle_mac_address(dev);
+#endif
 }
 
 static int smc911x_rx(struct eth_device *dev)
