@@ -262,10 +262,16 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 	/* Reset EMAC module and disable interrupts in wrapper */
 	adap_emac->SOFTRESET = 1;
 	while (adap_emac->SOFTRESET != 0) {;}
+
+#if defined(CONFIG_SOC_DM646x) || defined(CONFIG_SOC_DM365) || (CONFIG_OMAP3_AM3517EVM)
+	adap_ewrap->SOFTRST = 1;
+	while (adap_ewrap->SOFTRST != 0) {;}
+#else
 	adap_ewrap->EWCTL = 0;
 	for (cnt = 0; cnt < 5; cnt++) {
 		clkdiv = adap_ewrap->EWCTL;
 	}
+#endif
 
 	rx_desc = emac_rx_desc;
 
@@ -412,7 +418,12 @@ static void davinci_eth_close(struct eth_device *dev)
 
 	/* Reset EMAC module and disable interrupts in wrapper */
 	adap_emac->SOFTRESET = 1;
+
+#if defined(CONFIG_SOC_DM646x) || defined(CONFIG_SOC_DM365) || (CONFIG_OMAP3_AM3517EVM)
+	adap_ewrap->SOFTRST = 1;
+#else
 	adap_ewrap->EWCTL = 0;
+#endif
 
 	debug_emac("- emac_close\n");
 }
