@@ -49,6 +49,12 @@ ifeq ($(ARCH),ppc)
 EXT_SOBJ_FILES-$(CONFIG_API) += lib_ppc/ppcstring.o
 endif
 
+ifeq ($(ARCH),arm)
+ifneq (,$(findstring -mabi=aapcs-linux,$(PLATFORM_CPPFLAGS)))
+EXT_COBJ_FILES-$(CONFIG_API) += lib_arm/eabi_compat.o
+endif
+endif
+
 # Create a list of source files so their dependencies can be auto-generated
 SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_COBJ_FILES-y:.o=.c))
 SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_SOBJ_FILES-y:.o=.S))
@@ -79,6 +85,10 @@ $(obj)%.o: $(SRCTREE)/lib_generic/%.c
 
 # Rule to build architecture-specific library assembly files
 $(obj)%.o: $(SRCTREE)/lib_$(ARCH)/%.S
+	$(CC) -g $(CFLAGS) -c -o $@ $<
+
+# Rule to build architecture-specific library C files
+$(obj)%.o: $(SRCTREE)/lib_$(ARCH)/%.c
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
 #########################################################################
