@@ -215,16 +215,42 @@ static int gen_get_link_speed(int phy_addr)
 static int gen_auto_negotiate(int phy_addr)
 {
 	u_int16_t	tmp;
+	u_int16_t	val;
+	unsigned int cntr = 0;
 
 	if (!davinci_eth_phy_read(phy_addr, PHY_BMCR, &tmp))
 		return(0);
+
+	val = tmp | PHY_BMCR_DPLX | PHY_BMCR_AUTON
+		| PHY_BMCR_100MB ;
+	davinci_eth_phy_write(phy_addr, PHY_BMCR, val);
+	davinci_eth_phy_read(phy_addr, PHY_BMCR, &val);
+
+	/* advertise 100 Full Duplex */
+	davinci_eth_phy_read(phy_addr,PHY_ANAR, &val);
+	val |= (PHY_ANLPAR_10 | PHY_ANLPAR_10FD | PHY_ANLPAR_TX
+		| PHY_ANLPAR_TXFD);
+	davinci_eth_phy_write(phy_addr,PHY_ANAR, val);
+	davinci_eth_phy_read(phy_addr,PHY_ANAR, &val);
+
+	davinci_eth_phy_read(phy_addr, PHY_BMCR, &tmp);
 
 	/* Restart Auto_negotiation  */
 	tmp |= PHY_BMCR_AUTON;
 	davinci_eth_phy_write(phy_addr, PHY_BMCR, tmp);
 
-	/*check AutoNegotiate complete */
-	udelay (10000);
+	/*check AutoNegotiate complete - it can take upto 3 secs*/
+	do{
+		udelay(40000);
+		cntr++;
+
+		if (davinci_eth_phy_read(phy_addr, PHY_BMSR, &tmp)){
+			if(tmp & PHY_BMSR_AUTN_COMP)
+				break;
+		}
+
+	}while(cntr < 250);
+
 	if (!davinci_eth_phy_read(phy_addr, PHY_BMSR, &tmp))
 		return(0);
 
@@ -256,6 +282,7 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 	dv_reg_p		addr;
 	u_int32_t		clkdiv, cnt;
 	volatile emac_desc	*rx_desc;
+	u_int16_t		lpa_val,val;
 
 	debug_emac("+ emac_open\n");
 
@@ -353,15 +380,30 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 	/* Enable ch 0 only */
 	adap_emac->RXUNICASTSET = 0x01;
 
-	/* Enable MII interface and Full duplex mode */
-	adap_emac->MACCONTROL = (EMAC_MACCONTROL_MIIEN_ENABLE | EMAC_MACCONTROL_FULLDUPLEX_ENABLE);
-
 	/* Init MDIO & get link state */
 	clkdiv = (EMAC_MDIO_BUS_FREQ / EMAC_MDIO_CLOCK_FREQ) - 1;
 	adap_mdio->CONTROL = ((clkdiv & 0xff) | MDIO_CONTROL_ENABLE | MDIO_CONTROL_FAULT);
 
-	if (!phy.get_link_speed(active_phy_addr))
+	if (!phy.auto_negotiate(active_phy_addr))
 		return(0);
+
+	davinci_eth_phy_read(active_phy_addr,PHY_ANLPAR,&lpa_val);
+	if (lpa_val & (PHY_ANLPAR_10FD | PHY_ANLPAR_TXFD) ) {
+		/* set EMAC for Full Duplex  */
+		adap_emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE |
+					 EMAC_MACCONTROL_FULLDUPLEX_ENABLE;
+	}else{
+		/*set EMAC for Half Duplex  */
+		adap_emac->MACCONTROL = EMAC_MACCONTROL_MIIEN_ENABLE;
+	}
+
+#ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
+	if (lpa_val & (PHY_ANLPAR_TXFD | PHY_ANLPAR_TX) ) {
+		adap_emac->MACCONTROL |= EMAC_MACCONTROL_RMIISPEED_100;
+	} else {
+		adap_emac->MACCONTROL &= ~EMAC_MACCONTROL_RMIISPEED_100;
+	}
+#endif
 
 	/* Start receive process */
 	adap_emac->RX0HDP = (u_int32_t)emac_rx_desc;
