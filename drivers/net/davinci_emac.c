@@ -286,9 +286,15 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 		(davinci_eth_mac_addr[2] << 16) |
 		(davinci_eth_mac_addr[1] << 8)  |
 		(davinci_eth_mac_addr[0]);
+#if defined(CONFIG_SOC_DM646x) || defined(CONFIG_SOC_DM365) || (CONFIG_OMAP3_AM3517EVM)
+	adap_emac->MACADDRLO =
+		(davinci_eth_mac_addr[5] << 8) |
+		(davinci_eth_mac_addr[4]| (1 << 19) | (1 << 20));
+#else
 	adap_emac->MACADDRLO =
 		(davinci_eth_mac_addr[5] << 8) |
 		(davinci_eth_mac_addr[4]);
+#endif
 
 	adap_emac->MACHASH1 = 0;
 	adap_emac->MACHASH2 = 0;
