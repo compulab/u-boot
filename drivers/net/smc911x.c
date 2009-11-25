@@ -47,7 +47,7 @@ static void smc911x_handle_mac_address(struct eth_device *dev)
 	smc911x_set_mac_csr(dev, ADDRL, addrl);
 	smc911x_set_mac_csr(dev, ADDRH, addrh);
 
-	printf(DRIVERNAME ": MAC %pM\n", m);
+	printf("%s: MAC %pM\n", dev->name, m);
 }
 
 static int smc911x_miiphy_read(struct eth_device *dev,
@@ -119,12 +119,12 @@ static void smc911x_phy_configure(struct eth_device *dev)
 			goto err_out;
 	} while (!(status & PHY_BMSR_LS));
 
-	printf(DRIVERNAME ": phy initialized\n");
+	printf("%s: phy initialized\n", dev->name);
 
 	return;
 
 err_out:
-	printf(DRIVERNAME ": autonegotiation timed out\n");
+	printf("%s: autonegotiation timed out\n", dev->name);
 }
 
 static void smc911x_enable(struct eth_device *dev)
@@ -148,7 +148,7 @@ static int smc911x_init(struct eth_device *dev, bd_t * bd)
 {
 	struct chip_id *id = dev->priv;
 
-	printf(DRIVERNAME ": detected %s controller\n", id->name);
+	printf("%s: detected %s controller\n", dev->name, id->name);
 
 	smc911x_reset(dev);
 
@@ -193,7 +193,7 @@ static int smc911x_send(struct eth_device *dev,
 	if (!status)
 		return 0;
 
-	printf(DRIVERNAME ": failed to send packet: %s%s%s%s%s\n",
+	printf("%s: failed to send packet: %s%s%s%s%s\n", dev->name,
 		status & TX_STS_LOC ? "TX_STS_LOC " : "",
 		status & TX_STS_LATE_COLL ? "TX_STS_LATE_COLL " : "",
 		status & TX_STS_MANY_COLL ? "TX_STS_MANY_COLL " : "",
@@ -225,9 +225,8 @@ static int smc911x_rx(struct eth_device *dev)
 			*data++ = pkt_data_pull(dev, RX_DATA_FIFO);
 
 		if (status & RX_STS_ES)
-			printf(DRIVERNAME
-				": dropped bad packet. Status: 0x%08x\n",
-				status);
+			printf("%s: dropped bad packet. Status: 0x%08x\n",
+			       dev->name, status);
 		else
 			NetReceive(NetRxPackets[0], pktlen);
 	}
@@ -248,6 +247,7 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 	memset(dev, 0, sizeof(*dev));
 
 	dev->iobase = base_addr;
+	sprintf(dev->name, "%s-%hu", DRIVERNAME, dev_num);
 
 	/* Try to detect chip. Will fail if not present. */
 	if (smc911x_detect_chip(dev)) {
@@ -268,7 +268,6 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 	dev->halt = smc911x_halt;
 	dev->send = smc911x_send;
 	dev->recv = smc911x_rx;
-	sprintf(dev->name, "%s-%hu", DRIVERNAME, dev_num);
 
 	eth_register(dev);
 	return 1;

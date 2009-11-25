@@ -447,7 +447,7 @@ static int smc911x_detect_chip(struct eth_device *dev)
 		/* Special case -- no chip present */
 		return -1;
 	} else if (val != 0x87654321) {
-		printf(DRIVERNAME ": Invalid chip endian 0x%08lx\n", val);
+		printf("%s: Invalid chip endian 0x%08lx\n", __func__, val);
 		return -1;
 	}
 
@@ -456,7 +456,7 @@ static int smc911x_detect_chip(struct eth_device *dev)
 		if (chip_ids[i].id == val) break;
 	}
 	if (!chip_ids[i].id) {
-		printf(DRIVERNAME ": Unknown chip ID %04lx\n", val);
+		printf("%s: Unknown chip ID %04lx\n", __func__, val);
 		return -1;
 	}
 
@@ -480,8 +480,8 @@ static void smc911x_reset(struct eth_device *dev)
 			!(smc911x_reg_read(dev, PMT_CTRL) & PMT_CTRL_READY))
 			udelay(10);
 		if (!timeout) {
-			printf(DRIVERNAME
-				": timeout waiting for PM restore\n");
+			printf("%s: timeout waiting for PM restore\n",
+			       dev->name);
 			return;
 		}
 	}
@@ -496,7 +496,7 @@ static void smc911x_reset(struct eth_device *dev)
 		udelay(10);
 
 	if (!timeout) {
-		printf(DRIVERNAME ": reset timeout\n");
+		printf("%s: reset timeout\n", dev->name);
 		return;
 	}
 
