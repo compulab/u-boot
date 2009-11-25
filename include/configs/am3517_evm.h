@@ -146,6 +146,8 @@
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
 
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
@@ -160,7 +162,7 @@
 #define CONFIG_SYS_I2C_BUS_SELECT	1
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
 
-#undef CONFIG_CMD_NET
+#define CONFIG_CMD_NET
 /*
  * Board NAND Info.
  */
@@ -326,6 +328,23 @@
  */
 #include <asm/arch/omap3_flash.h>
 
+
+
+/*-----------------------------------------------------
+ * ethernet support for AM3517 EVM
+ *------------------------------------------------
+ */
+#if defined(CONFIG_CMD_NET)
+#define CONFIG_DRIVER_TI_EMAC
+#define CONFIG_DRIVER_TI_EMAC_USE_RMII
+#define CONFIG_MII
+#define	CONFIG_BOOTP_DEFAULT
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS2
+#define CONFIG_BOOTP_SEND_HOSTNAME
+#define CONFIG_NET_RETRY_COUNT 10
+#define CONFIG_NET_MULTI
+#endif
 
 #endif /* __CONFIG_H */
 
