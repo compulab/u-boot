@@ -322,6 +322,8 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(SYS_32K),		(IEN  | PTD | DIS | M0)) \
 	MUX_VAL(CP(SYS_CLKREQ),		(IEN  | PTD | DIS | M0)) \
 	MUX_VAL(CP(SYS_NIRQ),		(IEN  | PTU | EN  | M0)) \
+	MUX_VAL(CP(SYS_NRESWARM),     	(IDIS | PTU | DIS | M4)) /*SYS_nRESWARM */\
+							/* - GPIO30 */\
 	MUX_VAL(CP(SYS_BOOT0),		(IEN  | PTD | DIS | M4)) /*GPIO_2*/\
 							 /* - PEN_IRQ */\
 	MUX_VAL(CP(SYS_BOOT1),		(IEN  | PTD | DIS | M4)) /*GPIO_3 */\
