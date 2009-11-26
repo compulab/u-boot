@@ -33,42 +33,24 @@
  *
  */
 
-#ifndef _DM644X_EMAC_H_
-#define _DM644X_EMAC_H_
+#ifndef _AM3517_EMAC_H_
+#define _AM3517_EMAC_H_
 
-#include <asm/arch/hardware.h>
+#define EMAC_BASE_ADDR                 0x5C010000
+#define EMAC_WRAPPER_BASE_ADDR         0x5C000000
+#define EMAC_WRAPPER_RAM_ADDR          0x5C020000
+#define EMAC_MDIO_BASE_ADDR            0x5C030000
+#define EMAC_HW_RAM_ADDR               0x01E20000
 
-#ifdef CONFIG_SOC_DM365
-#define EMAC_BASE_ADDR			(0x01d07000)
-#define EMAC_WRAPPER_BASE_ADDR		(0x01d0a000)
-#define EMAC_WRAPPER_RAM_ADDR		(0x01d08000)
-#define EMAC_MDIO_BASE_ADDR		(0x01d0b000)
-#else
-#define EMAC_BASE_ADDR			(0x01c80000)
-#define EMAC_WRAPPER_BASE_ADDR		(0x01c81000)
-#define EMAC_WRAPPER_RAM_ADDR		(0x01c82000)
-#define EMAC_MDIO_BASE_ADDR		(0x01c84000)
-#endif
-
-#ifdef CONFIG_SOC_DM646X
-/* MDIO module input frequency */
-#define EMAC_MDIO_BUS_FREQ		76500000
-/* MDIO clock output frequency */
-#define EMAC_MDIO_CLOCK_FREQ		2500000		/* 2.5 MHz */
-#elif defined(CONFIG_SOC_DM365)
-/* MDIO module input frequency */
-#define EMAC_MDIO_BUS_FREQ		121500000
-/* MDIO clock output frequency */
-#define EMAC_MDIO_CLOCK_FREQ		2200000		/* 2.2 MHz */
-#else
-/* MDIO module input frequency */
-#define EMAC_MDIO_BUS_FREQ		99000000	/* PLL/6 - 99 MHz */
-/* MDIO clock output frequency */
-#define EMAC_MDIO_CLOCK_FREQ		2000000		/* 2.0 MHz */
-#endif
+#define EMAC_MDIO_BUS_FREQ             166000000       /* 166 MHZ check */
+#define EMAC_MDIO_CLOCK_FREQ           1000000         /* 2.0 MHz */
 
 /* PHY mask - set only those phy number bits where phy is/can be connected */
 #define EMAC_MDIO_PHY_NUM           1
 #define EMAC_MDIO_PHY_MASK          (1 << EMAC_MDIO_PHY_NUM)
 
-#endif  /* _DM644X_EMAC_H_ */
+
+/* SOFTRESET macro definition interferes with emac_regs structure definition */
+#undef SOFTRESET
+
+#endif  /* _AM3517_EMAC_H_ */

@@ -42,6 +42,7 @@
 #include <miiphy.h>
 #include <malloc.h>
 #include <asm/arch/emac_defs.h>
+#include "davinci_emac.h"
 
 unsigned int	emac_dbg = 0;
 #define debug_emac(fmt,args...)	if (emac_dbg) printf(fmt,##args)
