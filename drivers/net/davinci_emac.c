@@ -470,7 +470,6 @@ static void davinci_eth_ch_teardown(int ch)
 static void davinci_eth_close(struct eth_device *dev)
 {
 	debug_emac("+ emac_close\n");
-#if 0
 
 	davinci_eth_ch_teardown(EMAC_CH_TX);	/* TX Channel teardown */
 	davinci_eth_ch_teardown(EMAC_CH_RX);	/* RX Channel teardown */
@@ -482,7 +481,6 @@ static void davinci_eth_close(struct eth_device *dev)
 	adap_ewrap->SOFTRST = 1;
 #else
 	adap_ewrap->EWCTL = 0;
-#endif
 #endif
 	debug_emac("- emac_close\n");
 }
