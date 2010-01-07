@@ -253,13 +253,10 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	(100 * CONFIG_SYS_HZ)
 #define CONFIG_SYS_FLASH_WRITE_TOUT	(100 * CONFIG_SYS_HZ)
 
-#ifndef __ASSEMBLY__
-extern struct gpmc *gpmc_cfg;
-extern unsigned int boot_flash_base;
-extern volatile unsigned int boot_flash_env_addr;
-extern unsigned int boot_flash_off;
-extern unsigned int boot_flash_sec;
-extern unsigned int boot_flash_type;
-#endif
+
+/*
+ * Include flash related variables
+ */
+#include <asm/arch/omap3_flash.h>
 
 #endif /* __CONFIG_H */

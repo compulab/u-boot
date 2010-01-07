@@ -300,15 +300,6 @@
 #define CONFIG_SYS_JFFS2_FIRST_BANK	CONFIG_SYS_MAX_FLASH_BANKS
 #define CONFIG_SYS_JFFS2_NUM_BANKS	1
 
-#ifndef __ASSEMBLY__
-extern struct gpmc *gpmc_cfg;
-extern unsigned int boot_flash_base;
-extern volatile unsigned int boot_flash_env_addr;
-extern unsigned int boot_flash_off;
-extern unsigned int boot_flash_sec;
-extern unsigned int boot_flash_type;
-#endif
-
 /*----------------------------------------------------------------------------
  * SMSC9115 Ethernet from SMSC9118 family
  *----------------------------------------------------------------------------
@@ -330,5 +321,10 @@ extern unsigned int boot_flash_type;
 #define CONFIG_BOOTP_GATEWAY		0x00000002
 #define CONFIG_BOOTP_HOSTNAME		0x00000004
 #define CONFIG_BOOTP_BOOTPATH		0x00000010
+
+/*
+ * Include flash related variables
+ */
+#include <asm/arch/omap3_flash.h>
 
 #endif /* __CONFIG_H */
