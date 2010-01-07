@@ -33,6 +33,9 @@ COBJS	+= board.o
 COBJS	+= clock.o
 COBJS	+= gpio.o
 COBJS	+= mem.o
+ifdef	CONFIG_SDRC
+COBJS	+= sdrc.o
+endif
 COBJS	+= syslib.o
 COBJS	+= sys_info.o
 COBJS	+= timer.o

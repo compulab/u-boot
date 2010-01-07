@@ -40,8 +40,8 @@ enum {
 #define EARLY_INIT	1
 
 /* Slower full frequency range default timings for x32 operation*/
-#define SDP_SDRC_SHARING	0x00000100
-#define SDP_SDRC_MR_0_SDR	0x00000031
+#define SDRC_SHARING	0x00000100
+#define SDRC_MR_0_SDR	0x00000031
 
 /* optimized timings good for current shipping parts */
 #define SDP_3430_SDRC_RFR_CTRL_165MHz	0x0004e201 /* 7.8us/6ns - 50=0x4e2 */
@@ -223,5 +223,19 @@ enum {
 #define PISMO2_CS0_BASE		PISMO2_MAP1
 #define PISMO1_ONEN_BASE	ONENAND_MAP
 #define DBG_MPDB_BASE		DEBUG_BASE
+
+#ifndef __ASSEMBLY__
+/*
+ * Function prototypes
+ */
+void mem_init(void);
+
+u32 is_mem_sdr(void);
+u32 mem_ok(u32 cs);
+
+u32 get_sdr_cs_size(u32);
+u32 get_sdr_cs_offset(u32);
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* endif _MEM_H_ */
