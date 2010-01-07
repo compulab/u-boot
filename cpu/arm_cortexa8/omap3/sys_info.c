@@ -29,6 +29,7 @@
 #include <asm/io.h>
 #include <asm/arch/mem.h>	/* get mem tables */
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/omap_gpmc.h>
 #include <i2c.h>
 
 extern omap3_sysinfo sysinfo;

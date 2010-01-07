@@ -80,4 +80,9 @@
 }
 #endif
 
+#ifndef __ASSEMBLY__
+extern struct gpmc *gpmc_cfg;
+#endif
+
 #endif /* __ASM_ARCH_OMAP_GPMC_H */
+
