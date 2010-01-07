@@ -36,6 +36,9 @@ COBJS	+= mem.o
 ifdef	CONFIG_SDRC
 COBJS	+= sdrc.o
 endif
+ifdef	CONFIG_EMIF4
+COBJS	+= emif4.o
+endif
 COBJS	+= syslib.o
 COBJS	+= sys_info.o
 COBJS	+= timer.o
