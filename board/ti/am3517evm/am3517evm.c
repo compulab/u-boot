@@ -23,11 +23,13 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/emac_defs.h>
+#include <asm/arch/gpio.h>
 #include <i2c.h>
 #include <asm/mach-types.h>
 #include "am3517evm.h"
