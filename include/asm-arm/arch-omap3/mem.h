@@ -126,7 +126,7 @@ enum {
 			(TDPL_200 << 6) | (TDAL_200))
 
 #define TWTR_200	2
-#define TCKE_200	2
+#define TCKE_200	1
 #define TXP_200		1
 #define XSR_200		28
 #define V_ACTIMB_200	(((TCKE_200 << 12) | (XSR_200 << 0)) |	\
