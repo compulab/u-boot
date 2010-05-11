@@ -231,13 +231,13 @@ void s_init(void)
 	per_clocks_enable();
 
 	if (!in_sdram) {
+#if defined(CONFIG_CMD_NAND)
 		unsigned int mfd_id, dev_id;
 		/*
 		 * WORKAROUND: To suuport both Micron and Hynix NAND/DDR parts
 		 */
 		nand_init();
 		get_nand_id(&mfd_id, &dev_id);
-
 		switch (mfd_id) {
 		/* Hynix NAND part */
 		case 0xAD:
@@ -250,6 +250,7 @@ void s_init(void)
 			is_ddr_166M = 1;
 			break;
 		}
+#endif
 
 		mem_init();
 	}
