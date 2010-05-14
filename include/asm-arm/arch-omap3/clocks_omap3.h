@@ -59,7 +59,7 @@
 #define MPU_FSEL_12_ES1		0x05
 #define MPU_M2_12_ES1		0x01
 
-#define MPU_M_12_ES2		0x0FA
+#define MPU_M_12_ES2		0x12C
 #define MPU_N_12_ES2		0x05
 #define MPU_FSEL_12_ES2		0x07
 #define MPU_M2_ES2		0x01
@@ -74,7 +74,7 @@
 #define MPU_FSEL_13_ES1		0x03
 #define MPU_M2_13_ES1		0x01
 
-#define MPU_M_13_ES2		0x1F4
+#define MPU_M_13_ES2		0x258
 #define MPU_N_13_ES2		0x0C
 #define MPU_FSEL_13_ES2		0x03
 #define MPU_M2_13_ES2		0x01
@@ -90,7 +90,7 @@
 #define MPU_M2_19P2_ES1		0x01
 
 #define MPU_M_19P2_ES2		0x271
-#define MPU_N_19P2_ES2		0x17
+#define MPU_N_19P2_ES2		0x13
 #define MPU_FSEL_19P2_ES2	0x03
 #define MPU_M2_19P2_ES2		0x01
 
@@ -104,7 +104,7 @@
 #define MPU_FSEL_26_ES1		0x03
 #define MPU_M2_26_ES1		0x01
 
-#define MPU_M_26_ES2		0x0FA
+#define MPU_M_26_ES2		0x12C
 #define MPU_N_26_ES2		0x0C
 #define MPU_FSEL_26_ES2		0x07
 #define MPU_M2_26_ES2		0x01
@@ -120,7 +120,7 @@
 #define MPU_M2_38P4_ES1		0x01
 
 #define MPU_M_38P4_ES2		0x271
-#define MPU_N_38P4_ES2		0x2F
+#define MPU_N_38P4_ES2		0x27
 #define MPU_FSEL_38P4_ES2	0x03
 #define MPU_M2_38P4_ES2		0x01
 
