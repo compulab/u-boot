@@ -362,6 +362,12 @@ int print_cpuinfo (void)
 	case CTRL_AM3517:
 		strcpy(cpu_s, "AM3517");
 		break;
+	case OMAP3630:
+		strcpy(cpu_s, "OMAP3630");
+		break;
+	case OMAP3730:
+		strcpy(cpu_s, "AM37x/DM37x");
+		break;
 
 	default:
 		if (cpu_family == CPU_AM35XX)
