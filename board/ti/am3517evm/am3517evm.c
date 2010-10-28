@@ -24,6 +24,7 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <net.h>
 #include <asm/io.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
@@ -37,6 +38,8 @@
 
 #define AM3517_IP_SW_RESET	0x48002598
 #define CPGMACSS_SW_RST		(1 << 1)
+#define CONTROL_EFUSE_EMAC_LSB  0x48002380
+#define CONTROL_EFUSE_EMAC_MSB  0x48002384
 
 
 
@@ -111,7 +114,36 @@ int misc_init_r(void)
 int cpu_eth_init(bd_t *bis)
 {
 #if defined(CONFIG_DRIVER_TI_EMAC)
+extern void davinci_eth_set_mac_addr(const u_int8_t *addr);
+
+	u_int8_t mac_addr[6];
+	u_int32_t mac_hi, mac_lo;
+
 	printf("davinci_emac_initialize\n");
+
+	if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
+		printf("<ethaddr> not set. Reading from e-fuse\n");
+		mac_lo = __raw_readl(CONTROL_EFUSE_EMAC_LSB);
+		mac_hi = __raw_readl(CONTROL_EFUSE_EMAC_MSB);
+		mac_addr[0] = (u_int8_t)((mac_hi & 0xFF0000) >> 16);
+		mac_addr[1] = (u_int8_t)((mac_hi & 0xFF00) >> 8);
+		mac_addr[2] = (u_int8_t)((mac_hi & 0xFF) >> 0);
+		mac_addr[3] = (u_int8_t)((mac_lo & 0xFF0000) >> 16);
+		mac_addr[4] = (u_int8_t)((mac_lo & 0xFF00) >> 8);
+		mac_addr[5] = (u_int8_t)((mac_lo & 0xFF) >> 0);
+		/*set the ethaddr variable with the detected Addr */
+		eth_setenv_enetaddr("ethaddr", mac_addr);
+	}
+
+	if (is_valid_ether_addr(mac_addr)) {
+		printf("Detected MACID:%x:%x:%x:%x:%x:%x\n", mac_addr[0],
+			mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4],
+			mac_addr[5]);
+		davinci_eth_set_mac_addr(mac_addr);
+	} else {
+		printf("caution: no valid MACID!! Set <ethaddr> variable \n");
+	}
+
 	davinci_emac_initialize();
 #endif
 	return 0;
