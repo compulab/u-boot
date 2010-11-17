@@ -3160,6 +3160,9 @@ omap3_evm_config :	unconfig
 am3517_evm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 am3517evm ti omap3
 
+cm_t3517_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 cm_t3517 NULL omap3
+
 omap3_pandora_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 pandora NULL omap3
 

@@ -2402,6 +2402,8 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_MULTIBUS_PBK         2417
 #define MACH_TYPE_TNETV107X            2418
 
+#define MACH_TYPE_CM_T3517             2750
+
 #ifdef CONFIG_ARCH_EBSA110
 # ifdef machine_arch_type
 #  undef machine_arch_type
@@ -31032,6 +31034,18 @@ extern unsigned int __machine_arch_type;
 # define machine_is_tnetv107x()	(machine_arch_type == MACH_TYPE_TNETV107X)
 #else
 # define machine_is_tnetv107x()	(0)
+#endif
+
+#ifdef CONFIG_MACH_CM_T3517
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type     __machine_arch_type
+# else
+#  define machine_arch_type     MACH_TYPE_CM_T3517
+# endif
+# define machine_is_cm_t3517()  (machine_arch_type == MACH_TYPE_CM_T3517)
+#else
+# define machine_is_cm_t3517()  (0)
 #endif
 
 /*
