@@ -234,7 +234,7 @@ void s_init(void)
 #if defined(CONFIG_CMD_NAND)
 		unsigned int mfd_id, dev_id;
 		/*
-		 * WORKAROUND: To suuport both Micron and Hynix NAND/DDR parts
+		 * WORKAROUND: To support both Micron and Hynix NAND/DDR parts
 		 */
 		nand_init();
 		get_nand_id(&mfd_id, &dev_id);
