@@ -152,11 +152,11 @@ void gpmc_init(void)
 	gpmc_cfg = (struct gpmc *)GPMC_BASE;
 #if defined(CONFIG_CMD_NAND) || defined(CONFIG_CMD_ONENAND)
 	const u32 *gpmc_config = NULL;
-	u32 base = 0;
-	u32 size = 0;
+	u32 base;
+	u32 size;
 #if defined(CONFIG_ENV_IS_IN_NAND) || defined(CONFIG_ENV_IS_IN_ONENAND)
-	u32 f_off = CONFIG_SYS_MONITOR_LEN;
-	u32 f_sec = 0;
+	u32 f_off;
+	u32 f_sec;
 #endif
 #endif
 	u32 config = 0;
