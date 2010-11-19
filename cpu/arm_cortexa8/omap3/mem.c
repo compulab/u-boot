@@ -156,7 +156,7 @@ void gpmc_init(void)
 	u32 size;
 #if defined(CONFIG_ENV_IS_IN_NAND) || defined(CONFIG_ENV_IS_IN_ONENAND)
 	u32 f_off;
-	u32 f_sec;
+	u32 f_sec = (128 << 10);	/* 128 KiB */
 #endif
 #endif
 	u32 config = 0;
@@ -184,7 +184,6 @@ void gpmc_init(void)
 	enable_gpmc_cs_config(gpmc_config, &gpmc_cfg->cs[0], base, size);
 #if defined(CONFIG_ENV_IS_IN_NAND)
 	f_off = SMNAND_ENV_OFFSET;
-	f_sec = (128 << 10);	/* 128 KiB */
 	/* env setup */
 	boot_flash_base = base;
 	boot_flash_off = f_off;
@@ -200,7 +199,6 @@ void gpmc_init(void)
 	enable_gpmc_cs_config(gpmc_config, &gpmc_cfg->cs[0], base, size);
 #if defined(CONFIG_ENV_IS_IN_ONENAND)
 	f_off = ONENAND_ENV_OFFSET;
-	f_sec = (128 << 10);	/* 128 KiB */
 	/* env setup */
 	boot_flash_base = base;
 	boot_flash_off = f_off;
