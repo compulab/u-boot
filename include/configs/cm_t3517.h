@@ -34,8 +34,6 @@
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3_CM_T3517	1	/* working with CM_T3517 */
 
-#define CONFIG_EMIF4	/* The chip has EMIF4 controller */
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap3.h>
 
@@ -61,14 +59,14 @@
  * Size of malloc() pool
  */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB sector */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (512 << 10))
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
 						/* initial data */
 /*
  * DDR related
  */
 #define CONFIG_OMAP3_MICRON_DDR		1	/* Micron DDR */
-#define CONFIG_SYS_CS0_SIZE		(256 * 1024 * 1024)
+#define CONFIG_SYS_CS0_SIZE		(256 << 20)
 
 /*
  * Hardware drivers
@@ -210,8 +208,7 @@
 #define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \
 					0x01F00000) /* 31MB */
 
-#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0) /* default load */
-								/* address */
+#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0 + 0x02000000)
 
 /*
  * AM3517 has 12 GP timers, they can be driven by the system clock
@@ -236,13 +233,9 @@
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
+#define CONFIG_NR_DRAM_BANKS	1	/* CM-T3517 DRAM is only on CS0 */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
-#define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
-
-/* SDRAM Bank Allocation method */
-#define SDRC_R_B_C		1
+#define PHYS_SDRAM_1_SIZE	(256 << 20)	/* default is 256MiB */
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
