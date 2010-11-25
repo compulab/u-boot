@@ -632,8 +632,6 @@ int davinci_emac_initialize(void)
 	dev->send = davinci_eth_send_packet;
 	dev->recv = davinci_eth_rcv_packet;
 
-	eth_register(dev);
-
 	davinci_eth_mdio_enable();
 
 	for (i = 0; i < 256; i++) {
@@ -697,5 +695,8 @@ int davinci_emac_initialize(void)
 	debug_emac("Ethernet PHY: %s\n", phy.name);
 
 	miiphy_register(phy.name, davinci_mii_phy_read, davinci_mii_phy_write);
-	return(1);
+
+	eth_register(dev);
+
+	return 1;
 }
