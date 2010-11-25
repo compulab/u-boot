@@ -163,10 +163,9 @@
 #define CONFIG_SMC911X_BASE	0x2C000000
 #define CONFIG_SMC911X_KEEP_MAC
 
-#define CONFIG_BOOTFILE		uImage
 /* Environment information */
 #define CONFIG_BOOTDELAY	3
-
+#define CONFIG_BOOTFILE		uImage
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"baudrate=115200\0" \
