@@ -1,8 +1,7 @@
 /*
  * cm_t3517.h - Default configuration for CM-T3517 board.
  *
- * Authors: Mike Rapoport <mike@compulab.co.il>
- *	    Igor Grinberg <grinberg@compulab.co.il>
+ * Author: Igor Grinberg <grinberg@compulab.co.il>
  *
  * Based on am3517_evm.h
  *

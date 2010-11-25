@@ -1,13 +1,12 @@
 /*
- * cm_t3517.c - board file for CompuLab's CM-T3517 device.
+ * cm_t3517.c - board file for CompuLab CM-T3517 module.
  *
- * Authors: Mike Rapoport <mike@compulab.co.il>
- *	    Igor Grinberg <grinberg@compulab.co.il>
+ * Author: Igor Grinberg <grinberg@compulab.co.il>
  *
  * Based on logicpd/am3517evm/am3517evm.c
  *
  * Copyright (C) 2010
- * CompuLab, Ltd. - http://www.compulab.co.il/
+ * CompuLab, Ltd. - www.compulab.co.il
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
