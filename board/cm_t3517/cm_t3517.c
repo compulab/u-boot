@@ -39,6 +39,18 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static u32 gpmc_nand_config[GPMC_MAX_REG] = {
+	SMNAND_GPMC_CONFIG1,
+	SMNAND_GPMC_CONFIG2,
+	SMNAND_GPMC_CONFIG3,
+	SMNAND_GPMC_CONFIG4,
+	SMNAND_GPMC_CONFIG5,
+	SMNAND_GPMC_CONFIG6,
+        0,
+};
+
+extern struct gpmc *gpmc_cfg;
+
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -46,6 +58,10 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
+
+	enable_gpmc_cs_config(gpmc_nand_config, &gpmc_cfg->cs[0],
+			      CONFIG_SYS_NAND_BASE, GPMC_SIZE_16M);
+
 	/* board id for Linux */
 	gd->bd->bi_arch_number = MACH_TYPE_CM_T3517;
 	/* boot param addr */
@@ -96,13 +112,14 @@ static void setup_net_chip_gmpc(void)
 	enable_gpmc_cs_config(gpmc_net_config, &gpmc_cfg->cs[4],
 			      CONFIG_SMC911X_BASE, GPMC_SIZE_16M);
 
-        /* Enable off mode for NWE in PADCONF_GPMC_NWE register */
+	/* Enable off mode for NWE in PADCONF_GPMC_NWE register */
 	writew(readw(&ctrl_base->gpmc_nwe) | 0x0E00, &ctrl_base->gpmc_nwe);
 	/* Enable off mode for NOE in PADCONF_GPMC_NADV_ALE register */
 	writew(readw(&ctrl_base->gpmc_noe) | 0x0E00, &ctrl_base->gpmc_noe);
 	/* Enable off mode for ALE in PADCONF_GPMC_NADV_ALE register */
 	writew(readw(&ctrl_base->gpmc_nadv_ale) | 0x0E00,
-	       &ctrl_base->gpmc_nadv_ale);}
+		&ctrl_base->gpmc_nadv_ale);
+}
 
 int board_eth_init(bd_t *bis)
 {
