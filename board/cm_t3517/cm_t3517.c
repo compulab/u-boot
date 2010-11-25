@@ -39,6 +39,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define CM_T3517_DEBUG	0
+
+#if CM_T3517_DEBUG
+#define pr_dbg printf
+#else
+#define pr_dbg(fmt, ...)
+#endif
+
 /* CM-T3517 EPROM layout */
 #define CM_T3517_EPROM_I2C_ADDR	0x50
 /* Binary Block */
@@ -268,6 +276,9 @@ void cm_t3517_setup_enetaddr(u8 *enetaddr)
 		printf("CM-T3517: No valid MAC address found\n");
 		return;
 	}
+
+	pr_dbg("MAC: %02x:%02x:%02x:%02x:%02x:%02x\n", enetaddr[0], enetaddr[1],
+	       enetaddr[2], enetaddr[3], enetaddr[4], enetaddr[5]);
 
 	/* set the ethaddr variable with the detected addr */
 	eth_setenv_enetaddr("ethaddr", enetaddr);
