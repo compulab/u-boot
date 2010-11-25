@@ -166,6 +166,7 @@
 /* Environment information */
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTFILE		uImage
+#define CONFIG_SYS_AUTOLOAD	"no"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"baudrate=115200\0" \
