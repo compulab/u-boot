@@ -31,8 +31,10 @@
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/mach-types.h>
+#include <asm/arch/emac_defs.h>
+#include <asm/arch/gpio.h>
 #include <i2c.h>
+#include <asm/mach-types.h>
 #include "cm_t3517.h"
 
 DECLARE_GLOBAL_DATA_PTR;
