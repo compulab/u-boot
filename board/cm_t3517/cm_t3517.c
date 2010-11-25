@@ -156,9 +156,6 @@ void pcb_info(void)
  */
 int misc_init_r(void)
 {
-#ifdef CONFIG_DRIVER_OMAP34XX_I2C
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-#endif
 	cm_t3517_rev = cm_t3517_board_rev();
 
 	pcb_info();
