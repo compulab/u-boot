@@ -39,6 +39,24 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* CM-T3517 EPROM layout */
+#define CM_T3517_EPROM_I2C_ADDR	0x50
+/* Binary Block */
+#define PCBREV		0
+#define PCBPRO		2
+#define MAC1		4
+#define MAC2		10
+#define DATE		16
+#define SERIAL		20
+#define MAC3		32
+#define MAC4		38
+#define LAYOUT		44
+/* ASCII Block */
+#define NAME		128
+#define OPTIONS1	144
+#define OPTIONS2	160
+#define OPTIONS3	176
+
 static u32 gpmc_nand_config[GPMC_MAX_REG] = {
 	SMNAND_GPMC_CONFIG1,
 	SMNAND_GPMC_CONFIG2,
@@ -70,6 +88,31 @@ int board_init(void)
 	return 0;
 }
 
+static u32 cm_t3517_rev;
+
+static u32 cm_t3517_board_rev(void)
+{
+	u8 tmp[4] = { 0xff, 0xff, 0xff, 0xff };
+	u32 rev = 0xffffffff;
+	int err = 0;
+
+#ifdef CONFIG_DRIVER_OMAP34XX_I2C
+	err = i2c_read(CM_T3517_EPROM_I2C_ADDR, PCBREV, 1, tmp, 4);
+#endif
+	if (!err)
+		rev = (tmp[1] << 24) | (tmp[0] << 16) | (tmp[3] << 8) | tmp[2];
+
+	return rev;
+}
+
+/*
+ * get_board_rev() - setup to pass kernel board revision information
+ */
+u32 get_board_rev(void)
+{
+	return cm_t3517_rev;
+}
+
 /*
  * Routine: misc_init_r
  * Description: Init i2c, ethernet, etc... (done here so udelay works)
@@ -79,6 +122,7 @@ int misc_init_r(void)
 #ifdef CONFIG_DRIVER_OMAP34XX_I2C
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
+	cm_t3517_rev = cm_t3517_board_rev();
 
 	dieid_num_r();
 
