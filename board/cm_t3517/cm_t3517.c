@@ -59,6 +59,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* GPIOs */
 #define CM_T3517_LED_GPIO	186
+#define SB_T35_ETH_RST_GPIO	164
+
+#define mdelay(n) ({unsigned long msec=(n); while (msec--) udelay(1000);})
 
 static u32 gpmc_nand_config[GPMC_MAX_REG] = {
 	SMNAND_GPMC_CONFIG1,
@@ -187,12 +190,32 @@ static void setup_net_chip_gmpc(void)
 		&ctrl_base->gpmc_nadv_ale);
 }
 
+static void reset_net_chip(void)
+{
+	omap_request_gpio(SB_T35_ETH_RST_GPIO);
+
+	/* set reset gpio as output */
+	omap_set_gpio_direction(SB_T35_ETH_RST_GPIO, 0);
+
+	/* send the pulse */
+	omap_set_gpio_dataout(SB_T35_ETH_RST_GPIO, 1);
+	mdelay(1);
+	omap_set_gpio_dataout(SB_T35_ETH_RST_GPIO, 0);
+	mdelay(35);
+	omap_set_gpio_dataout(SB_T35_ETH_RST_GPIO, 1);
+	mdelay(10);
+}
+
 int board_eth_init(bd_t *bis)
 {
-	int rc = 0;
+	int count = 0, ret;
+
 #ifdef CONFIG_SMC911X
 	setup_net_chip_gmpc();
-	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
+	reset_net_chip();
+	ret = smc911x_initialize(0, CONFIG_SMC911X_BASE);
+	count += ret == 1 ? 1 : 0;
 #endif
-	return rc;
+
+	return count;
 }
