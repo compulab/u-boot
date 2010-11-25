@@ -643,7 +643,7 @@ int davinci_emac_initialize(void)
 	}
 
 	if (i >= 256) {
-		printf("No ETH PHY detected!!!\n");
+		debug_emac("No ETH PHY detected!!!\n");
 		return(0);
 	}
 
@@ -694,7 +694,7 @@ int davinci_emac_initialize(void)
 			phy.auto_negotiate = gen_auto_negotiate;
 	}
 
-	printf("Ethernet PHY: %s\n", phy.name);
+	debug_emac("Ethernet PHY: %s\n", phy.name);
 
 	miiphy_register(phy.name, davinci_mii_phy_read, davinci_mii_phy_write);
 	return(1);
