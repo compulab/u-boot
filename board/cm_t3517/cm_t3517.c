@@ -122,6 +122,18 @@ u32 get_board_rev(void)
 	return cm_t3517_rev;
 }
 
+void pcb_info(void)
+{
+	uint rev = cm_t3517_rev >> 16;
+	uint rev_major = rev / 100;
+	uint rev_minor = rev - (100 * rev_major);
+
+	if ((rev_minor / 10) * 10 == rev_minor)
+		rev_minor = rev_minor / 10;
+
+	printf("PCB:   %u.%u\n", rev_major, rev_minor);
+}
+
 /*
  * Routine: misc_init_r
  * Description: Init i2c, ethernet, etc... (done here so udelay works)
@@ -133,6 +145,7 @@ int misc_init_r(void)
 #endif
 	cm_t3517_rev = cm_t3517_board_rev();
 
+	pcb_info();
 	dieid_num_r();
 
 	return 0;
