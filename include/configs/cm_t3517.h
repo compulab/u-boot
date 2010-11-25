@@ -39,6 +39,7 @@
 /*
  * Display CPU and Board information
  */
+#define CONFIG_ARCH_CPU_INIT		1
 #define CONFIG_DISPLAY_CPUINFO		1
 #define CONFIG_DISPLAY_BOARDINFO	1
 
@@ -104,19 +105,20 @@
 
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
-/* #define CONFIG_CMD_JFFS2	/\* JFFS2 Support		*\/ */
+#define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
+#define CONFIG_CMD_YAFFS2       /* YAFFS2 Support               */
+#define CONFIG_CMD_UBI          /* UBI Support                  */
+#define CONFIG_CMD_MTDPARTS
 
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
-/* #define CONFIG_CMD_NAND		/\* NAND support			*\/ */
+#define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
 
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
-#undef CONFIG_CMD_IMI		/* iminfo			*/
 #undef CONFIG_CMD_IMLS		/* List all found images	*/
-#undef CONFIG_CMD_SAVEENV	/* savenev	*/
 
 #define CONFIG_HARD_I2C			1
 #define CONFIG_SYS_I2C_SPEED		100000
@@ -125,41 +127,56 @@
 #define CONFIG_SYS_I2C_BUS_SELECT	1
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
 
-/* #undef CONFIG_CMD_NET */
-/*
- * Board NAND Info.
- */
-/* #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/\* physical address *\/ */
-/* 							/\* to access nand *\/ */
-/* #define CONFIG_SYS_NAND_BASE		NAND_BASE	/\* physical address *\/ */
-/* 							/\* to access *\/ */
-/* 							/\* nand at CS0 *\/ */
+#define CONFIG_CMD_NET
 
-/* #define CONFIG_SYS_MAX_NAND_DEVICE	1		/\* Max number of *\/ */
-/* 							/\* NAND devices *\/ */
-/* #define CONFIG_SYS_64BIT_VSPRINTF		/\* needed for nand_util.c *\/ */
+/* Board NAND Info. */
+#define CONFIG_NAND_OMAP_GPMC           1
+#define GPMC_NAND_ECC_LP_x8_LAYOUT      1
+#define OMAP34XX_GPMC_NAND_SMNAND       1
+#define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
+							/* to access nand */
+#define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
+							/* to access */
+							/* nand at CS0 */
+#define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of */
+							/* NAND devices */
+#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
+#define CONFIG_JFFS2_NAND
+#define CONFIG_JFFS2_DEV		"nand0"
+/* start of jffs2 partition */
+#define CONFIG_JFFS2_PART_OFFSET	0x680000
+#define CONFIG_JFFS2_PART_SIZE		0xf980000	/* sz of jffs2 part */
 
-/* #define CONFIG_JFFS2_NAND */
-/* /\* nand device jffs2 lives on *\/ */
-/* #define CONFIG_JFFS2_DEV		"nand0" */
-/* /\* start of jffs2 partition *\/ */
-/* #define CONFIG_JFFS2_PART_OFFSET	0x680000 */
-/* #define CONFIG_JFFS2_PART_SIZE		0xf980000	/\* sz of jffs2 part *\/ */
+#define CONFIG_RBTREE
+#define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
+#define CONFIG_MTD_PARTITIONS
 
-/* Environment information */
-#define CONFIG_BOOTDELAY	10
+/* Networking */
+#define CONFIG_NET_MULTI
+#define CONFIG_DRIVER_TI_EMAC
+#define CONFIG_DRIVER_TI_EMAC_USE_RMII
+#define CONFIG_MII
+
+#define CONFIG_SMC911X
+#define CONFIG_SMC911X_16_BIT
+#define CONFIG_SMC911X_BASE	0x2C000000
+#define CONFIG_SMC911X_KEEP_MAC
 
 #define CONFIG_BOOTFILE		uImage
+/* Environment information */
+#define CONFIG_BOOTDELAY	3
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
+	"baudrate=115200\0" \
 	"console=ttyS2,115200n8\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"root=/dev/mmcblk0p2 rw " \
 		"rootfstype=ext3 rootwait\0" \
 	"nandargs=setenv bootargs console=${console} " \
-		"root=/dev/mtdblock4 rw " \
-		"rootfstype=jffs2\0" \
+		"ubi.mtd=fs,2048 " \
+		"root=ubi0:rootfs rw " \
+		"rootfstype=ubifs\0" \
 	"loadbootscript=fatload mmc 0 ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
@@ -170,7 +187,7 @@
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"nand read ${loadaddr} 280000 400000; " \
-		"bootm ${loadaddr}\0" \
+		"bootm ${loadaddr}\0"
 
 #define CONFIG_BOOTCOMMAND \
 	"if mmc init; then " \
@@ -185,27 +202,32 @@
 	"else run nandboot; fi"
 
 #define CONFIG_AUTO_COMPLETE	1
+#define CONFIG_CMDLINE_EDITING	1
+
+#define MTDIDS_DEFAULT		"nand0=nand"
+#define MTDPARTS_DEFAULT	"mtdparts=nand:512k(xloader),"	\
+				"1920k(u-boot),"		\
+				"256k(env),"			\
+				"4m(kernel),"			\
+				"-(fs)"
+
 /*
  * Miscellaneous configurable options
  */
-#define V_PROMPT			"CM-T3517 # "
-
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_PROMPT		V_PROMPT
+#define CONFIG_SYS_PROMPT		"CM-T3517 # "
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		32	/* max number of command */
-						/* args */
+#define CONFIG_SYS_MAXARGS		32	/* max number of command args */
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
-#define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \
-					0x01F00000) /* 31MB */
+#define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + 0x01F00000)/*31MB*/
 
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0 + 0x02000000)
 
@@ -237,62 +259,15 @@
 #define PHYS_SDRAM_1_SIZE	(256 << 20)	/* default is 256MiB */
 
 /*-----------------------------------------------------------------------
- * FLASH and environment organization
+ * Environment organization
  */
-
-/* **** PISMO SUPPORT *** */
-
-/* Configure the PISMO */
 #define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-#define PISMO1_ONEN_SIZE		GPMC_SIZE_128M
-
-#define CONFIG_SYS_MAX_FLASH_SECT	520	/* max number of sectors */
-						/* on one chip */
-#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of flash banks */
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
-
-#define CONFIG_SYS_FLASH_BASE		boot_flash_base
-
-#define CONFIG_ENV_IS_NOWHERE
-/* #define ENV_IS_EMBEDDED */
-/* Monitor at start of flash */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
-
-/* #define CONFIG_NAND_OMAP_GPMC */
-#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
-/* #define CONFIG_ENV_IS_IN_NAND		1 */
+#define CONFIG_ENV_IS_IN_NAND		1
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
-
-#define CONFIG_SYS_ENV_SECT_SIZE	boot_flash_sec
 #define CONFIG_ENV_OFFSET		boot_flash_off
-#define CONFIG_ENV_ADDR			boot_flash_env_addr
-
-/*-----------------------------------------------------------------------
- * CFI FLASH driver setup
- */
-/* timeout values are in ticks */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(100 * CONFIG_SYS_HZ)
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(100 * CONFIG_SYS_HZ)
-
-/* Flash banks JFFS2 should use */
-#define CONFIG_SYS_MAX_MTD_BANKS	(CONFIG_SYS_MAX_FLASH_BANKS + \
-					CONFIG_SYS_MAX_NAND_DEVICE)
-#define CONFIG_SYS_JFFS2_MEM_NAND
-/* use flash_info[2] */
-#define CONFIG_SYS_JFFS2_FIRST_BANK	CONFIG_SYS_MAX_FLASH_BANKS
-#define CONFIG_SYS_JFFS2_NUM_BANKS	1
 
 #ifndef __ASSEMBLY__
-extern unsigned int boot_flash_base;
-extern volatile unsigned int boot_flash_env_addr;
 extern unsigned int boot_flash_off;
-extern unsigned int boot_flash_sec;
-extern unsigned int boot_flash_type;
 #endif
-
-#define CONFIG_NET_MULTI
-#define CONFIG_SMC911X
-#define CONFIG_SMC911X_16_BIT
-#define CONFIG_SMC911X_BASE	0x2C000000
 
 #endif /* __CONFIG_H */
