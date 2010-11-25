@@ -256,7 +256,9 @@ u32 get_gpmc0_base(void)
  *******************************************************************/
 u32 get_gpmc0_width(void)
 {
-	return WIDTH_16BIT;
+	u32 width = (readl(&gpmc_cfg->cs[0].config1) >> 12) & 0x3;
+
+	return width ? WIDTH_16BIT : WIDTH_8BIT;
 }
 
 /********************************************************
