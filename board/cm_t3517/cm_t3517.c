@@ -65,6 +65,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define AM3517_IP_SW_RESET	0x48002598
 #define CPGMACSS_SW_RST		(1 << 1)
+#define CONTROL_EFUSE_EMAC_LSB  0x48002380
+#define CONTROL_EFUSE_EMAC_MSB  0x48002384
 
 static u32 gpmc_nand_config[GPMC_MAX_REG] = {
 	SMNAND_GPMC_CONFIG1,
@@ -209,10 +211,78 @@ static void reset_net_chip(void)
 	mdelay(10);
 }
 
+int am3517_get_efuse_enetaddr(u8 *enetaddr)
+{
+	u32 lsb = __raw_readl(CONTROL_EFUSE_EMAC_LSB);
+	u32 msb = __raw_readl(CONTROL_EFUSE_EMAC_MSB);
+
+	enetaddr[0] = (u8)((msb >> 16) & 0xff);
+	enetaddr[1] = (u8)((msb >> 8 ) & 0xff);
+	enetaddr[2] = (u8)(msb & 0xff);
+	enetaddr[3] = (u8)((lsb >> 16) & 0xff);
+	enetaddr[4] = (u8)((lsb >> 8 ) & 0xff);
+	enetaddr[5] = (u8)(lsb & 0xff);
+
+	return is_valid_ether_addr(enetaddr);
+}
+
+int cm_t3517_get_eprom_enetaddr(u8 *enetaddr)
+{
+	int ret;
+
+#ifdef CONFIG_DRIVER_OMAP34XX_I2C
+	ret = i2c_read(CM_T3517_EPROM_I2C_ADDR, MAC1, 1, enetaddr, 6);
+	if (ret)
+		return 0;
+#endif
+
+	return is_valid_ether_addr(enetaddr);
+}
+
+int cm_t3517_get_env_enetaddr(u8 *enetaddr)
+{
+	int ret;
+
+	ret = eth_getenv_enetaddr("ethaddr", enetaddr);
+	if (ret)
+		return ret;
+
+	return eth_getenv_enetaddr("eth1addr", enetaddr);
+}
+
+void cm_t3517_setup_enetaddr(u8 *enetaddr)
+{
+	int ret;
+
+	/* check the environment */
+	ret = cm_t3517_get_env_enetaddr(enetaddr);
+	if (ret)
+		return;
+
+	/* check eprom */
+	ret = cm_t3517_get_eprom_enetaddr(enetaddr);
+	if (!ret)	/* finally check efuse */
+		ret = am3517_get_efuse_enetaddr(enetaddr);
+
+	if (!ret) {
+		printf("CM-T3517: No valid MAC address found\n");
+		return;
+	}
+
+	/* set the ethaddr variable with the detected addr */
+	eth_setenv_enetaddr("ethaddr", enetaddr);
+}
+
+extern void davinci_eth_set_mac_addr(const u_int8_t *addr);
+
 int board_eth_init(bd_t *bis)
 {
+	u8 enetaddr[6];
 	int count = 0, ret;
 	u32 reset;
+
+	memset(enetaddr, 0, 6);
+	cm_t3517_setup_enetaddr(enetaddr);
 
 #if defined(CONFIG_DRIVER_TI_EMAC)
 	/*ensure that the module is out of reset*/
@@ -220,6 +290,7 @@ int board_eth_init(bd_t *bis)
 	reset &= ~CPGMACSS_SW_RST;
 	writel(reset, AM3517_IP_SW_RESET);
 
+	davinci_eth_set_mac_addr(enetaddr);
 	ret = davinci_emac_initialize();
 	count += ret == 1 ? 1 : 0;
 #endif
