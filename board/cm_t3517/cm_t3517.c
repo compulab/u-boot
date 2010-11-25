@@ -63,6 +63,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define mdelay(n) ({unsigned long msec=(n); while (msec--) udelay(1000);})
 
+#define AM3517_IP_SW_RESET	0x48002598
+#define CPGMACSS_SW_RST		(1 << 1)
+
 static u32 gpmc_nand_config[GPMC_MAX_REG] = {
 	SMNAND_GPMC_CONFIG1,
 	SMNAND_GPMC_CONFIG2,
@@ -209,6 +212,17 @@ static void reset_net_chip(void)
 int board_eth_init(bd_t *bis)
 {
 	int count = 0, ret;
+	u32 reset;
+
+#if defined(CONFIG_DRIVER_TI_EMAC)
+	/*ensure that the module is out of reset*/
+	reset = readl(AM3517_IP_SW_RESET);
+	reset &= ~CPGMACSS_SW_RST;
+	writel(reset, AM3517_IP_SW_RESET);
+
+	ret = davinci_emac_initialize();
+	count += ret == 1 ? 1 : 0;
+#endif
 
 #ifdef CONFIG_SMC911X
 	setup_net_chip_gmpc();
