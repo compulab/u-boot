@@ -57,6 +57,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define OPTIONS2	160
 #define OPTIONS3	176
 
+/* GPIOs */
+#define CM_T3517_LED_GPIO	186
+
 static u32 gpmc_nand_config[GPMC_MAX_REG] = {
 	SMNAND_GPMC_CONFIG1,
 	SMNAND_GPMC_CONFIG2,
@@ -84,6 +87,12 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_CM_T3517;
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
+
+	/* turn the Green LED on */
+	if (!omap_request_gpio(CM_T3517_LED_GPIO)) {
+		omap_set_gpio_direction(CM_T3517_LED_GPIO, 0);
+		omap_set_gpio_dataout(CM_T3517_LED_GPIO, 1);
+	}
 
 	return 0;
 }
