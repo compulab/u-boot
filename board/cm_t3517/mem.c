@@ -46,7 +46,7 @@ void mem_init(void)
  */
 static inline uint get_sdram_size(void)
 {
-	u32 narrow = (readl(&emif4_base->sdram_config) >> 14) && 0x3;
+	u32 narrow = (readl(&emif4_base->sdram_config) >> 14) & 0x3;
 
 	return narrow ? PHYS_SDRAM_1_SIZE / 2 : PHYS_SDRAM_1_SIZE;
 }
