@@ -100,6 +100,13 @@
 #define CONFIG_SYS_MMC_MAX_DEVICE	1
 #define CONFIG_DOS_PARTITION		1
 
+/* USB
+ * Enable CONFIG_MUSB_HCD for Host functionality
+ */
+#define CONFIG_USB_AM3517		1
+#define CONFIG_MUSB_HCD			1
+#define CONFIG_USB_STORAGE		1
+
 #define CONFIG_SYS_NO_FLASH
 
 /* commands to include */
@@ -117,6 +124,8 @@
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_USB		/* USB support			*/
+#define CONGIG_CMD_STORAGE
 
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
