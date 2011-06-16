@@ -561,7 +561,7 @@ void prcm_init(void)
 	sr32(&prm_base->clksel, 0, 3, sys_clkin_sel);
 
 	/* If the input clock is greater than 19.2M always divide/2 */
-	if (sys_clkin_sel > 2) {
+	if (get_cpu_family() != CPU_OMAP36XX && sys_clkin_sel > 2) {
 		/* input clock divider */
 		sr32(&prm_base->clksrc_ctrl, 6, 2, 2);
 		clk_index = sys_clkin_sel / 2;
