@@ -445,7 +445,7 @@ mpu_36x_dpll_param:
 /* 19.2MHz */
 .word 125, 3, 0, 1
 /* 26MHz */
-.word 300, 12, 0, 1
+.word 500, 12, 0, 1
 /* 38.4MHz */
 .word 125, 7, 0, 1
 
@@ -469,7 +469,7 @@ core_36x_dpll_param:
 /* 19.2MHz */
 .word 375, 17, 0, 1
 /* 26MHz */
-.word 200, 12, 0, 1
+.word 166, 12, 0, 1
 /* 38.4MHz */
 .word 375, 35, 0, 1
 
