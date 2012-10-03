@@ -55,12 +55,10 @@ static ulong env_new_offset	= CONFIG_ENV_OFFSET_REDUND;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-char *env_name_spec = "SPI Flash";
-
 static struct spi_flash *env_flash;
 
 #if defined(CONFIG_ENV_OFFSET_REDUND)
-int saveenv(void)
+int sf_saveenv(void)
 {
 	env_t	env_new;
 	ssize_t	len;
@@ -154,7 +152,7 @@ int saveenv(void)
 	return ret;
 }
 
-void env_relocate_spec(void)
+void sf_env_relocate_spec(void)
 {
 	int ret;
 	int crc1_ok = 0, crc2_ok = 0;
@@ -238,7 +236,7 @@ out:
 	free(tmp_env2);
 }
 #else
-int saveenv(void)
+int sf_saveenv(void)
 {
 	u32	saved_size, saved_offset, sector = 1;
 	char	*res, *saved_buffer = NULL;
@@ -313,7 +311,7 @@ int saveenv(void)
 	return ret;
 }
 
-void env_relocate_spec(void)
+void sf_env_relocate_spec(void)
 {
 	char buf[CONFIG_ENV_SIZE];
 	int ret;
@@ -341,8 +339,10 @@ out:
 }
 #endif
 
-int env_init(void)
+int sf_env_init(void)
 {
+	env_name_spec = "SPI Flash";
+
 	/* SPI flash isn't usable before relocation */
 	gd->env_addr = (ulong)&default_environment[0];
 	gd->env_valid = 1;

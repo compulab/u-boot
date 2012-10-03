@@ -27,12 +27,10 @@
 #include <environment.h>
 #include <linux/stddef.h>
 
-char *env_name_spec = "Remote";
-
 #ifdef ENV_IS_EMBEDDED
-env_t *env_ptr = &environment;
+static env_t *remote_env_ptr = &environment;
 #else /* ! ENV_IS_EMBEDDED */
-env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
+static env_t *remote_env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #endif /* ENV_IS_EMBEDDED */
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -41,8 +39,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_ENV_OFFSET 0
 #endif
 
-int env_init(void)
+int remote_env_init(void)
 {
+	env_name_spec = "Remote";
+	env_ptr = remote_env_ptr;
+
 	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {
 		gd->env_addr = (ulong)&(env_ptr->data);
 		gd->env_valid = 1;
@@ -55,7 +56,7 @@ int env_init(void)
 }
 
 #ifdef CONFIG_CMD_SAVEENV
-int saveenv(void)
+int remote_saveenv(void)
 {
 #ifdef CONFIG_SRIOBOOT_SLAVE
 	printf("Can not support the 'saveenv' when boot from SRIO!\n");
@@ -66,7 +67,7 @@ int saveenv(void)
 }
 #endif /* CONFIG_CMD_SAVEENV */
 
-void env_relocate_spec(void)
+void remote_env_relocate_spec(void)
 {
 #ifndef ENV_IS_EMBEDDED
 	env_import((char *)env_ptr, 1);

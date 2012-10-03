@@ -52,15 +52,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 extern void *nvram_read(void *dest, const long src, size_t count);
 extern void nvram_write(long dest, const void *src, size_t count);
-env_t *env_ptr;
-#else
-env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #endif
 
-char *env_name_spec = "NVRAM";
-
 #ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
-uchar env_get_char_spec(int index)
+uchar nvram_env_get_char_spec(int index)
 {
 	uchar c;
 
@@ -68,9 +63,11 @@ uchar env_get_char_spec(int index)
 
 	return c;
 }
+#else
+#error "CONFIG_SYS_NVRAM_ACCESS_ROUTINE is not defined!"
 #endif
 
-void env_relocate_spec(void)
+void nvram_env_relocate_spec(void)
 {
 	char buf[CONFIG_ENV_SIZE];
 
@@ -82,7 +79,7 @@ void env_relocate_spec(void)
 	env_import(buf, 1);
 }
 
-int saveenv(void)
+int nvram_saveenv(void)
 {
 	env_t	env_new;
 	ssize_t	len;
@@ -111,11 +108,13 @@ int saveenv(void)
  *
  * We are still running from ROM, so data use is limited
  */
-int env_init(void)
+int nvram_env_init(void)
 {
 #if defined(CONFIG_SYS_NVRAM_ACCESS_ROUTINE)
 	ulong crc;
 	uchar data[ENV_SIZE];
+
+	env_ptr = (env_t *)CONFIG_ENV_ADDR;
 
 	nvram_read(&crc, CONFIG_ENV_ADDR, sizeof(ulong));
 	nvram_read(data, CONFIG_ENV_ADDR + sizeof(ulong), ENV_SIZE);
@@ -131,6 +130,8 @@ int env_init(void)
 		gd->env_addr	= (ulong)&default_environment[0];
 		gd->env_valid	= 0;
 	}
+
+	env_name_spec = "NVRAM";
 
 	return 0;
 }

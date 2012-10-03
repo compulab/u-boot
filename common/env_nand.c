@@ -54,14 +54,10 @@
 #define CONFIG_ENV_RANGE	CONFIG_ENV_SIZE
 #endif
 
-char *env_name_spec = "NAND";
-
 #if defined(ENV_IS_EMBEDDED)
-env_t *env_ptr = &environment;
+static env_t *nand_env_ptr = &environment;
 #elif defined(CONFIG_NAND_ENV_DST)
-env_t *env_ptr = (env_t *)CONFIG_NAND_ENV_DST;
-#else /* ! ENV_IS_EMBEDDED */
-env_t *env_ptr;
+static env_t *nand_env_ptr = (env_t *)CONFIG_NAND_ENV_DST;
 #endif /* ENV_IS_EMBEDDED */
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -78,7 +74,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * This way the SPL loads not only the U-Boot image from NAND but
  * also the environment.
  */
-int env_init(void)
+int nand_env_init(void)
 {
 #if defined(ENV_IS_EMBEDDED) || defined(CONFIG_NAND_ENV_DST)
 	int crc1_ok = 0, crc2_ok = 0;
@@ -87,10 +83,10 @@ int env_init(void)
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	env_t *tmp_env2;
 
-	tmp_env2 = (env_t *)((ulong)env_ptr + CONFIG_ENV_SIZE);
+	tmp_env2 = (env_t *)((ulong)nand_env_ptr + CONFIG_ENV_SIZE);
 	crc2_ok = crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc;
 #endif
-	tmp_env1 = env_ptr;
+	tmp_env1 = nand_env_ptr;
 	crc1_ok = crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc;
 
 	if (!crc1_ok && !crc2_ok) {
@@ -119,18 +115,21 @@ int env_init(void)
 	}
 
 	if (gd->env_valid == 2)
-		env_ptr = tmp_env2;
+		nand_env_ptr = tmp_env2;
 	else
 #endif
 	if (gd->env_valid == 1)
-		env_ptr = tmp_env1;
+		nand_env_ptr = tmp_env1;
 
-	gd->env_addr = (ulong)env_ptr->data;
+	gd->env_addr = (ulong)nand_env_ptr->data;
+	env_ptr = nand_env_ptr;
 
 #else /* ENV_IS_EMBEDDED || CONFIG_NAND_ENV_DST */
 	gd->env_addr	= (ulong)&default_environment[0];
 	gd->env_valid	= 1;
 #endif /* ENV_IS_EMBEDDED || CONFIG_NAND_ENV_DST */
+
+	env_name_spec = "NAND";
 
 	return 0;
 }
@@ -171,7 +170,7 @@ int writeenv(size_t offset, u_char *buf)
 #ifdef CONFIG_ENV_OFFSET_REDUND
 static unsigned char env_flags;
 
-int saveenv(void)
+int nand_saveenv(void)
 {
 	env_t	env_new;
 	ssize_t	len;
@@ -223,7 +222,7 @@ int saveenv(void)
 	return ret;
 }
 #else /* ! CONFIG_ENV_OFFSET_REDUND */
-int saveenv(void)
+int nand_saveenv(void)
 {
 	int	ret = 0;
 	env_t	env_new;
@@ -328,7 +327,7 @@ int get_nand_env_oob(nand_info_t *nand, unsigned long *result)
 #endif
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-void env_relocate_spec(void)
+void nand_env_relocate_spec(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	int crc1_ok = 0, crc2_ok = 0;
@@ -394,7 +393,7 @@ done:
  * device i.e., nand_dev_desc + 0. This is also the behaviour using
  * the new NAND code.
  */
-void env_relocate_spec(void)
+void nand_env_relocate_spec(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	int ret;

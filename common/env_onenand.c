@@ -37,14 +37,12 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/onenand.h>
 
-char *env_name_spec = "OneNAND";
-
 #define ONENAND_MAX_ENV_SIZE	4096
 #define ONENAND_ENV_SIZE(mtd)	(ONENAND_MAX_ENV_SIZE - ENV_HEADER_SIZE)
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void env_relocate_spec(void)
+void onenand_env_relocate_spec(void)
 {
 	struct mtd_info *mtd = &onenand_mtd;
 #ifdef CONFIG_ENV_ADDR_FLEX
@@ -79,7 +77,7 @@ void env_relocate_spec(void)
 		gd->env_valid = 1;
 }
 
-int saveenv(void)
+int onenand_saveenv(void)
 {
 	env_t	env_new;
 	ssize_t	len;
@@ -127,8 +125,10 @@ int saveenv(void)
 	return 0;
 }
 
-int env_init(void)
+int onenand_env_init(void)
 {
+	env_name_spec = "OneNAND";
+
 	/* use default */
 	gd->env_addr = (ulong)&default_environment[0];
 	gd->env_valid = 1;

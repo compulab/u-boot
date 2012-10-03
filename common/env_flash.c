@@ -47,17 +47,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #error CONFIG_ENV_SIZE_REDUND should not be less then CONFIG_ENV_SIZE
 #endif
 
-char *env_name_spec = "Flash";
+#define FLASH_ENV_NAME_SPEC "Flash"
+
+static env_t *flash_addr = (env_t *)CONFIG_ENV_ADDR;
 
 #ifdef ENV_IS_EMBEDDED
-env_t *env_ptr = &environment;
-
-static env_t *flash_addr = (env_t *)CONFIG_ENV_ADDR;
-
+static env_t *flash_env_ptr = &environment;
 #else /* ! ENV_IS_EMBEDDED */
-
-env_t *env_ptr = (env_t *)CONFIG_ENV_ADDR;
-static env_t *flash_addr = (env_t *)CONFIG_ENV_ADDR;
+static env_t *flash_env_ptr = (env_t *)CONFIG_ENV_ADDR;
 #endif /* ENV_IS_EMBEDDED */
 
 #if defined(CMD_SAVEENV) || defined(CONFIG_ENV_ADDR_REDUND)
@@ -74,7 +71,7 @@ static ulong end_addr_new = CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1;
 
 
 #ifdef CONFIG_ENV_ADDR_REDUND
-int env_init(void)
+int flash_env_init(void)
 {
 	int crc1_ok = 0, crc2_ok = 0;
 
@@ -84,6 +81,9 @@ int env_init(void)
 	ulong addr_default = (ulong)&default_environment[0];
 	ulong addr1 = (ulong)&(flash_addr->data);
 	ulong addr2 = (ulong)&(flash_addr_new->data);
+
+	env_name_spec = FLASH_ENV_NAME_SPEC;
+	env_ptr = flash_env_ptr;
 
 	crc1_ok = crc32(0, flash_addr->data, ENV_SIZE) == flash_addr->crc;
 	crc2_ok =
@@ -119,7 +119,7 @@ int env_init(void)
 }
 
 #ifdef CMD_SAVEENV
-int saveenv(void)
+int flash_saveenv(void)
 {
 	env_t	env_new;
 	ssize_t	len;
@@ -228,8 +228,11 @@ done:
 
 #else /* ! CONFIG_ENV_ADDR_REDUND */
 
-int env_init(void)
+int flash_env_init(void)
 {
+	env_name_spec = FLASH_ENV_NAME_SPEC;
+	env_ptr = flash_env_ptr;
+
 	if (crc32(0, env_ptr->data, ENV_SIZE) == env_ptr->crc) {
 		gd->env_addr	= (ulong)&(env_ptr->data);
 		gd->env_valid	= 1;
@@ -242,7 +245,7 @@ int env_init(void)
 }
 
 #ifdef CMD_SAVEENV
-int saveenv(void)
+int flash_saveenv(void)
 {
 	env_t	env_new;
 	ssize_t	len;
@@ -317,7 +320,7 @@ done:
 
 #endif /* CONFIG_ENV_ADDR_REDUND */
 
-void env_relocate_spec(void)
+void flash_env_relocate_spec(void)
 {
 #ifdef CONFIG_ENV_ADDR_REDUND
 	if (gd->env_addr != (ulong)&(flash_addr->data)) {
