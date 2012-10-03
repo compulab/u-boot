@@ -213,7 +213,7 @@ endif
 # core command
 COBJS-y += cmd_nvedit.o
 #environment
-COBJS-y += env_common.o
+COBJS-y += env_common.o env_multi.o
 #others
 ifdef CONFIG_DDR_SPD
 SPD := y

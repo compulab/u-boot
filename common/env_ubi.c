@@ -15,14 +15,12 @@
 #include <ubi_uboot.h>
 #undef crc32
 
-char *env_name_spec = "UBI";
-
-env_t *env_ptr;
-
 DECLARE_GLOBAL_DATA_PTR;
 
-int env_init(void)
+int ubi_env_init(void)
 {
+	env_name_spec = "UBI";
+
 	/* use default */
 	gd->env_addr = (ulong)&default_environment[0];
 	gd->env_valid = 1;
@@ -34,7 +32,7 @@ int env_init(void)
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 static unsigned char env_flags;
 
-int saveenv(void)
+int ubi_saveenv(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
 	ssize_t	len;
@@ -83,7 +81,7 @@ int saveenv(void)
 	return 0;
 }
 #else /* ! CONFIG_SYS_REDUNDAND_ENVIRONMENT */
-int saveenv(void)
+int ubi_saveenv(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
 	ssize_t	len;
@@ -118,7 +116,7 @@ int saveenv(void)
 #endif /* CONFIG_CMD_SAVEENV */
 
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
-void env_relocate_spec(void)
+void ubi_env_relocate_spec(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, env1_buf, CONFIG_ENV_SIZE);
 	ALLOC_CACHE_ALIGN_BUFFER(char, env2_buf, CONFIG_ENV_SIZE);
@@ -180,7 +178,7 @@ void env_relocate_spec(void)
 	env_import((char *)ep, 0);
 }
 #else /* ! CONFIG_SYS_REDUNDAND_ENVIRONMENT */
-void env_relocate_spec(void)
+void ubi_env_relocate_spec(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 

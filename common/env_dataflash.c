@@ -14,11 +14,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-env_t *env_ptr;
-
-char *env_name_spec = "dataflash";
-
-uchar env_get_char_spec(int index)
+uchar dataflash_env_get_char_spec(int index)
 {
 	uchar c;
 
@@ -27,7 +23,7 @@ uchar env_get_char_spec(int index)
 	return c;
 }
 
-void env_relocate_spec(void)
+void dataflash_env_relocate_spec(void)
 {
 	ulong crc, new = 0;
 	unsigned off;
@@ -54,7 +50,7 @@ void env_relocate_spec(void)
 #error No support for redundant environment on dataflash yet!
 #endif
 
-int saveenv(void)
+int dataflash_saveenv(void)
 {
 	env_t	env_new;
 	ssize_t	len;
@@ -79,8 +75,10 @@ int saveenv(void)
  * We are still running from ROM, so data use is limited.
  * Use a (moderately small) buffer on the stack
  */
-int env_init(void)
+int dataflash_env_init(void)
 {
+	env_name_spec = "dataflash";
+
 	/* use default */
 	gd->env_addr = (ulong)&default_environment[0];
 	gd->env_valid = 1;
