@@ -31,9 +31,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-env_t *env_ptr;
-
-void env_relocate_spec(void)
+void nowhere_env_relocate_spec(void)
 {
 }
 
@@ -42,7 +40,7 @@ void env_relocate_spec(void)
  *
  * We are still running from ROM, so data use is limited
  */
-int env_init(void)
+int nowhere_env_init(void)
 {
 	gd->env_addr	= (ulong)&default_environment[0];
 	gd->env_valid	= 0;

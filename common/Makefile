@@ -50,7 +50,7 @@ COBJS-y += cmd_version.o
 # environment
 COBJS-y += env_attr.o
 COBJS-y += env_callback.o
-COBJS-y += env_common.o
+COBJS-y += env_common.o env_multi.o
 COBJS-y += env_flags.o
 COBJS-$(CONFIG_ENV_IS_IN_DATAFLASH) += env_dataflash.o
 COBJS-$(CONFIG_ENV_IS_IN_EEPROM) += env_eeprom.o

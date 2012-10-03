@@ -32,12 +32,10 @@
 #include <search.h>
 #include <errno.h>
 
-char *env_name_spec = "MMC";
-
 #ifdef ENV_IS_EMBEDDED
-env_t *env_ptr = &environment;
+static env_t *mmc_env_ptr = &environment;
 #else /* ! ENV_IS_EMBEDDED */
-env_t *env_ptr;
+static env_t *mmc_env_ptr;
 #endif /* ENV_IS_EMBEDDED */
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -52,8 +50,11 @@ __weak int mmc_get_env_addr(struct mmc *mmc, u32 *env_addr)
 	return 0;
 }
 
-int env_init(void)
+int mmc_env_init(void)
 {
+	env_name_spec = "MMC";
+	env_ptr = mmc_env_ptr;
+
 	/* use default */
 	gd->env_addr	= (ulong)&default_environment[0];
 	gd->env_valid	= 1;
@@ -110,7 +111,7 @@ static inline int write_env(struct mmc *mmc, unsigned long size,
 	return (n == blk_cnt) ? 0 : -1;
 }
 
-int saveenv(void)
+int mmc_saveenv(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
 	ssize_t	len;
@@ -166,7 +167,7 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 	return (n == blk_cnt) ? 0 : -1;
 }
 
-void env_relocate_spec(void)
+void mmc_env_relocate_spec(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);

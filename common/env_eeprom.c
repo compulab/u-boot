@@ -37,9 +37,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-env_t *env_ptr;
+#define EEPROM_ENV_NAME_SPEC "EEPROM"
 
-char *env_name_spec = "EEPROM";
 int env_eeprom_bus = -1;
 
 static int eeprom_bus_read(unsigned dev_addr, unsigned offset,
@@ -94,7 +93,7 @@ static int eeprom_bus_write(unsigned dev_addr, unsigned offset,
 	return rcode;
 }
 
-uchar env_get_char_spec(int index)
+uchar eeprom_env_get_char_spec(int index)
 {
 	uchar c;
 	unsigned int off = CONFIG_ENV_OFFSET;
@@ -109,7 +108,7 @@ uchar env_get_char_spec(int index)
 	return c;
 }
 
-void env_relocate_spec(void)
+void eeprom_env_relocate_spec(void)
 {
 	char buf[CONFIG_ENV_SIZE];
 	unsigned int off = CONFIG_ENV_OFFSET;
@@ -124,7 +123,7 @@ void env_relocate_spec(void)
 	env_import(buf, 1);
 }
 
-int saveenv(void)
+int eeprom_saveenv(void)
 {
 	env_t	env_new;
 	ssize_t	len;
@@ -180,12 +179,14 @@ int saveenv(void)
  * Use a (moderately small) buffer on the stack
  */
 #ifdef CONFIG_ENV_OFFSET_REDUND
-int env_init(void)
+int eeprom_env_init(void)
 {
 	ulong len, crc[2], crc_tmp;
 	unsigned int off, off_env[2];
 	uchar buf[64], flags[2];
 	int i, crc_ok[2] = {0, 0};
+
+	env_name_spec = EEPROM_ENV_NAME_SPEC;
 
 	eeprom_init();	/* prepare for EEPROM read/write */
 
@@ -251,11 +252,13 @@ int env_init(void)
 	return 0;
 }
 #else
-int env_init(void)
+int eeprom_env_init(void)
 {
 	ulong crc, len, new;
 	unsigned off;
 	uchar buf[64];
+
+	env_name_spec = EEPROM_ENV_NAME_SPEC;
 
 	eeprom_init();	/* prepare for EEPROM read/write */
 

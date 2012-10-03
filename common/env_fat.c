@@ -34,14 +34,12 @@
 #include <fat.h>
 #include <mmc.h>
 
-char *env_name_spec = "FAT";
-
-env_t *env_ptr;
-
 DECLARE_GLOBAL_DATA_PTR;
 
-int env_init(void)
+int fat_env_init(void)
 {
+	env_name_spec = "FAT";
+
 	/* use default */
 	gd->env_addr = (ulong)&default_environment[0];
 	gd->env_valid = 1;
@@ -50,7 +48,7 @@ int env_init(void)
 }
 
 #ifdef CONFIG_CMD_SAVEENV
-int saveenv(void)
+int fat_saveenv(void)
 {
 	env_t	env_new;
 	ssize_t	len;
@@ -108,7 +106,7 @@ int saveenv(void)
 }
 #endif /* CONFIG_CMD_SAVEENV */
 
-void env_relocate_spec(void)
+void fat_env_relocate_spec(void)
 {
 	char buf[CONFIG_ENV_SIZE];
 	block_dev_desc_t *dev_desc = NULL;
