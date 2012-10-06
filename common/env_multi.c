@@ -283,6 +283,61 @@ int saveenv(void)
 }
 #endif
 
+static const char *env_name_str[] = {
+#if defined(CONFIG_ENV_IS_IN_DATAFLASH)
+	"dataflash",
+#endif
+#if defined(CONFIG_ENV_IS_IN_EEPROM)
+	"eeprom",
+#endif
+#if defined(CONFIG_ENV_IS_IN_FAT)
+	"fat",
+#endif
+#if defined(CONFIG_ENV_IS_IN_FLASH)
+	"flash",
+#endif
+#if defined(CONFIG_ENV_IS_IN_MMC)
+	"mmc",
+#endif
+#if defined(CONFIG_ENV_IS_IN_NAND)
+	"nand",
+#endif
+#if defined(CONFIG_ENV_IS_NOWHERE)
+	"nowhere",
+#endif
+#if defined(CONFIG_ENV_IS_IN_NVRAM)
+	"nvram",
+#endif
+#if defined(CONFIG_ENV_IS_IN_ONENAND)
+	"onenand",
+#endif
+#if defined(CONFIG_ENV_IS_IN_REMOTE)
+	"remote",
+#endif
+#if defined(CONFIG_ENV_IS_IN_SF)
+	"sf",
+#endif
+};
+
+int str_to_env_dev(const char *str, enum env_multi_dev *env_dev)
+{
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(env_name_str); i++) {
+		if (strcmp(str, env_name_str[i]) == 0) {
+			*env_dev = i;
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+const char *env_dev_to_str(enum env_multi_dev env_dev)
+{
+	return env_name_str[env_dev];
+}
+
 enum env_multi_dev env_multi_get_current(void)
 {
 	return cur_env_dev;
