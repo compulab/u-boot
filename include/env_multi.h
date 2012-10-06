@@ -123,6 +123,8 @@ enum env_multi_dev {
 
 extern unsigned char __env_get_char_spec(int index);
 
+int str_to_env_dev(const char *str, enum env_multi_dev *env_dev);
+const char *env_dev_to_str(enum env_multi_dev env_dev);
 enum env_multi_dev env_multi_get_current(void);
 int env_multi_set_current(enum env_multi_dev env_dev, int import);
 
