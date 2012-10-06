@@ -887,6 +887,42 @@ sep_err:
 }
 #endif
 
+#if defined(CONFIG_ENV_MULTI)
+/*
+ * env device [dev [import]]
+ *	dev:	enviroment storage device (e.g. mmc, nand, ...)
+ *	import:	import the environment from the new device.
+ */
+static int do_env_device(cmd_tbl_t *cmdtp, int flag,
+			 int argc, char * const argv[])
+{
+	int err;
+	enum env_multi_dev env_dev;
+
+	if (argc > 3 || (argc == 3 && strncmp(argv[2], "import", 7) != 0))
+		return CMD_RET_USAGE;
+
+	if (argc == 1) {
+		env_dev = env_multi_get_current();
+		printf("%s is current env storage device\n",
+			env_dev_to_str(env_dev));
+		return 0;
+	}
+
+	err = str_to_env_dev(argv[1], &env_dev);
+	if (err) {
+		printf("%s is not a valid env storage device\n", argv[1]);
+		return 1;
+	}
+
+	err = env_multi_set_current(env_dev, argc == 3);
+	if (err)
+		return 1;
+
+	return 0;
+}
+#endif
+
 /*
  * New command line interface: "env" command with subcommands
  */
@@ -896,6 +932,9 @@ static cmd_tbl_t cmd_env_sub[] = {
 #endif
 	U_BOOT_CMD_MKENT(default, 1, 0, do_env_default, "", ""),
 	U_BOOT_CMD_MKENT(delete, 2, 0, do_env_delete, "", ""),
+#if defined(CONFIG_ENV_MULTI)
+	U_BOOT_CMD_MKENT(device, 2, 0, do_env_device, "", ""),
+#endif
 #if defined(CONFIG_CMD_EDITENV)
 	U_BOOT_CMD_MKENT(edit, 2, 0, do_env_edit, "", ""),
 #endif
@@ -951,6 +990,10 @@ U_BOOT_CMD(
 	"ask name [message] [size] - ask for environment variable\nenv "
 #endif
 	"default -f - reset default environment\n"
+#if defined(CONFIG_ENV_MULTI)
+	"env device [dev [import]] - show or set current environment "
+	"storage device (e.g. mmc, nand, ...)\n"
+#endif
 #if defined(CONFIG_CMD_EDITENV)
 	"env edit name - edit environment variable\n"
 #endif
