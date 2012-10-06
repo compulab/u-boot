@@ -97,8 +97,6 @@ static enum env_multi_dev cur_env_dev = CONFIG_ENV_MULTI_DEFAULT;
 # error "it must be set to one of the enabled environment storages"
 #endif
 
-typedef enum {false = -1, true = 1} bool;
-
 static bool env_init_is_done = false;
 static bool env_relocate_spec_is_done = false;
 
