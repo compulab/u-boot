@@ -19,6 +19,7 @@
 #include <i2c.h>
 #include <usb.h>
 #include <mmc.h>
+#include <env_multi.h>
 #include <nand.h>
 #include <twl4030.h>
 #include <bmp_layout.h>
@@ -139,6 +140,24 @@ int splash_screen_prepare(void)
 	return splash_load_from_nand(bmp_load_addr);
 }
 #endif /* CONFIG_LCD */
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+/*
+ * Routine: board_init
+ * Description: hardware init.
+ */
+int board_early_init_f(void)
+{
+	enum env_multi_dev env_name = ENV_NAND;
+
+	if (get_boot_type() & 0x20)
+		env_name = ENV_MMC;
+
+	env_multi_set_current(env_name, 0);
+
+	return 0;
+}
+#endif
 
 /*
  * Routine: board_init
@@ -470,6 +489,15 @@ int board_mmc_getcd(struct mmc *mmc)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0, -1, 59);
+}
+
+/* environment size is 16K, we fit between the MBR and first partition */
+#define MMC_ENV_OFFSET	0x400
+
+int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
+{
+	*env_addr = MMC_ENV_OFFSET;
+	return 0;
 }
 #endif
 
