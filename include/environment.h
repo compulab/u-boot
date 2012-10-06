@@ -123,7 +123,14 @@ extern unsigned long nand_env_oob_offset;
 # endif
 #endif
 
+#ifdef CONFIG_ENV_MULTI
+# if defined(CONFIG_ENV_IS_EMBEDDED) || defined(ENV_IS_EMBEDDED)
+#  error "CONFIG_ENV_MULTI is not supported with embedded environment"
+# endif
+#endif
+
 #include "compiler.h"
+#include <env_multi.h>
 
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 # define ENV_HEADER_SIZE	(sizeof(uint32_t) + 1)
