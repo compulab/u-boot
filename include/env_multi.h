@@ -83,4 +83,49 @@ extern int sf_saveenv(void);
 extern void sf_env_relocate_spec(void);
 #endif
 
+#ifdef CONFIG_ENV_MULTI
+
+enum env_multi_dev {
+#if defined(CONFIG_ENV_IS_IN_DATAFLASH)
+	ENV_DATAFLASH,
+#endif
+#if defined(CONFIG_ENV_IS_IN_EEPROM)
+	ENV_EEPROM,
+#endif
+#if defined(CONFIG_ENV_IS_IN_FAT)
+	ENV_FAT,
+#endif
+#if defined(CONFIG_ENV_IS_IN_FLASH)
+	ENV_FLASH,
+#endif
+#if defined(CONFIG_ENV_IS_IN_MMC)
+	ENV_MMC,
+#endif
+#if defined(CONFIG_ENV_IS_IN_NAND)
+	ENV_NAND,
+#endif
+#if defined(CONFIG_ENV_IS_NOWHERE)
+	ENV_NOWHERE,
+#endif
+#if defined(CONFIG_ENV_IS_IN_NVRAM)
+	ENV_NVRAM,
+#endif
+#if defined(CONFIG_ENV_IS_IN_ONENAND)
+	ENV_ONENAND,
+#endif
+#if defined(CONFIG_ENV_IS_IN_REMOTE)
+	ENV_REMOTE,
+#endif
+#if defined(CONFIG_ENV_IS_IN_SF)
+	ENV_SF,
+#endif
+};
+
+extern unsigned char __env_get_char_spec(int index);
+
+enum env_multi_dev env_multi_get_current(void);
+int env_multi_set_current(enum env_multi_dev env_dev, int import);
+
+#endif /* CONFIG_ENV_MULTI */
+
 #endif /* __ENV_MULTI_H__ */
