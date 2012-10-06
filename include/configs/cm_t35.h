@@ -57,6 +57,7 @@
 #define V_SCLK			(V_OSCK >> 1)
 
 #undef CONFIG_USE_IRQ				/* no support for IRQs */
+#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_OF_LIBFDT		1
@@ -303,10 +304,16 @@
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
+#define CONFIG_ENV_MULTI
+#define CONFIG_ENV_MULTI_DEFAULT	ENV_NAND
+
 #define CONFIG_ENV_IS_IN_NAND
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
+
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV		0	/* SLOT1: MMC/SD Card */
 
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_SMC911X

@@ -32,7 +32,10 @@
 #include <netdev.h>
 #include <net.h>
 #include <i2c.h>
+#include <mmc.h>
 #include <twl4030.h>
+#include <env_multi.h>
+#include <nand.h>
 #include <linux/compiler.h>
 
 #include <asm/io.h>
@@ -71,6 +74,24 @@ static u32 gpmc_nand_config[GPMC_MAX_REG] = {
 	SMNAND_GPMC_CONFIG6,
 	0,
 };
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+/*
+ * Routine: board_init
+ * Description: hardware init.
+ */
+int board_early_init_f(void)
+{
+	enum env_multi_dev env_name = ENV_NAND;
+
+	if (get_boot_type() & 0x20)
+		env_name = ENV_MMC;
+
+	env_multi_set_current(env_name, 0);
+
+	return 0;
+}
+#endif
 
 /*
  * Routine: board_init
@@ -347,6 +368,15 @@ void set_muxconf_regs(void)
 int board_mmc_init(bd_t *bis)
 {
 	return omap_mmc_init(0, 0, 0);
+}
+
+/* environment size is 16K, we fit between the MBR and first partition */
+#define MMC_ENV_OFFSET	0x400
+
+int mmc_get_env_addr(struct mmc *mmc, u32 *env_addr)
+{
+	*env_addr = MMC_ENV_OFFSET;
+	return 0;
 }
 #endif
 
