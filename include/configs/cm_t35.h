@@ -357,4 +357,6 @@
 #define CONFIG_BMP_16BPP
 #define CONFIG_SPLASH_SCREEN_PREPARE
 
+#define CONFIG_CMD_GPIO
+
 #endif /* __CONFIG_H */
