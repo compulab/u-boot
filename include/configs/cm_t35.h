@@ -338,4 +338,7 @@
 
 #define CONFIG_OMAP3_SPI
 
+/* This delay is really for slow-to-power-on USB sticks, not the hub */
+#define CONFIG_USB_HUB_MIN_POWER_ON_DELAY 500
+
 #endif /* __CONFIG_H */
