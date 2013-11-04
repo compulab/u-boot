@@ -604,12 +604,33 @@ struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[2] = OMAP_USBHS_PORT_MODE_UNUSED,
 };
 
-#define SB_T35_USB_HUB_RESET_GPIO	167
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+static int cm_t35_phy_gpio_reset(int reset)
 {
 	u8 val;
 	int offset;
 
+	offset = TWL4030_BASEADD_GPIO + TWL4030_GPIO_GPIODATADIR1;
+	if (twl4030_i2c_read_u8(TWL4030_CHIP_GPIO, offset, &val))
+		return -1;
+
+	/* Set GPIO6 and GPIO7 of TPS65930 as output */
+	val |= 0xC0;
+	if (twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, offset, val))
+		return -1;
+
+	offset = TWL4030_BASEADD_GPIO + TWL4030_GPIO_SETGPIODATAOUT1;
+	val = reset ? 0x0 : 0xC0;
+	if (twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, offset, 0xC0))
+		return -1;
+
+	udelay(1);
+
+	return 0;
+}
+
+#define SB_T35_USB_HUB_RESET_GPIO	167
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+{
 	if (gpio_request(SB_T35_USB_HUB_RESET_GPIO, "SB-T35 usb hub reset")) {
 		printf("Error: can't obtain GPIO %d for SB-T35 usb hub reset",
 				SB_T35_USB_HUB_RESET_GPIO);
@@ -617,25 +638,41 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 	}
 
 	gpio_direction_output(SB_T35_USB_HUB_RESET_GPIO, 0);
-	udelay(10);
+	udelay(100);
 	gpio_set_value(SB_T35_USB_HUB_RESET_GPIO, 1);
 	udelay(1000);
 
-	offset = TWL4030_BASEADD_GPIO + TWL4030_GPIO_GPIODATADIR1;
-	twl4030_i2c_read_u8(TWL4030_CHIP_GPIO, offset, &val);
-	/* Set GPIO6 and GPIO7 of TPS65930 as output */
-	val |= 0xC0;
-	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, offset, val);
-	offset = TWL4030_BASEADD_GPIO + TWL4030_GPIO_SETGPIODATAOUT1;
-	/* Take both PHYs out of reset */
-	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, offset, 0xC0);
-	udelay(1);
+	if (cm_t35_phy_gpio_reset(0)) {
+		puts("Couldn't take USB PHYs out of reset\n");
+		return -1;
+	}
 
 	return omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
 }
 
 int ehci_hcd_stop(void)
 {
-	return omap_ehci_hcd_stop();
+	int error;
+
+	error = omap_ehci_hcd_stop();
+	if (error)
+		return error;
+
+	udelay(100);
+	/*
+	 * The following actions are ancillary. Their failure shouldn't be
+	 * considered a failure to turn off the controller, but they should be
+	 * reported.
+	 */
+	if (cm_t35_phy_gpio_reset(1))
+		puts("Couldn't reset USB PHYs\n");
+
+	if (gpio_direction_output(SB_T35_USB_HUB_RESET_GPIO, 0))
+		puts("Couldn't reset USB hub\n");
+
+	udelay(100);
+	gpio_free(SB_T35_USB_HUB_RESET_GPIO);
+
+	return 0;
 }
 #endif /* CONFIG_USB_EHCI_OMAP */
