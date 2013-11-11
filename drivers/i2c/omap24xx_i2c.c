@@ -476,7 +476,10 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 wr_exit:
 	flush_fifo();
 	writew(0xFFFF, &i2c_base->stat);
+	/* This write is known to cause undefined behavior on OMAP3 */
+#ifndef CONFIG_OMAP34XX
 	writew(0, &i2c_base->cnt);
+#endif
 	return i2c_error;
 }
 
