@@ -14,6 +14,9 @@ obj-y	+= hwinit-common.o
 obj-y	+= clocks-common.o
 obj-y	+= emif-common.o
 obj-y	+= vc.o
+endif
+
+ifneq ($(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 obj-y	+= abb.o
 endif
 
