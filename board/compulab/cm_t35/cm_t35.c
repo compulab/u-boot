@@ -33,6 +33,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-types.h>
 #include <asm/ehci-omap.h>
+#include <asm/arch-omap3/omap3.h>
+#include <asm/omap_common.h>
 #include <asm/gpio.h>
 
 #include "../common/eeprom.h"
@@ -221,6 +223,28 @@ int board_early_init_f(void)
 }
 #endif
 
+static void cm_t3730_setup_opp1g(void)
+{
+	/*
+	 * OPP1G requires ABB to be set to FBB
+	 * NOTE: In the DM3730 TRM the names of ABB_CTRL and ABB_SETUP registers
+	 * are incorrectly swapped, hence the seemingly erroneous parameter
+	 * passing to abb_setup().
+	 */
+	abb_setup((u32)NULL, /* fuse; we don't use SmartReflex */
+		  (u32)NULL, /* vbbldo; we don't use SmartReflex */
+		  0x483072F4, /* PRM_LDO_ABB_CTRL */
+		  0x483072F0, /* PRM_LDO_ABB_SETUP */
+		  0x48306818, /* PRM_IRQSTATUS_MPU */
+		  OMAP_ABB_MPU_TXDONE_MASK,
+		  OMAP_ABB_FAST_OPP);
+
+	/* Setup CPU core voltage to ~1.38 */
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER,
+			     TWL4030_PM_RECEIVER_VDD1_VSEL,
+			     0x3E);
+}
+
 /*
  * Routine: board_init
  * Description: hardware init.
@@ -244,6 +268,9 @@ int board_init(void)
 #if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
 	status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
 #endif
+
+	if (get_cpu_family() == CPU_OMAP36XX)
+		cm_t3730_setup_opp1g();
 
 	return 0;
 }
