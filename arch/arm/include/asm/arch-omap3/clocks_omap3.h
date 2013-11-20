@@ -289,7 +289,7 @@
 #define PER2_M_26		0x78
 #define PER2_N_26		0x0C
 #define PER2_FSEL_26		0x03
-#define PER2_M2_26		0x01
+#define PER2_M2_26		0x02
 
 #define PER2_M_38P4		0x2EE
 #define PER2_N_38P4		0x0B
@@ -337,9 +337,9 @@
 #define PER2_36XX_N_19P2		0x00
 #define PER2_36XX_M2_19P2		0x08
 
-#define PER2_36XX_M_26		0x1BB
-#define PER2_36XX_N_26		0x0B
-#define PER2_36XX_M2_26		0x08
+#define PER2_36XX_M_26		0x78
+#define PER2_36XX_N_26		0x0C
+#define PER2_36XX_M2_26		0x02
 
 #define PER2_36XX_M_38P4		0x19
 #define PER2_36XX_N_38P4		0x00
