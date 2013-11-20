@@ -20,6 +20,7 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -60,8 +61,13 @@ ulong get_timer(ulong base)
 /* delay x useconds */
 void __udelay(unsigned long usec)
 {
-	long tmo = usec * (TIMER_CLOCK / 1000) / 1000;
-	unsigned long now, last = readl(&timer_base->tcrr);
+	long tmo;
+	unsigned long now, last;
+	if (get_cpu_family() == CPU_OMAP36XX)
+		tmo = usec * (TIMER_CLOCK / 1000) / 1000 * 2 * 250 / 162;
+	else
+		tmo = usec * (TIMER_CLOCK / 1000) / 1000;
+	last = readl(&timer_base->tcrr);
 
 	while (tmo > 0) {
 		now = readl(&timer_base->tcrr);
