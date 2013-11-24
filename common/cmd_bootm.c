@@ -22,6 +22,7 @@
 #include <asm/byteorder.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
+#include <asm/arch/sys_proto.h>
 
 #if defined(CONFIG_BOOTM_VXWORKS) && \
 	(defined(CONFIG_PPC) || defined(CONFIG_ARM))
@@ -554,6 +555,19 @@ static int boot_selected_os(int argc, char * const argv[], int state,
 	return BOOTM_ERR_RESET;
 }
 
+static void dpll5_init_34xx(void)
+{
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
+
+	/* PER2 DPLL (DPLL5) */
+	sr32(&prcm_base->clken2_pll, 0, 3, 1); /* PLL_STOP */
+	wait_on_value(1, 0, &prcm_base->idlest2_ckgen, 12000000);
+	sr32(&prcm_base->clksel5_pll, 0, 5, 0x01); /* set M2 (usbtll_fck) */
+	sr32(&prcm_base->clksel4_pll, 8, 11, 0x0C); /* set m (11-bit multiplier) */
+	sr32(&prcm_base->clksel4_pll, 0, 7, 0x78); /* set n (7-bit divider)*/
+	wait_on_value(1, 1, &prcm_base->idlest2_ckgen, 12000000);
+}
+
 /**
  * bootm_disable_interrupts() - Disable interrupts in preparation for load/boot
  *
@@ -646,6 +660,7 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 		ulong load_end;
 
 		iflag = bootm_disable_interrupts();
+		dpll5_init_34xx(); /* Give Linux what it wants */
 		ret = bootm_load_os(images, &load_end, 0);
 		if (ret == 0)
 			lmb_reserve(&images->lmb, images->os.load,
