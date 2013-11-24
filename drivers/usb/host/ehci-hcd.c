@@ -918,7 +918,6 @@ unknown:
 
 int usb_lowlevel_stop(int index)
 {
-	ehci_shutdown(&ehcic[index]);
 	return ehci_hcd_stop(index);
 }
 
