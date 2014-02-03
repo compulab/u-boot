@@ -27,6 +27,10 @@ struct hsearch_data env_htab = {
 	.change_ok = env_flags_validate,
 };
 
+struct hsearch_data env_htab;
+char *env_name_spec = "Unknown";
+env_t *env_ptr;
+
 static uchar __env_get_char_spec(int index)
 {
 	return *((uchar *)(gd->env_addr + index));

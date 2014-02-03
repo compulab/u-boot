@@ -210,7 +210,7 @@ endif
 # core command
 obj-y += cmd_nvedit.o
 #environment
-obj-y += env_common.o
+obj-y += env_common.o env_multi.o
 #others
 ifdef CONFIG_DDR_SPD
 SPD := y
