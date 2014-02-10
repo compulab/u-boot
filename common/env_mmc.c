@@ -266,7 +266,7 @@ fini:
 	fini_mmc_for_env(mmc);
 err:
 	if (ret)
-		set_default_env(NULL);
+		set_env_alternative(NULL);
 
 #endif
 }
@@ -301,7 +301,7 @@ fini:
 	fini_mmc_for_env(mmc);
 err:
 	if (ret)
-		set_default_env(NULL);
+		set_env_alternative(NULL);
 #endif
 }
 #endif /* CONFIG_ENV_OFFSET_REDUND */

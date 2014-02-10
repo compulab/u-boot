@@ -43,7 +43,7 @@ void dataflash_env_relocate_spec(void)
 	if (crc == new)
 		env_import(buf, 1);
 	else
-		set_default_env("!bad CRC");
+		set_env_alternative("!bad CRC");
 }
 
 #ifdef CONFIG_ENV_OFFSET_REDUND

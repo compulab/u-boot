@@ -317,7 +317,7 @@ void nand_env_relocate_spec(void)
 	tmp_env2 = (env_t *)malloc(CONFIG_ENV_SIZE);
 	if (tmp_env1 == NULL || tmp_env2 == NULL) {
 		puts("Can't allocate buffers for environment\n");
-		set_default_env("!malloc() failed");
+		set_env_alternative("!malloc() failed");
 		goto done;
 	}
 
@@ -336,7 +336,7 @@ void nand_env_relocate_spec(void)
 		(crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc);
 
 	if (!crc1_ok && !crc2_ok) {
-		set_default_env("!bad CRC");
+		set_env_alternative("!bad CRC");
 		goto done;
 	} else if (crc1_ok && !crc2_ok) {
 		gd->env_valid = 1;
@@ -393,14 +393,14 @@ void nand_env_relocate_spec(void)
 	if (!ret) {
 		printf("Found Environment offset in OOB..\n");
 	} else {
-		set_default_env("!no env offset in OOB");
+		set_env_alternative("!no env offset in OOB");
 		return;
 	}
 #endif
 
 	ret = readenv(CONFIG_ENV_OFFSET, (u_char *)buf);
 	if (ret) {
-		set_default_env("!readenv() failed");
+		set_env_alternative("!readenv() failed");
 		return;
 	}
 

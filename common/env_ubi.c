@@ -129,7 +129,7 @@ void ubi_env_relocate_spec(void)
 	if (ubi_part(CONFIG_ENV_UBI_PART, NULL)) {
 		printf("\n** Cannot find mtd partition \"%s\"\n",
 		       CONFIG_ENV_UBI_PART);
-		set_default_env(NULL);
+		set_env_alternative(NULL);
 		return;
 	}
 
@@ -149,7 +149,7 @@ void ubi_env_relocate_spec(void)
 	crc2_ok = crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc;
 
 	if (!crc1_ok && !crc2_ok) {
-		set_default_env("!bad CRC");
+		set_env_alternative("!bad CRC");
 		return;
 	} else if (crc1_ok && !crc2_ok) {
 		gd->env_valid = 1;
@@ -185,7 +185,7 @@ void ubi_env_relocate_spec(void)
 	if (ubi_part(CONFIG_ENV_UBI_PART, NULL)) {
 		printf("\n** Cannot find mtd partition \"%s\"\n",
 		       CONFIG_ENV_UBI_PART);
-		set_default_env(NULL);
+		set_env_alternative(NULL);
 		return;
 	}
 
@@ -193,7 +193,7 @@ void ubi_env_relocate_spec(void)
 			    CONFIG_ENV_SIZE)) {
 		printf("\n** Unable to read env from %s:%s **\n",
 		       CONFIG_ENV_UBI_PART, CONFIG_ENV_UBI_VOLUME);
-		set_default_env(NULL);
+		set_env_alternative(NULL);
 		return;
 	}
 

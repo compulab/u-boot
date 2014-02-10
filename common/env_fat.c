@@ -104,7 +104,7 @@ void fat_env_relocate_spec(void)
 
 		if (!mmc) {
 			printf("no mmc device at slot %x\n", dev);
-			set_default_env(NULL);
+			set_env_alternative(NULL);
 			return;
 		}
 
@@ -117,7 +117,7 @@ void fat_env_relocate_spec(void)
 	if (dev_desc == NULL) {
 		printf("Failed to find %s%d\n",
 			FAT_ENV_INTERFACE, dev);
-		set_default_env(NULL);
+		set_env_alternative(NULL);
 		return;
 	}
 
@@ -125,7 +125,7 @@ void fat_env_relocate_spec(void)
 	if (err) {
 		printf("Failed to register %s%d:%d\n",
 			FAT_ENV_INTERFACE, dev, part);
-		set_default_env(NULL);
+		set_env_alternative(NULL);
 		return;
 	}
 
@@ -133,7 +133,7 @@ void fat_env_relocate_spec(void)
 	if (err == -1) {
 		printf("\n** Unable to read \"%s\" from %s%d:%d **\n",
 			FAT_ENV_FILE, FAT_ENV_INTERFACE, dev, part);
-		set_default_env(NULL);
+		set_env_alternative(NULL);
 		return;
 	}
 

@@ -202,6 +202,8 @@ char *getenv_default(const char *name);
 /* [re]set to the default environment */
 void set_default_env(const char *s);
 
+void set_env_alternative(const char *s);
+
 /* [re]set individual variables to their value in the default environment */
 int set_default_vars(int nvars, char * const vars[]);
 

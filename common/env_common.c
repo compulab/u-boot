@@ -131,6 +131,10 @@ void set_default_env(const char *s)
 	gd->flags |= GD_FLG_ENV_READY;
 }
 
+void __weak get_env_alternative(const char *s)
+{
+	set_default_env(s);
+}
 
 /* [re]set individual variables to their value in the default environment */
 int set_default_vars(int nvars, char * const vars[])

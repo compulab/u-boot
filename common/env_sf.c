@@ -55,7 +55,7 @@ int sf_saveenv(void)
 			CONFIG_ENV_SPI_CS,
 			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
 		if (!env_flash) {
-			set_default_env("!spi_flash_probe() failed");
+			set_env_alternative("!spi_flash_probe() failed");
 			return 1;
 		}
 	}
@@ -148,21 +148,21 @@ void sf_env_relocate_spec(void)
 	tmp_env2 = (env_t *)malloc(CONFIG_ENV_SIZE);
 
 	if (!tmp_env1 || !tmp_env2) {
-		set_default_env("!malloc() failed");
+		set_env_alternative("!malloc() failed");
 		goto out;
 	}
 
 	env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
 			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
 	if (!env_flash) {
-		set_default_env("!spi_flash_probe() failed");
+		set_env_alternative("!spi_flash_probe() failed");
 		goto out;
 	}
 
 	ret = spi_flash_read(env_flash, CONFIG_ENV_OFFSET,
 				CONFIG_ENV_SIZE, tmp_env1);
 	if (ret) {
-		set_default_env("!spi_flash_read() failed");
+		set_env_alternative("!spi_flash_read() failed");
 		goto err_read;
 	}
 
@@ -177,7 +177,7 @@ void sf_env_relocate_spec(void)
 	}
 
 	if (!crc1_ok && !crc2_ok) {
-		set_default_env("!bad CRC");
+		set_env_alternative("!bad CRC");
 		goto err_read;
 	} else if (crc1_ok && !crc2_ok) {
 		gd->env_valid = 1;
@@ -209,7 +209,7 @@ void sf_env_relocate_spec(void)
 	ret = env_import((char *)ep, 0);
 	if (!ret) {
 		error("Cannot import environment: errno = %d\n", errno);
-		set_default_env("env_import failed");
+		set_env_alternative("env_import failed");
 	}
 
 err_read:
@@ -233,7 +233,7 @@ int sf_saveenv(void)
 			CONFIG_ENV_SPI_CS,
 			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
 		if (!env_flash) {
-			set_default_env("!spi_flash_probe() failed");
+			set_env_alternative("!spi_flash_probe() failed");
 			return 1;
 		}
 	}
@@ -303,14 +303,14 @@ void sf_env_relocate_spec(void)
 	env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
 			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
 	if (!env_flash) {
-		set_default_env("!spi_flash_probe() failed");
+		set_env_alternative("!spi_flash_probe() failed");
 		return;
 	}
 
 	ret = spi_flash_read(env_flash,
 		CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE, buf);
 	if (ret) {
-		set_default_env("!spi_flash_read() failed");
+		set_env_alternative("!spi_flash_read() failed");
 		goto out;
 	}
 

@@ -20,6 +20,7 @@
 #include <usb.h>
 #include <mmc.h>
 #include <env_multi.h>
+#include <environment.h>
 #include <nand.h>
 #include <twl4030.h>
 #include <bmp_layout.h>
@@ -142,14 +143,34 @@ int splash_screen_prepare(void)
 #endif /* CONFIG_LCD */
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
+static enum env_multi_dev env_name = ENV_NAND;
+static int first_env_setup = 1;
+
+void set_env_alternative(const char *s)
+{
+	if (!first_env_setup) {
+		set_default_env(s);
+		return;
+	}
+
+	first_env_setup = 0;
+	if (env_name == ENV_MMC) {
+		env_name = ENV_NAND;
+	} else if (env_name == ENV_NAND) {
+		env_name = ENV_MMC;
+	} else {
+		set_default_env(s);
+		return;
+	}
+
+	env_multi_set_current(env_name, 1);
+}
 /*
  * Routine: board_init
  * Description: hardware init.
  */
 int board_early_init_f(void)
 {
-	enum env_multi_dev env_name = ENV_NAND;
-
 	if (get_boot_type() & 0x20)
 		env_name = ENV_MMC;
 
