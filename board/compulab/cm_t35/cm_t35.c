@@ -84,7 +84,7 @@ static int splash_load_from_nand(u32 bmp_load_addr)
 		return res;
 
 	bmp_hdr = (struct bmp_header *)bmp_load_addr;
-	bmp_size = le32_to_cpu(bmp_hdr->file_size);
+	bmp_size = get_unaligned_le32(&bmp_hdr->file_size);
 
 	if (bmp_load_addr + bmp_size >= gd->start_addr_sp)
 		goto splash_address_too_high;
@@ -107,6 +107,39 @@ static inline int splash_load_from_nand(void)
 }
 #endif /* CONFIG_CMD_NAND */
 
+#ifdef CONFIG_GENERIC_MMC
+static int splash_load_from_mmc(char *bmp_load_addr)
+{
+	struct mmc *mmc;
+	cmd_tbl_t *fatload_cmd;
+	char * const argv[6] = { "fatload", "mmc", "0",
+				 bmp_load_addr, "splashimage.bmp", NULL };
+
+	fatload_cmd = find_cmd("fatload");
+	if (!fatload_cmd)
+		return -1;
+
+	mmc = find_mmc_device(0);
+	if (!mmc) {
+		printf("%s: no mmc device at slot 0\n", __func__);
+		return -1;
+	}
+
+	if (mmc_init(mmc))
+		return -1;
+
+	if (do_fat_fsload(fatload_cmd, 0, 5, argv))
+		return -1;
+
+	return 0;
+}
+#else
+static int splash_load_from_mmc(char *bmp_load_addr)
+{
+	return -1;
+}
+#endif /* CONFIG_GENERIC_MMC */
+
 #ifdef CONFIG_SPL_BUILD
 /*
  * Routine: get_board_mem_timings
@@ -126,6 +159,7 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 int splash_screen_prepare(void)
 {
 	char *env_splashimage_value;
+	char *env_splashsource_value;
 	u32 bmp_load_addr;
 
 	env_splashimage_value = getenv("splashimage");
@@ -138,7 +172,14 @@ int splash_screen_prepare(void)
 		return -1;
 	}
 
-	return splash_load_from_nand(bmp_load_addr);
+	env_splashsource_value = getenv("splashsource");
+	if (env_splashsource_value == NULL || /* Backward compatibility*/
+	    !strncmp("nand", env_splashsource_value, 4))
+		return splash_load_from_nand(bmp_load_addr);
+	else if (!strncmp("mmc", env_splashsource_value, 3))
+		return splash_load_from_mmc(env_splashimage_value);
+
+	return -1;
 }
 #endif /* CONFIG_LCD */
 
