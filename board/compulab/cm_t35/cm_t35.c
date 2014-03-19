@@ -142,22 +142,6 @@ static int splash_load_from_mmc(char *bmp_load_addr)
 }
 #endif /* CONFIG_GENERIC_MMC */
 
-#ifdef CONFIG_SPL_BUILD
-/*
- * Routine: get_board_mem_timings
- * Description: If we use SPL then there is no x-loader nor config header
- * so we have to setup the DDR timings ourself on both banks.
- */
-void get_board_mem_timings(struct board_sdrc_timings *timings)
-{
-	timings->mr = MICRON_V_MR_165;
-	timings->mcfg = MICRON_V_MCFG_200(256 << 20); /* raswidth 14 needed */
-	timings->ctrla = MICRON_V_ACTIMA_165;
-	timings->ctrlb = MICRON_V_ACTIMB_165;
-	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
-}
-#endif
-
 int splash_screen_prepare(void)
 {
 	char *env_splashimage_value;
@@ -184,6 +168,22 @@ int splash_screen_prepare(void)
 	return -1;
 }
 #endif /* CONFIG_LCD */
+
+#ifdef CONFIG_SPL_BUILD
+/*
+ * Routine: get_board_mem_timings
+ * Description: If we use SPL then there is no x-loader nor config header
+ * so we have to setup the DDR timings ourself on both banks.
+ */
+void get_board_mem_timings(struct board_sdrc_timings *timings)
+{
+	timings->mr = MICRON_V_MR_165;
+	timings->mcfg = MICRON_V_MCFG_200(256 << 20); /* raswidth 14 needed */
+	timings->ctrla = MICRON_V_ACTIMA_165;
+	timings->ctrlb = MICRON_V_ACTIMB_165;
+	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+}
+#endif
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 static enum env_multi_dev env_name = ENV_NAND;
