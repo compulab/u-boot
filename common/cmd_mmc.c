@@ -797,6 +797,7 @@ static cmd_tbl_t cmd_mmc[] = {
 	U_BOOT_CMD_MKENT(write, 4, 0, do_mmc_write, "", ""),
 	U_BOOT_CMD_MKENT(erase, 3, 0, do_mmc_erase, "", ""),
 	U_BOOT_CMD_MKENT(rescan, 1, 1, do_mmc_rescan, "", ""),
+	U_BOOT_CMD_MKENT(init, 1, 1, do_mmc_rescan, "", ""),
 	U_BOOT_CMD_MKENT(part, 1, 1, do_mmc_part, "", ""),
 	U_BOOT_CMD_MKENT(dev, 3, 0, do_mmc_dev, "", ""),
 	U_BOOT_CMD_MKENT(list, 1, 1, do_mmc_list, "", ""),
@@ -847,6 +848,7 @@ U_BOOT_CMD(
 	"mmc write addr blk# cnt\n"
 	"mmc erase blk# cnt\n"
 	"mmc rescan\n"
+	"mmc init\n"
 	"mmc part - lists available partition on current mmc device\n"
 	"mmc dev [dev] [part] - show or set current mmc device [partition]\n"
 	"mmc list - lists available devices\n"
