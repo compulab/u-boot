@@ -1,0 +1,12 @@
+if TARGET_CL_SOM_IMX7
+
+config SYS_BOARD
+	default "cl_som_imx7"
+
+config SYS_VENDOR
+	default "compulab"
+
+config SYS_CONFIG_NAME
+	default "cl_som_imx7"
+
+endif
