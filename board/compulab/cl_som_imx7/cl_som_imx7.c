@@ -58,6 +58,8 @@ static struct i2c_pads_info i2c_pad_info2 = {
 };
 #endif
 
+static int nand_enabled = 0;
+
 int dram_init(void)
 {
 	gd->ram_size = PHYS_SDRAM_SIZE; /* FIXME: only hardcoded value */
@@ -160,6 +162,11 @@ int board_mmc_init(bd_t *bis)
 			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
 			break;
 		case 1:
+			if (nand_enabled) {
+			/* nand enabled configuration */
+				return 0;
+			}
+			/* emmc enabled configuration */
 			imx_iomux_v3_setup_multiple_pads(
 				usdhc3_emmc_pads, ARRAY_SIZE(usdhc3_emmc_pads));
 			gpio_request(USDHC3_PWR_GPIO, "usdhc3_pwr");
@@ -181,6 +188,58 @@ int board_mmc_init(bd_t *bis)
 
 	return 0;
 }
+#endif
+
+#ifdef CONFIG_NAND_MXS
+
+#define GPMI_PAD_CTRL		(PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_PUE | \
+				PAD_CTL_PUS_PU100KOHM | PAD_CTL_SRE_SLOW | \
+				PAD_CTL_HYS)
+
+static iomux_v3_cfg_t const gpmi_nand_pads[] = {
+	MX7D_PAD_SD3_CLK__NAND_CLE | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SD3_CMD__NAND_ALE | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SD3_DATA0__NAND_DATA00 | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SD3_DATA1__NAND_DATA01 | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SD3_DATA2__NAND_DATA02 | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SD3_DATA3__NAND_DATA03 | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SD3_DATA4__NAND_DATA04 | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SD3_DATA5__NAND_DATA05 | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SD3_DATA6__NAND_DATA06 | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SD3_DATA7__NAND_DATA07 | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SD3_STROBE__NAND_RE_B	 | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SD3_RESET_B__NAND_WE_B | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SAI1_TX_BCLK__NAND_CE0_B | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SAI1_TX_DATA__NAND_READY_B | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+	MX7D_PAD_SAI1_MCLK__NAND_WP_B | MUX_PAD_CTRL(GPMI_PAD_CTRL),
+};
+
+#define NAND_ENABLE	IMX_GPIO_NR(6, 13)
+
+static iomux_v3_cfg_t const nand_enable_pads[] = {
+	MX7D_PAD_SAI1_TX_BCLK__GPIO6_IO13 | MUX_PAD_CTRL(0),
+};
+
+static void get_nand_enable_state(void) {
+	imx_iomux_v3_setup_multiple_pads(nand_enable_pads,
+					 ARRAY_SIZE(nand_enable_pads));
+	gpio_direction_input(NAND_ENABLE);
+	mdelay(1);
+	nand_enabled = gpio_get_value(NAND_ENABLE);
+}
+
+static void setup_gpmi_nand(void)
+{
+	get_nand_enable_state();
+
+	/* nand enabled configuration */
+	imx_iomux_v3_setup_multiple_pads(
+		gpmi_nand_pads, ARRAY_SIZE(gpmi_nand_pads));
+
+	set_clk_nand();
+}
+#else
+static void setup_gpmi_nand(void) {}
 #endif
 
 #ifdef CONFIG_FEC_MXC
@@ -354,6 +413,8 @@ int board_init(void)
 #ifdef CONFIG_SYS_I2C_MXC
 	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
 #endif
+	setup_gpmi_nand();
+
 	setup_fec();
 
 	board_spi_init();
