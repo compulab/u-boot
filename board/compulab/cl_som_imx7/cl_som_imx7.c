@@ -56,6 +56,23 @@ static struct i2c_pads_info i2c_pad_info2 = {
 		.gp = IMX_GPIO_NR(1, 7),
 	},
 };
+
+static struct i2c_pads_info i2c_pad_info4 = {
+       .scl = {
+               .i2c_mode = MX7D_PAD_GPIO1_IO10__I2C4_SCL |
+                       MUX_PAD_CTRL(I2C_PAD_CTRL),
+               .gpio_mode = MX7D_PAD_GPIO1_IO10__GPIO1_IO10 |
+                       MUX_PAD_CTRL(I2C_PAD_CTRL),
+               .gp = IMX_GPIO_NR(1, 10),
+       },
+       .sda = {
+               .i2c_mode = MX7D_PAD_GPIO1_IO11__I2C4_SDA |
+                       MUX_PAD_CTRL(I2C_PAD_CTRL),
+               .gpio_mode = MX7D_PAD_GPIO1_IO11__GPIO1_IO11 |
+                       MUX_PAD_CTRL(I2C_PAD_CTRL),
+               .gp = IMX_GPIO_NR(1, 11),
+       },
+};
 #endif
 
 static int nand_enabled = 0;
@@ -412,6 +429,7 @@ int board_init(void)
 
 #ifdef CONFIG_SYS_I2C_MXC
 	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info4);
 #endif
 	setup_gpmi_nand();
 
