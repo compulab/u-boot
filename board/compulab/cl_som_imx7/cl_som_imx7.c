@@ -103,6 +103,27 @@ static void setup_iomux_otg(void)
 	imx_iomux_v3_setup_multiple_pads(usb_otg1_pads, ARRAY_SIZE(usb_otg1_pads));
 }
 
+#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+static iomux_v3_cfg_t const status_led_pads[] = {
+	MX7D_PAD_SAI1_TX_SYNC__GPIO6_IO14 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+};
+
+static void setup_iomux_led(void)
+{
+	imx_iomux_v3_setup_multiple_pads(status_led_pads, ARRAY_SIZE(status_led_pads));
+}
+
+
+static void setup_led(void)
+{
+	setup_iomux_led();
+	status_led_init();
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
+}
+#else
+static void setup_led(void) {}
+#endif
+
 #ifdef CONFIG_FSL_ESDHC
 
 #define USDHC_PAD_CTRL		(PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
@@ -436,6 +457,8 @@ int board_init(void)
 	setup_fec();
 
 	board_spi_init();
+
+	setup_led();
 
 	return 0;
 }
