@@ -35,4 +35,36 @@ static inline int cl_omap3_smc911x_init(int id, int cs, u32 base_addr,
 }
 #endif /* CONFIG_SMC911X */
 
+#ifdef CONFIG_OF_BOARD_SETUP
+enum fdt_node_action {
+	FDT_NODE_ENABLE,
+	FDT_NODE_DISABLE,
+	FDT_NODE_DELETE,
+	FDT_NODE_PROP_SET,
+	FDT_NODE_PROP_DELETE,
+};
+
+struct fdt_node_prop {
+	const char *name;
+	int len;
+	int create;
+	char val[0];
+};
+
+struct fdt_node {
+	struct list_head list;
+	const char *name;
+	struct fdt_node_prop *prop;
+	enum fdt_node_action acton;
+};
+
+int fdt_board_adjust(void);
+int fdt_node_enable(const char *name);
+int fdt_node_disable(const char *name);
+int fdt_node_delete(const char *name);
+int fdt_prop_set(const char *node, const char *name,
+		 void *val, int len, int create);
+int fdt_prop_del(const char *node, const char *name);
+#endif
+
 #endif /* _CL_COMMON_ */
