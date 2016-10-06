@@ -338,6 +338,8 @@ int ehci_mx6_common_init(struct usb_ehci *ehci, int index)
 }
 
 #ifndef CONFIG_DM_USB
+#include <asm/arch/sys_proto.h>
+
 int ehci_hcd_init(int index, enum usb_init_type init,
 		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
@@ -346,6 +348,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	u32 controller_spacing = 0x200;
 #elif defined(CONFIG_MX7)
 	u32 controller_spacing = 0x10000;
+	u32 cpurev = get_cpu_rev();
 #endif
 	struct usb_ehci *ehci = (struct usb_ehci *)(USB_BASE_ADDR +
 		(controller_spacing * index));
@@ -354,6 +357,12 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	if (index > 3)
 		return -EINVAL;
 
+#if defined (CONFIG_MX7)
+	/* Initialize only one port for i.MX7Solo */
+	if (((cpurev & 0xFF000) >> 12) == MXC_CPU_MX7S)
+		if (index > 0)
+			return -ENODEV;
+#endif
 	ret = ehci_mx6_common_init(ehci, index);
 	if (ret)
 		return ret;
