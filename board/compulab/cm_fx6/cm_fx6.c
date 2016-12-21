@@ -454,7 +454,11 @@ static iomux_v3_cfg_t const enet_pads[] = {
 	IOMUX_PADS(PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
 	IOMUX_PADS(PAD_GPIO_0__CCM_CLKO1    | MUX_PAD_CTRL(NO_PAD_CTRL)),
 	IOMUX_PADS(PAD_GPIO_3__CCM_CLKO2    | MUX_PAD_CTRL(NO_PAD_CTRL)),
+#ifdef CL_SOM_IMX6
+	IOMUX_PADS(PAD_EIM_A19__GPIO2_IO19 | MUX_PAD_CTRL(NO_PAD_CTRL)),
+#else
 	IOMUX_PADS(PAD_SD4_DAT0__GPIO2_IO08 | MUX_PAD_CTRL(0x84)),
+#endif
 	IOMUX_PADS(PAD_ENET_REF_CLK__ENET_TX_CLK  |
 						MUX_PAD_CTRL(ENET_PAD_CTRL)),
 	IOMUX_PADS(PAD_RGMII_TX_CTL__RGMII_TX_CTL |
@@ -496,12 +500,12 @@ int board_eth_init(bd_t *bis)
 
 	SETUP_IOMUX_PADS(enet_pads);
 	/* phy reset */
-	err = gpio_request(CM_FX6_ENET_NRST, "enet_nrst");
+	err = gpio_request(PHY_ENET_NRST, "enet_nrst");
 	if (err)
 		printf("Etnernet NRST gpio request failed: %d\n", err);
-	gpio_direction_output(CM_FX6_ENET_NRST, 0);
+	gpio_direction_output(PHY_ENET_NRST, 0);
 	udelay(500);
-	gpio_set_value(CM_FX6_ENET_NRST, 1);
+	gpio_set_value(PHY_ENET_NRST, 1);
 	enable_enet_clk(1);
 	return cpu_eth_init(bis);
 }
