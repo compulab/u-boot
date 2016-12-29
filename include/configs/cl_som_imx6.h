@@ -12,5 +12,6 @@
 #include "cm_fx6.h"
 
 #define CL_SOM_IMX6
+#define CONFIG_CMD_MII
 
 #endif	/* __CONFIG_CL_SOM_IMX6_H */
