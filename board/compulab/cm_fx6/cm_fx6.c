@@ -685,16 +685,28 @@ int ft_board_setup(void *blob, bd_t *bd)
 				     NULL, 0, 1);
 	}
 
-	if (nand_enabled) {
-		/* nand */
-		fdt_status_disabled_by_alias(blob, usdhc4_path);
-		/* Disable an rtc that makes use of a nand pin for irq */
-		fdt_status_disabled_by_alias(blob, rtc_nand);
-	} else {
-		/* emmc */
+	if (!nand_enabled) {
+		/* nand disable */
 		fdt_status_disabled_by_alias(blob, gpmi_nand);
 		/* Disable an rtc that makes use of an emmc pin for irq */
 		fdt_status_disabled_by_alias(blob, rtc_emmc);
+	} else {
+		/* emmc disable */
+		fdt_status_disabled_by_alias(blob, usdhc4_path);
+		/* Disable an rtc that makes use of a nand pin for irq */
+		fdt_status_disabled_by_alias(blob, rtc_nand);
+	}
+
+	if (nand_enabled) {
+		/* nand enable */
+		fdt_status_okay_by_alias(blob, gpmi_nand);
+		/* Enable an rtc that makes use of an emmc pin for irq */
+		fdt_status_okay_by_alias(blob, rtc_emmc);
+	} else {
+		/* emmc enable */
+		fdt_status_okay_by_alias(blob, usdhc4_path);
+		/* Disable an rtc that makes use of a nand pin for irq */
+		fdt_status_okay_by_alias(blob, rtc_nand);
 	}
 
 	return 0;
