@@ -754,7 +754,7 @@ int board_init(void)
 
 int checkboard(void)
 {
-	puts("Board: CM-FX6\n");
+	puts("Board: "CONFIG_BOARD_NAME"\n");
 	return 0;
 }
 
