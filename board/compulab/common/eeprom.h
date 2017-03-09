@@ -12,11 +12,12 @@
 #include <errno.h>
 
 #ifdef CONFIG_SYS_I2C
-int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus);
+int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus, uint mac_id);
 u32 cl_eeprom_get_board_rev(uint eeprom_bus);
 int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus);
 #else
-static inline int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus)
+static inline int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus,
+					  uint mac_id)
 {
 	return 1;
 }

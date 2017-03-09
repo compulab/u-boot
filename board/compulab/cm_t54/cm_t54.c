@@ -165,7 +165,7 @@ static int handle_mac_address(void)
 	if (ret)
 		return 0;
 
-	ret = cl_eeprom_read_mac_addr(enetaddr, CONFIG_SYS_I2C_EEPROM_BUS);
+	ret = cl_eeprom_read_mac_addr(enetaddr, CONFIG_SYS_I2C_EEPROM_BUS, 1);
 	if (ret || !is_valid_ethaddr(enetaddr))
 		generate_mac_addr(enetaddr);
 

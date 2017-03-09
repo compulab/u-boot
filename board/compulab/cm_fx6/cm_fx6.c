@@ -474,7 +474,7 @@ static int handle_mac_address(char *env_var, uint eeprom_bus)
 	if (rc)
 		return 0;
 
-	rc = cl_eeprom_read_mac_addr(enetaddr, eeprom_bus);
+	rc = cl_eeprom_read_mac_addr(enetaddr, eeprom_bus, 1);
 	if (rc)
 		return rc;
 

@@ -31,7 +31,8 @@
 #define BOARD_REV_SIZE			2
 #define PRODUCT_NAME_OFFSET		128
 #define PRODUCT_NAME_SIZE		16
-#define MAC_ADDR_OFFSET			4
+#define MAC1_ADDR_OFFSET		4
+#define MAC2_ADDR_OFFSET		10
 #define MAC_ADDR_OFFSET_LEGACY		0
 
 #define LAYOUT_INVALID	0
@@ -108,7 +109,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
  * Routine: cl_eeprom_read_mac_addr
  * Description: read mac address and store it in buf.
  */
-int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus)
+int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus, uint mac_id)
 {
 	uint offset;
 	int err;
@@ -117,8 +118,11 @@ int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus)
 	if (err)
 		return err;
 
-	offset = (cl_eeprom_layout != LAYOUT_LEGACY) ?
-			MAC_ADDR_OFFSET : MAC_ADDR_OFFSET_LEGACY;
+	if (cl_eeprom_layout == LAYOUT_LEGACY)
+		offset = MAC_ADDR_OFFSET_LEGACY;
+	else
+		offset = (mac_id == 1) ? MAC1_ADDR_OFFSET :
+			MAC2_ADDR_OFFSET;
 
 	return cl_eeprom_read(offset, buf, 6);
 }
