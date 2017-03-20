@@ -796,6 +796,9 @@ void dram_init_banksize(void)
 		gd->bd->bi_dram[0].size = 0x70000000;
 		gd->bd->bi_dram[1].size = 0x7FF00000;
 		break;
+	default:
+	        gd->bd->bi_dram[0].size = 0xDEADBEEF;
+		break;
 	}
 }
 

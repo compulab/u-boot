@@ -38,7 +38,8 @@ struct mmdc_p_regs {
 	u32 mdor;
 	u32 res2[3];
 	u32 mdasp;
-	u32 res3[240];
+	u32 res3[239];
+	u32 maarcr;
 	u32 mapsr;
 	u32 res4[254];
 	u32 mpzqhwctrl;
@@ -58,8 +59,12 @@ struct mmdc_p_regs {
 	u32 mprddlctl;
 	u32 res9;
 	u32 mpwrdlctl;
-	u32 res10[25];
+	u32 res10[15];
+	u32 mppdcmpr2;
+	u32 res11[9];
 	u32 mpmur0;
+	u32 res12;
+	u32 mpdccr;
 };
 
 #define MX6SX_IOM_DDR_BASE	0x020e0200
@@ -119,12 +124,21 @@ struct mx6dq_iomux_ddr_regs {
 	u32 dram_dqm3;
 	u32 dram_sdqs2;
 	u32 dram_dqm2;
-	u32 res2[16];
+	u32 res2[2];
+	u32 dram_addr02;
+	u32 dram_addr03;
+	u32 dram_addr04;
+	u32 dram_addr05;
+	u32 dram_addr06;
+	u32 dram_addr07;
+	u32 dram_addr08;
+	u32 dram_addr09;
+	u32 res3[6];
 	u32 dram_cas;
-	u32 res3[2];
+	u32 res4[2];
 	u32 dram_ras;
 	u32 dram_reset;
-	u32 res4[2];
+	u32 res5[2];
 	u32 dram_sdclk_0;
 	u32 dram_sdba2;
 	u32 dram_sdcke0;
@@ -132,7 +146,7 @@ struct mx6dq_iomux_ddr_regs {
 	u32 dram_sdcke1;
 	u32 dram_sdodt0;
 	u32 dram_sdodt1;
-	u32 res5;
+	u32 res6;
 	u32 dram_sdqs0;
 	u32 dram_dqm0;
 	u32 dram_sdqs1;
@@ -220,6 +234,24 @@ struct mx6sdl_iomux_grp_regs {
 	u32 res4;
 	u32 grp_b6ds;
 };
+/*
+* NoC scheduler registers - only on IMX6DQP
+*/
+#define MX6DQP_NOC_SCHED_BASE	0x00bb0000
+struct mx6dqp_noc_sched_regs {
+	u32 coreid;
+	u32 revid;
+	u32 ddrconf;
+	u32 ddrtiming;
+	u32 ddrmode;
+	u32 rlat;
+	u32 res1[4];
+	u32 ipu1;
+	u32 ipu2;
+	u32 res2[2];
+	u32 activate;
+	u32 res3[16];
+};
 
 /* Device Information: Varies per DDR3 part number and speed grade */
 struct mx6_ddr3_cfg {
@@ -282,6 +314,9 @@ struct mx6_mmdc_calibration {
 
 /* configure iomux (pinctl/padctl) */
 void mx6dq_dram_iocfg(unsigned width,
+		      const struct mx6dq_iomux_ddr_regs *,
+		      const struct mx6dq_iomux_grp_regs *);
+void mx6dqp_dram_iocfg(unsigned width,
 		      const struct mx6dq_iomux_ddr_regs *,
 		      const struct mx6dq_iomux_grp_regs *);
 void mx6sdl_dram_iocfg(unsigned width,
