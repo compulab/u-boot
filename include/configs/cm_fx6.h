@@ -144,12 +144,24 @@
 		"run setboottypez;" \
 		"run trybootk;\0"
 
+#ifdef CL_SOM_IMX6
+#define EMMC "setenv storagedev 3;"\
+	"mmc dev ${storagedev};" \
+	"run trybootsmz;"
+#else
+#define EMMC
+#endif
+
 #define CONFIG_BOOTCOMMAND \
 	"run setupmmcboot;" \
 	"mmc dev ${storagedev};" \
 	"if mmc rescan; then " \
 		"run trybootsmz;" \
 	"fi;" \
+	EMMC\
+	"setenv storagedev 3;"\
+	"mmc dev ${storagedev};" \
+	"run trybootsmz;" \
 	"run setupusbboot;" \
 	"if usb start; then "\
 		"if run loadscript; then " \
