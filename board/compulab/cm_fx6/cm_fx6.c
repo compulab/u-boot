@@ -514,6 +514,9 @@ int board_eth_init(bd_t *bis)
 	if (handle_mac_address("ethaddr", CONFIG_SYS_I2C_EEPROM_BUS))
 		printf(NO_MAC_ADDR, "primary NIC");
 
+	gpio_request(IMX_GPIO_NR(1, 2),"i2cmux-switch");
+	gpio_direction_output(IMX_GPIO_NR(1, 2), 0);
+
 	if (handle_mac_address("eth1addr", SB_FX6_I2C_EEPROM_BUS))
 		printf(NO_MAC_ADDR, "secondary NIC");
 
