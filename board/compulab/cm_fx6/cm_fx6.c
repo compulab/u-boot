@@ -763,6 +763,26 @@ int ft_board_setup(void *blob, bd_t *bd)
 }
 #endif
 
+#define CPU_TYPE "cpu_type"
+static int cm_fx6_cpu_type(void)
+{
+	switch (get_cpu_type_ext()) {
+		case MXC_CPU_MX6SOLO:
+			return setenv(CPU_TYPE, "MX6SOLO");
+		case MXC_CPU_MX6D:
+			return setenv(CPU_TYPE, "MX6D");
+		case MXC_CPU_MX6Q:
+			return setenv(CPU_TYPE, "MX6Q");
+		case MXC_CPU_MX6DP:
+			return setenv(CPU_TYPE, "MX6DP");
+		case MXC_CPU_MX6QP:
+			return setenv(CPU_TYPE, "MX6QP");
+		default:
+			return setenv(CPU_TYPE, "unknown");
+	}
+	return -1;
+}
+
 int board_init(void)
 {
 	int ret;
@@ -800,6 +820,13 @@ int board_init(void)
 		printf("Warning: I2C setup failed: %d\n", ret);
 
 	cm_fx6_setup_display();
+
+	return 0;
+}
+
+int board_late_init(void)
+{
+	cm_fx6_cpu_type();
 
 	return 0;
 }

@@ -14,4 +14,6 @@
 
 #define CONFIG_CMD_MII
 
+#define CONFIG_BOARD_LATE_INIT
+
 #endif	/* __CONFIG_CL_SOM_IMX6_H */
