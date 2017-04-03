@@ -957,6 +957,9 @@ u-boot-with-spl.imx u-boot-with-nand-spl.imx: SPL u-boot.bin FORCE
 u-boot.imx: SPL u-boot.img FORCE
 	@dd if=SPL of=$@ bs=1K seek=0 conv=notrunc 2>/dev/null
 	@dd if=u-boot.img of=$@ bs=1K seek=63 conv=notrunc 2>/dev/null
+ifeq ($(CONFIG_ATP_ENV),y)
+	@cp $@ u-boot-atp.imx
+endif
 
 MKIMAGEFLAGS_u-boot.ubl = -n $(UBL_CONFIG) -T ublimage -e $(CONFIG_SYS_TEXT_BASE)
 

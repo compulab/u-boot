@@ -255,6 +255,11 @@ void env_relocate(void)
 	env_reloc();
 	env_htab.change_ok += gd->reloc_off;
 #endif
+
+#if defined(CONFIG_ATP_ENV)
+	set_default_env("ATP Environment\n");
+	return;
+#endif
 	if (gd->env_valid == 0) {
 #if defined(CONFIG_ENV_IS_NOWHERE) || defined(CONFIG_SPL_BUILD)
 		/* Environment not changable */

@@ -828,6 +828,9 @@ int board_late_init(void)
 {
 	cm_fx6_cpu_type();
 
+#ifdef CONFIG_ATP_ENV
+	setenv("atp" , "yes");
+#endif
 	return 0;
 }
 

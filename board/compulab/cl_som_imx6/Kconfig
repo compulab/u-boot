@@ -12,4 +12,6 @@ config SYS_SOC
 config SYS_CONFIG_NAME
 	default "cl_som_imx6"
 
+config ATP_ENV
+	bool "Set ATP Environment"
 endif
