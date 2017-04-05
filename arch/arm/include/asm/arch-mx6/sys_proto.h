@@ -16,6 +16,7 @@
 
 u32 get_nr_cpus(void);
 u32 get_cpu_rev(void);
+u32 get_cpu_rev_ext(void);
 u32 get_cpu_speed_grade_hz(void);
 u32 get_cpu_temp_grade(int *minc, int *maxc);
 
@@ -25,6 +26,7 @@ u32 get_cpu_temp_grade(int *minc, int *maxc);
 /* both macros return/take MXC_CPU_ constants */
 #define get_cpu_type()	(cpu_type(get_cpu_rev()))
 #define is_cpu_type(cpu) (get_cpu_type() == cpu)
+#define get_cpu_type_ext()	(cpu_type(get_cpu_rev_ext()))
 
 const char *get_imx_type(u32 imxtype);
 unsigned imx_ddr_size(void);
