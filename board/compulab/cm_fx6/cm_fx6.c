@@ -448,6 +448,21 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
+#ifdef CL_SOM_IMX6
+static iomux_v3_cfg_t const heartbeat_pads[] = {
+	IOMUX_PADS(PAD_EIM_EB3__GPIO2_IO31 | MUX_PAD_CTRL(NO_PAD_CTRL)),
+};
+void cm_fx6_hb_led(void) {
+	SETUP_IOMUX_PADS(heartbeat_pads);
+
+	gpio_request(IMX_GPIO_NR(2, 31),"heart beat");
+	gpio_direction_output(IMX_GPIO_NR(2, 31), 1);
+
+};
+#else
+void cm_fx6_hb_led(void) {};
+#endif
+
 static iomux_v3_cfg_t const enet_pads[] = {
 	IOMUX_PADS(PAD_ENET_REF_CLK__ENET_TX_CLK  |
 						MUX_PAD_CTRL(ENET_PAD_CTRL)),
@@ -743,6 +758,8 @@ int ft_board_setup(void *blob, bd_t *bd)
 int board_init(void)
 {
 	int ret;
+
+	cm_fx6_hb_led();
 
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 	cm_fx6_setup_gpmi_nand();
