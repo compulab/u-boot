@@ -566,6 +566,14 @@ int board_eth_init(bd_t *bis)
 	gpio_free(IMX_GPIO_NR(6, 29));
 	gpio_free(IMX_GPIO_NR(6, 24));
 
+	if (is_mx6dqp()) {
+		/*
+		 * select ENET MAC0 TX clock from PLL
+		 */
+		imx_iomux_set_gpr_register(5, 9, 1, 1);
+		enable_fec_anatop_clock(ENET_125MHZ);
+	}
+
 	enable_enet_clk(1);
 	return cpu_eth_init(bis);
 }
