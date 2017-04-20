@@ -330,18 +330,18 @@ static void spl_mx6dqp_dram_init(enum ddr_config dram_config, bool reset)
 	while (mmdc_p0->mpzqhwctrl & 0x00010000)
 		;
 
-	mmdc_p0->mpwldectrl0 = 0x0058005a;
-	mmdc_p0->mpwldectrl1 = 0x00560050;
-	mmdc_p1->mpwldectrl0 = 0x002a003e;
-	mmdc_p1->mpwldectrl1 = 0x000a0014;
-	mmdc_p0->mpdgctrl0   = 0x03680374;
-	mmdc_p0->mpdgctrl1   = 0x03440344;
-	mmdc_p1->mpdgctrl0   = 0x0338033c;
-	mmdc_p1->mpdgctrl1   = 0x03140270;
-	mmdc_p0->mprddlctl   = 0x42323a3e;
-	mmdc_p1->mprddlctl   = 0x3c3a3440;
-	mmdc_p0->mpwrdlctl   = 0x3a3a3c3e;
-	mmdc_p1->mpwrdlctl   = 0x463a4240;
+	mmdc_p0->mpwldectrl0 = 0x00590059;
+	mmdc_p0->mpwldectrl1 = 0x0055004f;
+	mmdc_p1->mpwldectrl0 = 0x002b003e;
+	mmdc_p1->mpwldectrl1 = 0x000b0015;
+	mmdc_p0->mpdgctrl0   = 0x035c036c;
+	mmdc_p0->mpdgctrl1   = 0x033c0338;
+	mmdc_p1->mpdgctrl0   = 0x03300334;
+	mmdc_p1->mpdgctrl1   = 0x03100268;
+	mmdc_p0->mprddlctl   = 0x44363c42;
+	mmdc_p1->mprddlctl   = 0x3e3a3640;
+	mmdc_p0->mpwrdlctl   = 0x3a3a3a3c;
+	mmdc_p1->mpwrdlctl   = 0x44384442;
 	mmdc_p0->mprddqby0dl = 0x33333333;
 	mmdc_p0->mprddqby1dl = 0x33333333;
 	mmdc_p0->mprddqby2dl = 0x33333333;
