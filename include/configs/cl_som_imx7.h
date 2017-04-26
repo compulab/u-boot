@@ -54,6 +54,7 @@
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
+#define CONFIG_SYS_I2C_MXC_I2C4		/* enable I2C bus 4 */
 #define CONFIG_SYS_I2C_SPEED		100000
 
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
