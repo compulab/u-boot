@@ -78,74 +78,38 @@
 #define CONFIG_SYS_AUTOLOAD		"no"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"autoload=off\0" \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
 	"fdt_high=0xffffffff\0" \
-	"initrd_high=0xffffffff\0" \
 	"fdt_file=imx7d-sbc-imx7.dtb\0" \
 	"fdt_addr=0x83000000\0" \
-	"boot_fdt=try\0" \
-	"ip_dyn=yes\0" \
+	"mmcblk=0\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
-	"mmcautodetect=yes\0" \
-	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=${mmcroot}\0" \
 	"loadbootscript=" \
 		"load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
 	"loadimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
 	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"mmcargs=setenv mmcroot /dev/mmcblk${mmcblk}p2 rootwait rw; " \
+		"setenv bootargs console=${console},${baudrate} " \
+		"root=${mmcroot}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if run loadfdt; then " \
-				"bootz ${loadaddr} - ${fdt_addr}; " \
-			"else " \
-				"if test ${boot_fdt} = try; then " \
-					"bootz; " \
-				"else " \
-					"echo WARN: Cannot load the DT; " \
-				"fi; " \
-			"fi; " \
-		"else " \
-			"bootz; " \
+		"if run loadfdt; then " \
+			"run set_display; " \
+			"bootz ${loadaddr} - ${fdt_addr}; " \
 		"fi;\0" \
-	"netargs=setenv bootargs console=${console},${baudrate} " \
-		"root=/dev/nfs " \
-	"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
-		"netboot=echo Booting from net ...; " \
-		"run netargs; " \
-		"if test ${ip_dyn} = yes; then " \
-			"setenv get_cmd dhcp; " \
-		"else " \
-			"setenv get_cmd tftp; " \
-		"fi; " \
-		"${get_cmd} ${image}; " \
-		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
-			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
-				"bootz ${loadaddr} - ${fdt_addr}; " \
-			"else " \
-				"if test ${boot_fdt} = try; then " \
-					"bootz; " \
-				"else " \
-					"echo WARN: Cannot load the DT; " \
-				"fi; " \
-			"fi; " \
-		"else " \
-			"bootz; " \
+	"set_display=fdt addr ${fdt_addr}; fdt rm lcdif/display/display-timings/lcd\0" \
+	"defaultboot=setenv mmcdev 1; setenv mmcblk 2; mmc dev ${mmcdev}; "\
+		"if run loadimage; then " \
+			"run mmcboot; " \
 		"fi;\0" \
-		"findfdt="\
-				"if test $fdt_file = undefined; then " \
-					"echo WARNING: Could not determine dtb to use; " \
-			"fi;\0" \
-		"autoload=off\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	   "run findfdt;" \
 	   "mmc dev ${mmcdev};" \
 	   "if mmc rescan; then " \
 		   "if run loadbootscript; then " \
@@ -155,7 +119,8 @@
 				   "run mmcboot; " \
 			   "fi; " \
 		   "fi; " \
-	   "fi"
+	   "fi; " \
+	   "run defaultboot"
 
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x20000000)
