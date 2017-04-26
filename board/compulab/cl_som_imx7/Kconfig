@@ -9,4 +9,6 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "cl_som_imx7"
 
+config BOARD_DRAM_SIZE
+	hex "DRAM size"
 endif
