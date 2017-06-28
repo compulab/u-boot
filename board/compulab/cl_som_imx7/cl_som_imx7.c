@@ -39,6 +39,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define I2C_PAD_CTRL		(PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
 				PAD_CTL_HYS)
+
 /* I2C2 */
 static struct i2c_pads_info i2c_pad_info2 = {
 	.scl = {
@@ -329,7 +330,7 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
-static int handle_mac_address(char *env_var, uint eeprom_bus)
+static int handle_mac_address(char *env_var, uint eeprom_bus, uint mac_id)
 {
 	unsigned char enetaddr[6];
 	int rc;
@@ -338,7 +339,7 @@ static int handle_mac_address(char *env_var, uint eeprom_bus)
 	if (rc)
 		return 0;
 
-	rc = cl_eeprom_read_mac_addr(enetaddr, eeprom_bus, 1);
+	rc = cl_eeprom_read_mac_addr(enetaddr, eeprom_bus, mac_id);
 	if (rc)
 		return rc;
 
@@ -376,9 +377,16 @@ static void setup_iomux_fec(void)
 	imx_iomux_v3_setup_multiple_pads(fec1_pads, ARRAY_SIZE(fec1_pads));
 }
 
+#define MAC_ID_PRI 1
+#define MAC_ID_SEC 2
+
 int board_eth_init(bd_t *bis)
 {
-	if (handle_mac_address("ethaddr", CONFIG_SYS_I2C_EEPROM_BUS))
+	if (handle_mac_address("ethaddr", CONFIG_SYS_I2C_EEPROM_BUS,
+			       MAC_ID_PRI))
+		printf("No primary MAC address found\n");
+	if (handle_mac_address("eth1addr", CONFIG_SYS_I2C_EEPROM_BUS,
+			       MAC_ID_SEC))
 		printf("No primary MAC address found\n");
 
 	setup_iomux_fec();
@@ -539,7 +547,9 @@ int checkboard(void)
 
 int fdt_board_adjust(void)
 {
+	int ret;
 	u32 cpurev = get_cpu_rev();
+	uint8_t enetaddr_sec[6];
 
 	/* Disable features not supported by i.MX7Solo */
 	if (((cpurev & 0xFF000) >> 12) == MXC_CPU_MX7S) {
@@ -563,6 +573,13 @@ int fdt_board_adjust(void)
 		fdt_node_disable("/soc/gpmi-nand@33002000");
 	}
 
+	/* Update secondary Ethernet interface MAC address */
+	if (eth_getenv_enetaddr("eth1addr", enetaddr_sec)) {
+		ret = fdt_prop_set("/soc/aips-bus@30800000/ethernet@30bf0000",
+				   "mac-address", enetaddr_sec, 6, 1);
+		if (ret)
+			 return -1;
+	}
 	return 0;
 }
 #endif
