@@ -41,7 +41,7 @@
 static int cl_eeprom_bus;
 static int cl_eeprom_layout; /* Implicitly LAYOUT_INVALID */
 
-static int cl_eeprom_read(uint offset, uchar *buf, int len)
+static int cl_eeprom_read(uint8_t eeprom_addr, uint offset, uchar *buf, int len)
 {
 	int res;
 	unsigned int current_i2c_bus = i2c_get_bus_num();
@@ -50,7 +50,7 @@ static int cl_eeprom_read(uint offset, uchar *buf, int len)
 	if (res < 0)
 		return res;
 
-	res = i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, offset,
+	res = i2c_read(eeprom_addr, offset,
 			CONFIG_SYS_I2C_EEPROM_ADDR_LEN, buf, len);
 
 	i2c_set_bus_num(current_i2c_bus);
@@ -58,7 +58,16 @@ static int cl_eeprom_read(uint offset, uchar *buf, int len)
 	return res;
 }
 
-static int cl_eeprom_setup(uint eeprom_bus)
+/*
+ * Routine: cl_eeprom_setup
+ * Description: set EEPROM parameters.
+ *
+ * @eeprom_bus: EEPROM I2C bus ID
+ * @eeprom_addr: EEPROM I2C address
+ *
+ * @return: 0 on success, < 0 on failure
+ */
+static int cl_eeprom_setup(uint eeprom_bus, uint8_t eeprom_addr)
 {
 	int res;
 
@@ -70,7 +79,7 @@ static int cl_eeprom_setup(uint eeprom_bus)
 		return 0;
 
 	cl_eeprom_bus = eeprom_bus;
-	res = cl_eeprom_read(EEPROM_LAYOUT_VER_OFFSET,
+	res = cl_eeprom_read(eeprom_addr, EEPROM_LAYOUT_VER_OFFSET,
 			     (uchar *)&cl_eeprom_layout, 1);
 	if (res) {
 		cl_eeprom_layout = LAYOUT_INVALID;
@@ -90,13 +99,14 @@ void get_board_serial(struct tag_serialnr *serialnr)
 
 	memset(serialnr, 0, sizeof(*serialnr));
 
-	if (cl_eeprom_setup(CONFIG_SYS_I2C_EEPROM_BUS))
+	if (cl_eeprom_setup(CONFIG_SYS_I2C_EEPROM_BUS, CONFIG_SYS_I2C_EEPROM_ADDR))
 		return;
 
 	offset = (cl_eeprom_layout != LAYOUT_LEGACY) ?
 		BOARD_SERIAL_OFFSET : BOARD_SERIAL_OFFSET_LEGACY;
 
-	if (cl_eeprom_read(offset, (uchar *)serial, 8))
+	if (cl_eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, offset,
+			   (uchar *)serial, 8))
 		return;
 
 	if (serial[0] != 0xffffffff && serial[1] != 0xffffffff) {
@@ -114,7 +124,7 @@ int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus, uint mac_id)
 	uint offset;
 	int err;
 
-	err = cl_eeprom_setup(eeprom_bus);
+	err = cl_eeprom_setup(eeprom_bus, CONFIG_SYS_I2C_EEPROM_ADDR);
 	if (err)
 		return err;
 
@@ -124,7 +134,7 @@ int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus, uint mac_id)
 		offset = (mac_id == 1) ? MAC1_ADDR_OFFSET :
 			MAC2_ADDR_OFFSET;
 
-	return cl_eeprom_read(offset, buf, 6);
+	return cl_eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, offset, buf, 6);
 }
 
 static u32 board_rev;
@@ -141,13 +151,14 @@ u32 cl_eeprom_get_board_rev(uint eeprom_bus)
 	if (board_rev)
 		return board_rev;
 
-	if (cl_eeprom_setup(eeprom_bus))
+	if (cl_eeprom_setup(eeprom_bus, CONFIG_SYS_I2C_EEPROM_ADDR))
 		return 0;
 
 	if (cl_eeprom_layout != LAYOUT_LEGACY)
 		offset = BOARD_REV_OFFSET;
 
-	if (cl_eeprom_read(offset, (uchar *)&board_rev, BOARD_REV_SIZE))
+	if (cl_eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, offset,
+			   (uchar *)&board_rev, BOARD_REV_SIZE))
 		return 0;
 
 	/*
@@ -178,16 +189,47 @@ int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus)
 	if (buf == NULL)
 		return -EINVAL;
 
-	err = cl_eeprom_setup(eeprom_bus);
+	err = cl_eeprom_setup(eeprom_bus, CONFIG_SYS_I2C_EEPROM_ADDR);
 	if (err)
 		return err;
 
-	err = cl_eeprom_read(PRODUCT_NAME_OFFSET, buf, PRODUCT_NAME_SIZE);
+	err = cl_eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, PRODUCT_NAME_OFFSET,
+			     buf, PRODUCT_NAME_SIZE);
 	if (!err) /* Protect ourselves from invalid data (unterminated str) */
 		buf[PRODUCT_NAME_SIZE - 1] = '\0';
 
 	return err;
 }
+
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_BASE
+/*
+ * Routine: cl_eeprom_get_product_name_base
+ * Description: read the product name of the base board.
+ *
+ * @buf: buffer to store the product name
+ * @eeprom_bus: i2c bus num of the eeprom
+ *
+ * @return: 0 on success, < 0 on failure
+ */
+int cl_eeprom_get_product_name_base(uchar *buf, uint eeprom_bus)
+{
+	int err;
+
+	if (buf == NULL)
+		return -EINVAL;
+
+	err = cl_eeprom_setup(eeprom_bus, CONFIG_SYS_I2C_EEPROM_ADDR_BASE);
+	if (err)
+		return err;
+
+	err = cl_eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR_BASE, PRODUCT_NAME_OFFSET,
+			     buf, PRODUCT_NAME_SIZE);
+	if (!err) /* Protect ourselves from invalid data (unterminated str) */
+		buf[PRODUCT_NAME_SIZE - 1] = '\0';
+
+	return err;
+}
+#endif /* CONFIG_SYS_I2C_EEPROM_ADDR_BASE */
 
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
 /**
