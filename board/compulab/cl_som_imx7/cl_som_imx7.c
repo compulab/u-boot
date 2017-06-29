@@ -26,6 +26,7 @@
 #include <usb.h>
 #include <usb/ehci-ci.h>
 #include "../common/eeprom.h"
+#include "common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -442,6 +443,69 @@ int board_spi_cs_gpio(unsigned bus, unsigned cs)
 static void board_spi_init(void) {}
 #endif
 
+#define PRODUCT_NAME_SIZE 16
+
+typedef struct {
+	char name[PRODUCT_NAME_SIZE];
+	char fdt_file[25];
+} base_board_param;
+
+static base_board_param base_boards_params[] = {
+	{"SB-SOM", "imx7d-sbc-imx7.dtb"},
+	{"SB-IOT", "imx7d-sbc-iot-imx7.dtb"},
+	{"IOTG", "imx7d-sbc-iot-imx7.dtb"},
+};
+
+/*
+ * board_get_base_id() - determine baseboard ID.
+ * Baseboard ID determined by the base board's
+ * EEPROM filed "product name".
+ *
+ */
+static void board_get_baseboard_id(void)
+{
+	int ret, i;
+	char prod_name_base[PRODUCT_NAME_SIZE];
+
+	ret = cl_eeprom_get_product_name_base((uchar*) prod_name_base,
+					      CONFIG_SYS_I2C_BUS_EXT);
+
+	if (ret < 0) {
+		prod_name_base[0] = 0;
+		printf("Failed getting base board name\n");
+	}
+
+	for (i = 0; i < ARRAY_SIZE(base_boards_params); i++) {
+		if (!strcmp(prod_name_base, base_boards_params[i].name)) {
+			som_imx7_base_id = i;
+			break;
+		}
+	}
+}
+
+#define FDT_FILE_NAME "fdt_file"
+#define BOARD_ID_DEF 0
+
+/*
+ * board_update_dtb() - update device tree blob file name.
+ * Device tree file name determined base board ID
+ *
+ */
+static void board_update_dtb_name(void)
+{
+	char *fdt_file = getenv(FDT_FILE_NAME);
+
+	if (fdt_file) /* Device tree blob file name was set */
+               return;
+
+	if (som_imx7_base_id < SOM_IMX7_OTHER)
+		setenv(FDT_FILE_NAME,
+		       base_boards_params[som_imx7_base_id].fdt_file);
+	else
+		setenv(FDT_FILE_NAME,
+		       base_boards_params[BOARD_ID_DEF].fdt_file);
+}
+
 static iomux_v3_cfg_t const wdog_pads[] = {
 	MX7D_PAD_GPIO1_IO00__WDOG1_WDOG_B | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
@@ -487,6 +551,8 @@ int board_init(void)
 
 	setup_led();
 
+	board_get_baseboard_id();
+
 	return 0;
 }
 
@@ -518,11 +584,16 @@ int power_init_board(void)
 }
 #endif
 
+/* CL-SOM-iMX7 base board ID */
+som_imx7_base som_imx7_base_id = SOM_IMX7_OTHER;
+
 int board_late_init(void)
 {
 	setenv("board_name", "CL-SOM-iMX7");
 
 	setup_wdog();
+
+	board_update_dtb_name();
 
 	return 0;
 }

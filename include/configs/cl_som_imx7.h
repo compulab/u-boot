@@ -56,10 +56,12 @@
 #define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_MXC_I2C4		/* enable I2C bus 4 */
 #define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_SYS_I2C_BUS_EXT		1
 
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 #define CONFIG_SYS_I2C_EEPROM_BUS	0
+#define CONFIG_SYS_I2C_EEPROM_ADDR_BASE	0x54
 
 #define CONFIG_PCA953X
 #define CONFIG_CMD_PCA953X
@@ -83,7 +85,6 @@
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
 	"fdt_high=0xffffffff\0" \
-	"fdt_file=imx7d-sbc-imx7.dtb\0" \
 	"fdt_addr=0x83000000\0" \
 	"mmcblk=0\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_DEV)"\0" \
