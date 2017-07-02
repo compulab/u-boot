@@ -15,3 +15,5 @@ typedef enum {
 } som_imx7_base;
 
 extern som_imx7_base som_imx7_base_id;
+
+int fdt_board_adjust_display(void);

@@ -618,7 +618,7 @@ int checkboard(void)
 
 int fdt_board_adjust(void)
 {
-	int ret;
+	int ret = 0;
 	u32 cpurev = get_cpu_rev();
 	uint8_t enetaddr_sec[6];
 
@@ -651,7 +651,12 @@ int fdt_board_adjust(void)
 		if (ret)
 			 return -1;
 	}
-	return 0;
+#ifdef CONFIG_VIDEO
+	/* Update display timing parameters */
+	ret = fdt_board_adjust_display();
+#endif /* CONFIG_VIDEO */
+
+	return ret;
 }
 #endif
 

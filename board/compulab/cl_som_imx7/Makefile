@@ -4,3 +4,4 @@
 #
 
 obj-y  := cl_som_imx7.o
+obj-$(CONFIG_VIDEO_MXS) += display.o

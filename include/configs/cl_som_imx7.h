@@ -109,6 +109,10 @@
 		"if run loadimage; then " \
 			"run mmcboot; " \
 		"fi;\0" \
+        "displaytype=dvi\0" \
+	"stdin=serial\0" \
+	"stdout=serial,vga\0" \
+	"stderr=serial,vga\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	   "mmc dev ${mmcdev};" \
@@ -213,5 +217,24 @@
 #define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
 #define STATUS_LED_BOOT			0
 #define CONFIG_GPIO_LED_INVERTED_TABLE	{STATUS_LED_BOOT,}
+
+/* Display */
+#define CONFIG_VIDEO
+#ifdef CONFIG_VIDEO
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_CONSOLE_MUX
+#define CONFIG_VIDEO_MXS
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define CONFIG_SPLASH_SOURCE
+#define CONFIG_CMD_BMP
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_VIDEO_BMP_LOGO
+#endif /* CONFIG_VIDEO */
 
 #endif	/* __CONFIG_H */
