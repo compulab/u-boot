@@ -197,7 +197,7 @@ static bool mxs_nand_bbm_in_data_chunk(struct mtd_info *mtd, int gf_len,
  */
 static int mxs_nand_get_ecc_strength(struct mtd_info *mtd)
 {
-	struct nand_chip *chip = mtd->priv;
+	struct nand_chip *chip = mtd_to_nand(mtd);
 	uint32_t page_oob_size = mtd->oobsize;
 	int meta = MXS_NAND_METADATA_SIZE;
 	int max_ecc_strength_supported;
