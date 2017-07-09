@@ -86,46 +86,58 @@
 	"console=ttymxc0\0" \
 	"fdt_high=0xffffffff\0" \
 	"fdt_addr=0x83000000\0" \
-	"mmcblk=0\0" \
-	"mmcdev="__stringify(CONFIG_SYS_MMC_DEV)"\0" \
+	"mmcdev_def="__stringify(CONFIG_SYS_MMC_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
+	"bootcmd_common=run set_display; bootz ${loadaddr} - ${fdt_addr}\0" \
 	"loadbootscript=" \
 		"load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
-	"loadimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
-	"loadfdt=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
-	"mmcargs=setenv mmcroot /dev/mmcblk${mmcblk}p2 rootwait rw; " \
-		"setenv bootargs console=${console},${baudrate} " \
-		"root=${mmcroot}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
-		"if run loadfdt; then " \
-			"run set_display; " \
-			"bootz ${loadaddr} - ${fdt_addr}; " \
+	"loadimage_mmc=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
+	"loadfdt_mmc=load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
+	"loadimage_nand=nand read ${loadaddr} 0 600000\0" \
+	"loadfdt_nand=nand read ${fdt_addr} 980000 10000\0" \
+	"mmc_config= mmc dev ${mmcdev}; mmc rescan\0" \
+	"mmcargs=setenv bootargs console=${console},${baudrate} " \
+		"root=/dev/mmcblk${mmcblk}p2 rootwait rw\0" \
+	"nandargs=setenv bootargs console=${console},${baudrate} " \
+		"root=ubi0:rootfs rw rootfstype=ubifs ubi.mtd=rootfs\0" \
+	"mmcbootscript=" \
+		"if run mmc_config; then " \
+			"if run loadbootscript; then " \
+				"run bootscript; " \
+			"fi; " \
+		"fi;\0" \
+	"mmcboot=" \
+		"if run mmc_config; then " \
+			"run mmcargs; " \
+			"if run loadimage_mmc; then " \
+				"if run loadfdt_mmc; then " \
+					"run bootcmd_common;" \
+				"fi; " \
+			"fi; " \
+		"fi;\0" \
+	"sdbootscript=setenv mmcdev ${mmcdev_def}; setenv mmcblk 0; " \
+		"run mmcbootscript\0" \
+	"sdboot=setenv mmcdev ${mmcdev_def}; setenv mmcblk 0; run mmcboot\0" \
+	"emmcbootscript=setenv mmcdev 1; setenv mmcblk 2; run mmcbootscript\0" \
+	"emmcboot=setenv mmcdev 1; setenv mmcblk 2; run mmcboot\0" \
+	"nandboot=" \
+		"if run loadimage_nand; then " \
+			"if run loadfdt_nand; then " \
+				"run nandargs; run bootcmd_common;" \
+			"fi; " \
 		"fi;\0" \
 	"set_display=fdt addr ${fdt_addr}; fdt rm lcdif/display/display-timings/lcd\0" \
-	"defaultboot=setenv mmcdev 1; setenv mmcblk 2; mmc dev ${mmcdev}; "\
-		"if run loadimage; then " \
-			"run mmcboot; " \
-		"fi;\0" \
         "displaytype=dvi\0" \
 	"stdin=serial,usbkbd\0" \
 	"stdout=serial,vga\0" \
 	"stderr=serial,vga\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	   "mmc dev ${mmcdev};" \
-	   "if mmc rescan; then " \
-		   "if run loadbootscript; then " \
-			   "run bootscript; " \
-		   "else " \
-			   "if run loadimage; then " \
-				   "run mmcboot; " \
-			   "fi; " \
-		   "fi; " \
-	   "fi; " \
-	   "run defaultboot"
+	"echo Booting from SD ...; run sdbootscript; run sdboot; " \
+	"echo Booting from eMMC ...; run emmcbootscript; run emmcboot; " \
+	"echo Booting from NAND ...; run nandboot"
 
 #define CONFIG_PREBOOT			"usb start"
 
