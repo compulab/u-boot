@@ -177,6 +177,10 @@ static iomux_v3_cfg_t const lcd_pads[] = {
 	MX7D_PAD_LCD_DATA21__LCD_DATA21 | MUX_PAD_CTRL(LCD_PAD_CTRL),
 	MX7D_PAD_LCD_DATA22__LCD_DATA22 | MUX_PAD_CTRL(LCD_PAD_CTRL),
 	MX7D_PAD_LCD_DATA23__LCD_DATA23 | MUX_PAD_CTRL(LCD_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t const lcd_control_pads[] = {
+	/* LCD backlight */
 	MX7D_PAD_GPIO1_IO02__GPIO1_IO2 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 };
 
@@ -456,6 +460,9 @@ int board_video_skip(void)
 	display_type disp_type;
 
 	imx_iomux_v3_setup_multiple_pads(lcd_pads, ARRAY_SIZE(lcd_pads));
+	if (som_imx7_base_id == SOM_IMX7_SB_SOM)
+		imx_iomux_v3_setup_multiple_pads(lcd_control_pads,
+						 ARRAY_SIZE(lcd_control_pads));
 
 	disp_type = env_parse_displaytype(displaytype);
 	if (disp_type < 0) {
