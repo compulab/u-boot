@@ -203,6 +203,37 @@ int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus)
 
 #ifdef CONFIG_SYS_I2C_EEPROM_ADDR_BASE
 /*
+ * Routine: get_board_serial_base
+ * Description: read the serial number of the base board.
+ *
+ * @serialnr: record to store the serial number
+ *
+ */
+void get_board_serial_base(struct tag_serialnr *serialnr)
+{
+	u32 serial[2];
+	uint offset;
+
+	memset(serialnr, 0, sizeof(*serialnr));
+
+	if (cl_eeprom_setup(CONFIG_SYS_I2C_BUS_EXT,
+			    CONFIG_SYS_I2C_EEPROM_ADDR_BASE))
+		return;
+
+	offset = (cl_eeprom_layout != LAYOUT_LEGACY) ?
+		BOARD_SERIAL_OFFSET : BOARD_SERIAL_OFFSET_LEGACY;
+
+	if (cl_eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR_BASE, offset,
+			   (uchar *)serial, 8))
+		return;
+
+	if (serial[0] != 0xffffffff && serial[1] != 0xffffffff) {
+		serialnr->low = serial[0];
+		serialnr->high = serial[1];
+	}
+}
+
+/*
  * Routine: cl_eeprom_get_product_name_base
  * Description: read the product name of the base board.
  *
