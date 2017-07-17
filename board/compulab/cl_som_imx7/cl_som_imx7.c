@@ -506,6 +506,98 @@ static void board_update_dtb_name(void)
 		       base_boards_params[BOARD_ID_DEF].fdt_file);
 }
 
+#define SERIAL_LEN1 9
+
+/*
+ * serial_valid1() - serial number validation pattern 1.
+ * Validation pattern 1: 5A[0-9]{7}
+ *
+ * @serial_buf: serial number string.
+ * Returns 0 on failure, 1 on success.
+ */
+static int serial_valid1(char serial_buf[])
+{
+	int i=0;
+
+	if (strlen(serial_buf) != SERIAL_LEN1)
+		return 0;
+	if (serial_buf[i++] != '5')
+		return 0;
+	if (serial_buf[i++] != 'A')
+		return 0;
+	for (; i < SERIAL_LEN1; i++)
+		if ((serial_buf[i] < '0') || (serial_buf[i] > '9'))
+			return 0;
+
+	return 1;
+}
+
+#define SERIAL_LEN2 12
+
+/*
+ * serial_valid2() - serial number validation pattern 2.
+ * Validation pattern 2: [0-9]{12}
+ *
+ * @serial_buf: serial number string.
+ * Returns 0 on failure, 1 on success.
+ */
+static int serial_valid2(char *serial_buf)
+{
+	int i;
+
+	if (strlen(serial_buf) != SERIAL_LEN2)
+		return 0;
+
+	for (i=0; i < SERIAL_LEN2; i++)
+		if ((serial_buf[i] < '0') || (serial_buf[i] > '9'))
+			return 0;
+
+	return 1;
+}
+
+#define ENV_SERIAL "serial#"
+#define SERIAL_BUF_SIZE 17
+
+/*
+ * set_serial_env() - set environment variable serial#.
+ * The serial number is read from the EEPROM of the module or the mainboard.
+ *
+ */
+static void set_serial_env(void)
+{
+	struct tag_serialnr board_serial;
+	char *serial_ptr = getenv(ENV_SERIAL);
+	char serial_buf[SERIAL_BUF_SIZE];
+
+	if (serial_ptr) /* Serial number was set */
+               return;
+
+	/* Read serial number from the EEPROM */
+	switch (som_imx7_base_id) {
+	case SOM_IMX7_SB_SOM:
+		get_board_serial(&board_serial);
+		break;
+	case SOM_IMX7_SB_IOT:
+	case SOM_IMX7_IOTG:
+		get_board_serial_base(&board_serial);
+		break;
+	default:
+		return;
+	}
+
+	/* Convert serial number to string */
+	sprintf(serial_buf, "%X%X", board_serial.high, board_serial.low);
+
+	/* Serial number validation */
+	if (!serial_valid1(serial_buf) && !serial_valid2(serial_buf)) {
+		printf("%s7: invalid serial number\n", __func__);
+		return;
+	}
+
+	/* Validation pass - store serial number in the environment */
+	setenv(ENV_SERIAL, serial_buf);
+}
+
 static iomux_v3_cfg_t const wdog_pads[] = {
 	MX7D_PAD_GPIO1_IO00__WDOG1_WDOG_B | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
@@ -594,6 +686,8 @@ int board_late_init(void)
 	setup_wdog();
 
 	board_update_dtb_name();
+
+	set_serial_env();
 
 	return 0;
 }
