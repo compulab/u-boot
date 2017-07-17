@@ -483,7 +483,7 @@ static void board_get_baseboard_id(void)
 	}
 }
 
-#define FDT_FILE_NAME "fdt_file"
+#define FDT_FILE_NAME "fdtfile"
 #define BOARD_ID_DEF 0
 
 /*
