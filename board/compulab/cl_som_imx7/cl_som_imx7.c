@@ -452,8 +452,9 @@ typedef struct {
 
 static base_board_param base_boards_params[] = {
 	{"SB-SOM", "imx7d-sbc-imx7.dtb"},
-	{"SB-IOT", "imx7d-sbc-iot-imx7.dtb"},
+	{"SBC-IOT", "imx7d-sbc-iot-imx7.dtb"},
 	{"IOTG", "imx7d-sbc-iot-imx7.dtb"},
+	{"other", "imx7d-cl-som-imx7.dtb"},
 };
 
 /*
@@ -474,9 +475,8 @@ static void board_get_baseboard_id(void)
 		prod_name_base[0] = 0;
 		printf("Failed getting base board name\n");
 	}
-
 	for (i = 0; i < ARRAY_SIZE(base_boards_params); i++) {
-		if (!strcmp(prod_name_base, base_boards_params[i].name)) {
+	  if (!strncmp(prod_name_base, base_boards_params[i].name, PRODUCT_NAME_SIZE)) {
 			som_imx7_base_id = i;
 			break;
 		}
@@ -484,10 +484,10 @@ static void board_get_baseboard_id(void)
 }
 
 #define FDT_FILE_NAME "fdtfile"
-#define BOARD_ID_DEF 0
+#define BOARD_ID_DEF SOM_IMX7_OTHER
 
 /*
- * board_update_dtb() - update device tree blob file name.
+ * board_update_dtb_name() - update device tree blob file name.
  * Device tree file name determined base board ID
  *
  */
