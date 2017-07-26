@@ -228,6 +228,9 @@ static int dvi_on(void)
 	uchar buf;
 	int ret = -1;
 
+	if (!base_i2c_init)
+		return 0;
+
 	ret = i2c_set_bus_num(CONFIG_SYS_I2C_BUS_EXT);
 	if (ret != 0) {
 		puts ("Failed to select the external I2C bus.\n");
@@ -304,6 +307,9 @@ static int dvi_off(void)
 {
 	uchar buf;
 	int ret = -1;
+
+	if (!base_i2c_init)
+		return 0;
 
 	ret = i2c_set_bus_num(CONFIG_SYS_I2C_BUS_EXT);
 	if (ret != 0) {

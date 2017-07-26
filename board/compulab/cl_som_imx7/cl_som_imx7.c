@@ -75,6 +75,8 @@ static struct i2c_pads_info i2c_pad_info4 = {
                .gp = IMX_GPIO_NR(1, 11),
        },
 };
+
+int base_i2c_init;
 #endif
 
 static int nand_enabled = 0;
@@ -450,6 +452,7 @@ typedef struct {
 	char fdt_file[25];
 } base_board_param;
 
+/* Base board parameters DB */
 static base_board_param base_boards_params[] = {
 	{"SB-SOM", "imx7d-sbc-imx7.dtb"},
 	{"SBC-IOT", "imx7d-sbc-iot-imx7.dtb"},
@@ -467,6 +470,9 @@ static void board_get_baseboard_id(void)
 {
 	int ret, i;
 	char prod_name_base[PRODUCT_NAME_SIZE];
+
+	if (!base_i2c_init)
+		return;
 
 	ret = cl_eeprom_get_product_name_base((uchar*) prod_name_base,
 					      CONFIG_SYS_I2C_BUS_EXT);
@@ -628,12 +634,16 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	int ret;
+
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 #ifdef CONFIG_SYS_I2C_MXC
 	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
-	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info4);
+	ret = setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info4);
+	base_i2c_init = ret ? 0:1;
+
 #endif
 	setup_gpmi_nand();
 
