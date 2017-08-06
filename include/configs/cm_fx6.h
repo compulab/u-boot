@@ -153,21 +153,18 @@
 #endif
 
 #define CONFIG_BOOTCOMMAND \
-	"run setupmmcboot;" \
-	"mmc dev ${storagedev};" \
-	"if mmc rescan; then " \
-		"run trybootsmz;" \
-	"fi;" \
-	EMMC\
-	"setenv storagedev 3;"\
-	"mmc dev ${storagedev};" \
-	"run trybootsmz;" \
 	"run setupusbboot;" \
 	"if usb start; then "\
 		"if run loadscript; then " \
 			"run bootscript;" \
 		"fi;" \
 	"fi;" \
+	"run setupmmcboot;" \
+	"mmc dev ${storagedev};" \
+	"if mmc rescan; then " \
+		"run trybootsmz;" \
+	"fi;" \
+	EMMC\
 	"run setupsataboot;" \
 	"if sata init; then " \
 		"run trybootsmz;" \
