@@ -9,6 +9,8 @@
  */
 
 #include <common.h>
+#include <search.h>
+#include <env_callback.h>
 #include "../common/common.h"
 #include <asm/arch/mx7-pins.h>
 #include <asm/gpio.h>
@@ -484,6 +486,32 @@ int board_video_skip(void)
 
 	return 0;
 }
+
+/*
+ * on_displaytype() - callback function for the environment "displaytype"
+ *
+ * @name: environment name
+ * @value: environment value
+ * @op: operation - create, update, delete.
+ * Returns negative value on failure, 0 on success.
+ */
+static int on_displaytype(const char *name, const char *value, enum env_op op,
+			  int flags)
+{
+	int ret;
+
+	if ((op != env_op_create) && (op != env_op_overwrite))
+		return 0;
+
+	ret = env_parse_displaytype((char*) value);
+	if (ret < 0) {
+		printf("displaytype parsing failure\n");
+		return ret;
+	}
+
+	return 0;
+}
+U_BOOT_ENV_CALLBACK(displaytype, on_displaytype);
 
 #ifdef CONFIG_SPLASH_SCREEN
 /* Splash screen sources options */

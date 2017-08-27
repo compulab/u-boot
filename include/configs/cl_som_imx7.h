@@ -257,4 +257,6 @@
 #define CONFIG_VIDEO_BMP_LOGO
 #endif /* CONFIG_VIDEO */
 
+#define CONFIG_ENV_CALLBACK_LIST_STATIC "displaytype:displaytype"
+
 #endif	/* __CONFIG_H */
