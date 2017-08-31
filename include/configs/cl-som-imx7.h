@@ -76,7 +76,9 @@
 	"script=boot.scr\0" \
 	"loadscript=load ${storagetype} ${storagedev} ${loadaddr} ${script};\0" \
 	"loadkernel=load ${storagetype} ${storagedev} ${loadaddr} ${kernel};\0" \
+	"loadkernel_nand=nand read ${loadaddr} 0 600000\0" \
 	"loadfdt=load ${storagetype} ${storagedev} ${fdtaddr} ${fdtfile};\0" \
+	"loadfdt_nand=nand read ${fdtaddr} 980000 10000\0" \
 	"bootscript=echo Running bootscript from ${storagetype} ...; source ${loadaddr};\0" \
 	"storagebootcmd=echo Booting from ${storagetype} ...; run ${storagetype}args; run doboot;\0" \
 	"kernel=zImage\0" \
@@ -93,6 +95,8 @@
 	"mmc_config=mmc dev ${mmcdev}; mmc rescan\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/mmcblk${mmcblk}p2 rootwait rw\0" \
+	"nandargs=setenv bootargs console=${console},${baudrate} " \
+		"root=ubi0:rootfs rw rootfstype=ubifs ubi.mtd=rootfs\0" \
 	"mmcbootscript=" \
 		"if run mmc_config; then " \
 			"setenv storagetype mmc;" \
@@ -122,11 +126,19 @@
 	"sdboot=setenv mmcdev ${mmcdev_def}; setenv mmcblk 0; run mmcboot\0" \
 	"emmcbootscript=setenv mmcdev 1; setenv mmcblk 2; run mmcbootscript\0" \
 	"emmcboot=setenv mmcdev 1; setenv mmcblk 2; run mmcboot\0" \
+	"nandboot=" \
+		"setenv storagetype nand;" \
+		"if run loadkernel_nand; then " \
+			"if run loadfdt_nand; then " \
+				"run storagebootcmd;" \
+			"fi; " \
+		"fi;\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	"echo SD boot attempt ...; run sdbootscript; run sdboot; " \
 	"echo eMMC boot attempt ...; run emmcbootscript; run emmcboot; " \
-	"echo USB boot attempt ...; run usbbootscript; "
+	"echo USB boot attempt ...; run usbbootscript; " \
+	"echo NAND boot attempt  ...; run nandboot"
 
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x20000000)
@@ -189,6 +201,18 @@
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SYS_SPI_U_BOOT_OFFS	(64 * 1024)
+#else /* !CONFIG_SPL_BUILD */
+/* NAND configuration */
+#define CONFIG_CMD_NAND
+#define CONFIG_SYS_MAX_NAND_DEVICE     1
+#define CONFIG_SYS_NAND_BASE           0x40000000
+#define CONFIG_SYS_NAND_MAX_CHIPS      1
+#define CONFIG_NAND_MXS
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+/* APBH DMA is required for NAND support */
+#define CONFIG_APBH_DMA
+#define CONFIG_APBH_DMA_BURST
+#define CONFIG_APBH_DMA_BURST8
 #endif /* CONFIG_SPL_BUILD */
 
 #endif	/* __CONFIG_H */
