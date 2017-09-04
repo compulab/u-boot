@@ -32,4 +32,7 @@ PADS_SET_PROT(wdog_pads);
 PADS_SET_PROT(gpmi_nand_pads);
 PADS_SET_PROT(nand_enable_pads);
 #endif /* CONFIG_NAND_MXS */
+#ifdef CONFIG_SYS_I2C_MXC
+extern int cl_som_imx7_base_i2c_init;
+#endif /* CONFIG_SYS_I2C_MXC */
 #endif /* !CONFIG_SPL_BUILD */
