@@ -29,6 +29,9 @@ static int nand_enabled = 0;
 
 #ifdef CONFIG_SYS_I2C_MXC
 
+/* Baseboard I2C bus is initialized flag */
+int cl_som_imx7_base_i2c_init;
+
 #define I2C_PAD_CTRL		(PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
 				PAD_CTL_HYS)
 
@@ -52,12 +55,33 @@ static struct i2c_pads_info cl_som_imx7_i2c_pad_info2 = {
 	},
 };
 
+static struct i2c_pads_info cl_som_imx7_i2c_pad_info4 = {
+	.scl = {
+		.i2c_mode = MX7D_PAD_GPIO1_IO10__I2C4_SCL |
+			MUX_PAD_CTRL(I2C_PAD_CTRL),
+		.gpio_mode = MX7D_PAD_GPIO1_IO10__GPIO1_IO10 |
+			MUX_PAD_CTRL(I2C_PAD_CTRL),
+		.gp = IMX_GPIO_NR(1, 10),
+	},
+	.sda = {
+		.i2c_mode = MX7D_PAD_GPIO1_IO11__I2C4_SDA |
+			MUX_PAD_CTRL(I2C_PAD_CTRL),
+		.gpio_mode = MX7D_PAD_GPIO1_IO11__GPIO1_IO11 |
+			MUX_PAD_CTRL(I2C_PAD_CTRL),
+		.gp = IMX_GPIO_NR(1, 11),
+	},
+};
+
 /*
  * cl_som_imx7_setup_i2c() - I2C  pinmux configuration.
  */
 static void cl_som_imx7_setup_i2c(void)
 {
+	int ret;
+
 	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &cl_som_imx7_i2c_pad_info2);
+	ret = setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &cl_som_imx7_i2c_pad_info4);
+	cl_som_imx7_base_i2c_init = ret ? 0:1;
 }
 #else /* !CONFIG_SYS_I2C_MXC */
 static void cl_som_imx7_setup_i2c(void) {}
