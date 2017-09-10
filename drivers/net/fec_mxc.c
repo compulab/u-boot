@@ -1110,7 +1110,8 @@ err1:
 	return ret;
 }
 
-int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
+int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id,
+			    uint32_t addr, uint32_t addr_mii)
 {
 	uint32_t base_mii;
 	struct mii_dev *bus = NULL;
@@ -1126,7 +1127,7 @@ int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
 	 */
 	base_mii = MXS_ENET0_BASE;
 #else
-	base_mii = addr;
+	base_mii = addr_mii;
 #endif
 	debug("eth_init: fec_probe(bd, %i, %i) @ %08x\n", dev_id, phy_id, addr);
 	bus = fec_get_miibus(base_mii, dev_id);
@@ -1157,7 +1158,7 @@ int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
 int fecmxc_initialize(bd_t *bd)
 {
 	return fecmxc_initialize_multi(bd, -1, CONFIG_FEC_MXC_PHYADDR,
-			IMX_FEC_BASE);
+				       IMX_FEC_BASE, IMX_FEC_BASE);
 }
 #endif
 

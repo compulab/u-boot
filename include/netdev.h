@@ -46,7 +46,8 @@ int eth_3com_initialize (bd_t * bis);
 int ethoc_initialize(u8 dev_num, int base_addr);
 int fec_initialize (bd_t *bis);
 int fecmxc_initialize(bd_t *bis);
-int fecmxc_initialize_multi(bd_t *bis, int dev_id, int phy_id, uint32_t addr);
+int fecmxc_initialize_multi(bd_t *bis, int dev_id, int phy_id,
+			    uint32_t addr, uint32_t addr_mii);
 int ftgmac100_initialize(bd_t *bits);
 int ftmac100_initialize(bd_t *bits);
 int ftmac110_initialize(bd_t *bits);

@@ -158,7 +158,7 @@ int board_eth_init(bd_t *bis)
 	mdelay(1);
 
 	ret = fecmxc_initialize_multi(bis, 0, CONFIG_FEC_MXC_PHYADDR,
-					IMX_FEC_BASE);
+				      IMX_FEC_BASE, IMX_FEC_BASE);
 	if (ret)
 		goto eth_fail;
 

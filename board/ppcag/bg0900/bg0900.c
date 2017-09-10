@@ -68,7 +68,8 @@ int board_eth_init(bd_t *bis)
 	udelay(200);
 	gpio_set_value(MX28_PAD_ENET0_RX_CLK__GPIO_4_13, 1);
 
-	ret = fecmxc_initialize_multi(bis, 0, 0, MXS_ENET0_BASE);
+	ret = fecmxc_initialize_multi(bis, 0, 0, MXS_ENET0_BASE,
+				      MXS_ENET0_BASE);
 	if (ret) {
 		puts("FEC MXS: Unable to init FEC0\n");
 		return ret;

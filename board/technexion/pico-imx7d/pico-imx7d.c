@@ -169,7 +169,7 @@ int board_eth_init(bd_t *bis)
 	setup_iomux_fec();
 
 	return fecmxc_initialize_multi(bis, 0,
-		CONFIG_FEC_MXC_PHYADDR, IMX_FEC_BASE);
+		CONFIG_FEC_MXC_PHYADDR, IMX_FEC_BASE, IMX_FEC_BASE);
 }
 
 static int setup_fec(void)
