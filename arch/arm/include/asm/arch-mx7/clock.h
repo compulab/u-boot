@@ -343,6 +343,6 @@ void enable_usboh3_clk(unsigned char enable);
 #ifdef CONFIG_SECURE_BOOT
 void hab_caam_clock_enable(unsigned char enable);
 #endif
-void mxs_set_lcdclk(uint32_t base_addr, uint32_t freq);
+int mxs_set_lcdclk(uint32_t base_addr, uint32_t freq);
 void enable_thermal_clk(void);
 #endif

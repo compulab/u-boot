@@ -309,7 +309,7 @@ void mxs_set_ssp_busclock(unsigned int bus, uint32_t freq)
 		bus, tgtclk, freq);
 }
 
-void mxs_set_lcdclk(uint32_t __maybe_unused lcd_base, uint32_t freq)
+int mxs_set_lcdclk(uint32_t __maybe_unused lcd_base, uint32_t freq)
 {
 	struct mxs_clkctrl_regs *clkctrl_regs =
 		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
@@ -317,7 +317,7 @@ void mxs_set_lcdclk(uint32_t __maybe_unused lcd_base, uint32_t freq)
 	int32_t k_best_l = 999, k_best_t = 0, x_best_l = 0xff, x_best_t = 0xff;
 
 	if (freq == 0)
-		return;
+		return -1;
 
 #if defined(CONFIG_MX23)
 	writel(CLKCTRL_CLKSEQ_BYPASS_PIX, &clkctrl_regs->hw_clkctrl_clkseq_clr);
@@ -400,6 +400,7 @@ void mxs_set_lcdclk(uint32_t __maybe_unused lcd_base, uint32_t freq)
 	while (readl(&clkctrl_regs->hw_clkctrl_lcdif) & CLKCTRL_DIS_LCDIF_BUSY)
 		;
 #endif
+	return 0;
 }
 
 uint32_t mxc_get_clock(enum mxc_clock clk)

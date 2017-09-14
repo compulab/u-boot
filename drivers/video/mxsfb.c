@@ -50,12 +50,15 @@ __weak void mxsfb_system_setup(void)
 static void mxs_lcd_init(GraphicDevice *panel,
 			struct ctfb_res_modes *mode, int bpp)
 {
+	int ret;
 	struct mxs_lcdif_regs *regs = (struct mxs_lcdif_regs *)MXS_LCDIF_BASE;
 	uint32_t word_len = 0, bus_width = 0;
 	uint8_t valid_data = 0;
 
 	/* Kick in the LCDIF clock */
-	mxs_set_lcdclk(MXS_LCDIF_BASE, PS2KHZ(mode->pixclock));
+	ret = mxs_set_lcdclk(MXS_LCDIF_BASE, PS2KHZ(mode->pixclock));
+	if (ret < 0)
+		return;
 
 	/* Restart the LCDIF block */
 	mxs_reset_block(&regs->hw_lcdif_ctrl_reg);

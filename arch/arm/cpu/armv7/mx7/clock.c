@@ -889,7 +889,7 @@ int set_clk_nand(void)
 	return 0;
 }
 
-void mxs_set_lcdclk(uint32_t base_addr, uint32_t freq)
+int mxs_set_lcdclk(uint32_t base_addr, uint32_t freq)
 {
 	u32 hck = MXC_HCLK/1000;
 	u32 min = hck * 27;
@@ -915,7 +915,7 @@ void mxs_set_lcdclk(uint32_t base_addr, uint32_t freq)
 
 		if (5 == i) {
 			printf("Fail to set rate to %dkhz", freq);
-			return;
+			return -1;
 		}
 	}
 
@@ -935,7 +935,7 @@ void mxs_set_lcdclk(uint32_t base_addr, uint32_t freq)
 
 	if (best == 0) {
 		printf("Fail to set rate to %dkhz", freq);
-		return;
+		return -1;
 	}
 
 	debug("best %d, pred = %d, postd = %d\n", best, pred, postd);
@@ -945,13 +945,15 @@ void mxs_set_lcdclk(uint32_t base_addr, uint32_t freq)
 	pll_num = (best - hck * pll_div) * pll_denom / hck;
 
 	if (enable_pll_video(pll_div, pll_num, pll_denom, post_div))
-		return;
+		return -1;
 
 	target = CLK_ROOT_ON | LCDIF_PIXEL_CLK_ROOT_FROM_PLL_VIDEO_MAIN_CLK |
 		 CLK_ROOT_PRE_DIV((pred - 1)) | CLK_ROOT_POST_DIV((postd - 1));
 	clock_set_target_val(LCDIF_PIXEL_CLK_ROOT, target);
 
 	clock_enable(CCGR_LCDIF, 1);
+
+	return 0;
 }
 
 #ifdef CONFIG_FEC_MXC
