@@ -28,6 +28,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int nand_enabled = 0;
 
+static uchar cl_som_am57x_eeprom_buf[CONFIG_SYS_EEPROM_SIZE];
+static uchar sb_som_am57x_eeprom_buf[CONFIG_SYS_EEPROM_SIZE];
+static struct eeprom_layout cl_som_am57x_layout;
+static struct eeprom_layout sb_som_am57x_layout;
+
 #ifdef CONFIG_SYS_I2C_MXC
 
 /* Baseboard I2C bus is initialized flag */
@@ -307,12 +312,28 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	int ret;
+
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 	cl_som_imx7_setup_i2c();
 	cl_som_imx7_setup_gpmi_nand();
 	cl_som_imx7_setup_fec();
 	cl_som_imx7_spi_init();
+	ret = cl_eeprom_layout_setup(&cl_som_am57x_layout,
+				     cl_som_am57x_eeprom_buf,
+				     LAYOUT_VERSION_AUTODETECT,
+				     CONFIG_SYS_I2C_EEPROM_BUS,
+				     CONFIG_SYS_I2C_EEPROM_ADDR);
+	if (cl_som_imx7_base_i2c_init)
+		ret |= cl_eeprom_layout_setup(&sb_som_am57x_layout,
+					      sb_som_am57x_eeprom_buf,
+					      LAYOUT_VERSION_AUTODETECT,
+					      CL_SOM_IMX7_I2C_BUS_EXT,
+					      CL_SOM_IMX7_I2C_EEPROM_EXT);
+
+       if (ret)
+               printf("EEPROM layout initialization failure\n");
 
 	return 0;
 }
