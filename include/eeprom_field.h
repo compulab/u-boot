@@ -32,6 +32,9 @@ void eeprom_field_print_bin_rev(const struct eeprom_field *field, uchar *fbuf);
 int eeprom_field_update_bin_rev(struct eeprom_field *field, uchar *fbuf,
 				char *value);
 
+int eeprom_field_read_rev(const struct eeprom_field *field, uchar *fbuf,
+			  uchar *buf, int buf_size);
+
 void eeprom_field_print_mac(const struct eeprom_field *field, uchar *fbuf);
 int eeprom_field_update_mac(struct eeprom_field *field, uchar *fbuf,
 			    char *value);
