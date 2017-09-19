@@ -409,6 +409,10 @@ extern struct eeprom_field layout_unknown[1];
 			    eeprom_field_update_ascii,   \
 			    eeprom_field_read_bin
 
+#define FIELD_FUNC_SERIAL eeprom_field_print_bin_rev,  \
+			  eeprom_field_update_bin_rev, \
+			  eeprom_field_read_rev
+
 #ifdef CONFIG_CM_T3X
 struct eeprom_field layout_legacy[5] = {
 	{ "MAC address",          6, DEFINE_FIELD_FUNC(mac) },
@@ -428,7 +432,7 @@ struct eeprom_field layout_v1[12] = {
 	{ "1st MAC Address",     6, DEFINE_FIELD_FUNC(mac) },
 	{ "2nd MAC Address",     6, DEFINE_FIELD_FUNC(mac) },
 	{ "Production Date",     4, DEFINE_FIELD_FUNC(date) },
-	{ "Serial Number",      12, DEFINE_FIELD_FUNC(bin_rev) },
+	{ "Serial Number",      12, FIELD_FUNC_SERIAL },
 	{ RESERVED_FIELDS,      96, DEFINE_FIELD_FUNC(reserved) },
 	{ "Product Name",       16, DEFINE_FIELD_FUNC(ascii) },
 	{ "Product Options #1", 16, DEFINE_FIELD_FUNC(ascii) },
@@ -446,7 +450,7 @@ struct eeprom_field layout_v2[15] = {
 	{ "1st MAC Address",           6, DEFINE_FIELD_FUNC(mac) },
 	{ "2nd MAC Address",           6, DEFINE_FIELD_FUNC(mac) },
 	{ "Production Date",           4, DEFINE_FIELD_FUNC(date) },
-	{ "Serial Number",            12, DEFINE_FIELD_FUNC(bin_rev) },
+	{ "Serial Number",            12, FIELD_FUNC_SERIAL },
 	{ "3rd MAC Address (WIFI)",    6, DEFINE_FIELD_FUNC(mac) },
 	{ "4th MAC Address (Bluetooth)", 6, DEFINE_FIELD_FUNC(mac) },
 	{ "Layout Version",            1, DEFINE_FIELD_FUNC(bin) },
@@ -464,7 +468,7 @@ struct eeprom_field layout_v3[16] = {
 	{ "1st MAC Address",           6, DEFINE_FIELD_FUNC(mac) },
 	{ "2nd MAC Address",           6, DEFINE_FIELD_FUNC(mac) },
 	{ "Production Date",           4, DEFINE_FIELD_FUNC(date) },
-	{ "Serial Number",            12, DEFINE_FIELD_FUNC(bin_rev) },
+	{ "Serial Number",            12, FIELD_FUNC_SERIAL },
 	{ "3rd MAC Address (WIFI)",    6, DEFINE_FIELD_FUNC(mac) },
 	{ "4th MAC Address (Bluetooth)", 6, DEFINE_FIELD_FUNC(mac) },
 	{ "Layout Version",            1, DEFINE_FIELD_FUNC(bin) },
