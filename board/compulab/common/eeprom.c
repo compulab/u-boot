@@ -402,16 +402,20 @@ int eeprom_field_update_date(struct eeprom_field *field, uchar *fbuf,
 
 extern struct eeprom_field layout_unknown[1];
 
-#define DEFINE_PRINT_UPDATE(x) eeprom_field_print_##x, eeprom_field_update_##x
+#define DEFINE_FIELD_FUNC(x) eeprom_field_print_##x, eeprom_field_update_##x, \
+			     eeprom_field_read_bin
+
+#define FIELD_FUNC_RES_LAST eeprom_field_print_reserved, \
+			    eeprom_field_update_ascii,   \
+			    eeprom_field_read_bin
 
 #ifdef CONFIG_CM_T3X
 struct eeprom_field layout_legacy[5] = {
-	{ "MAC address",          6, DEFINE_PRINT_UPDATE(mac) },
-	{ "Board Revision",       2, DEFINE_PRINT_UPDATE(bin) },
-	{ "Serial Number",        8, DEFINE_PRINT_UPDATE(bin) },
-	{ "Board Configuration", 64, DEFINE_PRINT_UPDATE(ascii) },
-	{ RESERVED_FIELDS,      176, eeprom_field_print_reserved,
-				     eeprom_field_update_ascii },
+	{ "MAC address",          6, DEFINE_FIELD_FUNC(mac) },
+	{ "Board Revision",       2, DEFINE_FIELD_FUNC(bin) },
+	{ "Serial Number",        8, DEFINE_FIELD_FUNC(bin) },
+	{ "Board Configuration", 64, DEFINE_FIELD_FUNC(ascii) },
+	{ RESERVED_FIELDS,      176, FIELD_FUNC_RES_LAST }
 };
 #else
 #define layout_legacy layout_unknown
@@ -419,61 +423,58 @@ struct eeprom_field layout_legacy[5] = {
 
 #if defined(CONFIG_CM_T3X) || defined(CONFIG_CM_T3517)
 struct eeprom_field layout_v1[12] = {
-	{ "Major Revision",      2, DEFINE_PRINT_UPDATE(bin_ver) },
-	{ "Minor Revision",      2, DEFINE_PRINT_UPDATE(bin_ver) },
-	{ "1st MAC Address",     6, DEFINE_PRINT_UPDATE(mac) },
-	{ "2nd MAC Address",     6, DEFINE_PRINT_UPDATE(mac) },
-	{ "Production Date",     4, DEFINE_PRINT_UPDATE(date) },
-	{ "Serial Number",      12, DEFINE_PRINT_UPDATE(bin_rev) },
-	{ RESERVED_FIELDS,      96, DEFINE_PRINT_UPDATE(reserved) },
-	{ "Product Name",       16, DEFINE_PRINT_UPDATE(ascii) },
-	{ "Product Options #1", 16, DEFINE_PRINT_UPDATE(ascii) },
-	{ "Product Options #2", 16, DEFINE_PRINT_UPDATE(ascii) },
-	{ "Product Options #3", 16, DEFINE_PRINT_UPDATE(ascii) },
-	{ RESERVED_FIELDS,      64, eeprom_field_print_reserved,
-				    eeprom_field_update_ascii },
+	{ "Major Revision",      2, DEFINE_FIELD_FUNC(bin_ver) },
+	{ "Minor Revision",      2, DEFINE_FIELD_FUNC(bin_ver) },
+	{ "1st MAC Address",     6, DEFINE_FIELD_FUNC(mac) },
+	{ "2nd MAC Address",     6, DEFINE_FIELD_FUNC(mac) },
+	{ "Production Date",     4, DEFINE_FIELD_FUNC(date) },
+	{ "Serial Number",      12, DEFINE_FIELD_FUNC(bin_rev) },
+	{ RESERVED_FIELDS,      96, DEFINE_FIELD_FUNC(reserved) },
+	{ "Product Name",       16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #1", 16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #2", 16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #3", 16, DEFINE_FIELD_FUNC(ascii) },
+	{ RESERVED_FIELDS,      64, FIELD_FUNC_RES_LAST }
 };
 #else
 #define layout_v1 layout_unknown
 #endif
 
 struct eeprom_field layout_v2[15] = {
-	{ "Major Revision",            2, DEFINE_PRINT_UPDATE(bin_ver) },
-	{ "Minor Revision",            2, DEFINE_PRINT_UPDATE(bin_ver) },
-	{ "1st MAC Address",           6, DEFINE_PRINT_UPDATE(mac) },
-	{ "2nd MAC Address",           6, DEFINE_PRINT_UPDATE(mac) },
-	{ "Production Date",           4, DEFINE_PRINT_UPDATE(date) },
-	{ "Serial Number",            12, DEFINE_PRINT_UPDATE(bin_rev) },
-	{ "3rd MAC Address (WIFI)",    6, DEFINE_PRINT_UPDATE(mac) },
-	{ "4th MAC Address (Bluetooth)", 6, DEFINE_PRINT_UPDATE(mac) },
-	{ "Layout Version",            1, DEFINE_PRINT_UPDATE(bin) },
-	{ RESERVED_FIELDS,            83, DEFINE_PRINT_UPDATE(reserved) },
-	{ "Product Name",             16, DEFINE_PRINT_UPDATE(ascii) },
-	{ "Product Options #1",       16, DEFINE_PRINT_UPDATE(ascii) },
-	{ "Product Options #2",       16, DEFINE_PRINT_UPDATE(ascii) },
-	{ "Product Options #3",       16, DEFINE_PRINT_UPDATE(ascii) },
-	{ RESERVED_FIELDS,            64, eeprom_field_print_reserved,
-					  eeprom_field_update_ascii },
+	{ "Major Revision",            2, DEFINE_FIELD_FUNC(bin_ver) },
+	{ "Minor Revision",            2, DEFINE_FIELD_FUNC(bin_ver) },
+	{ "1st MAC Address",           6, DEFINE_FIELD_FUNC(mac) },
+	{ "2nd MAC Address",           6, DEFINE_FIELD_FUNC(mac) },
+	{ "Production Date",           4, DEFINE_FIELD_FUNC(date) },
+	{ "Serial Number",            12, DEFINE_FIELD_FUNC(bin_rev) },
+	{ "3rd MAC Address (WIFI)",    6, DEFINE_FIELD_FUNC(mac) },
+	{ "4th MAC Address (Bluetooth)", 6, DEFINE_FIELD_FUNC(mac) },
+	{ "Layout Version",            1, DEFINE_FIELD_FUNC(bin) },
+	{ RESERVED_FIELDS,            83, DEFINE_FIELD_FUNC(reserved) },
+	{ "Product Name",             16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #1",       16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #2",       16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #3",       16, DEFINE_FIELD_FUNC(ascii) },
+	{ RESERVED_FIELDS,            64, FIELD_FUNC_RES_LAST },
 };
 
 struct eeprom_field layout_v3[16] = {
-	{ "Major Revision",            2, DEFINE_PRINT_UPDATE(bin_ver) },
-	{ "Minor Revision",            2, DEFINE_PRINT_UPDATE(bin_ver) },
-	{ "1st MAC Address",           6, DEFINE_PRINT_UPDATE(mac) },
-	{ "2nd MAC Address",           6, DEFINE_PRINT_UPDATE(mac) },
-	{ "Production Date",           4, DEFINE_PRINT_UPDATE(date) },
-	{ "Serial Number",            12, DEFINE_PRINT_UPDATE(bin_rev) },
-	{ "3rd MAC Address (WIFI)",    6, DEFINE_PRINT_UPDATE(mac) },
-	{ "4th MAC Address (Bluetooth)", 6, DEFINE_PRINT_UPDATE(mac) },
-	{ "Layout Version",            1, DEFINE_PRINT_UPDATE(bin) },
-	{ "CompuLab EEPROM ID",        3, DEFINE_PRINT_UPDATE(bin) },
-	{ RESERVED_FIELDS,            80, DEFINE_PRINT_UPDATE(reserved) },
-	{ "Product Name",             16, DEFINE_PRINT_UPDATE(ascii) },
-	{ "Product Options #1",       16, DEFINE_PRINT_UPDATE(ascii) },
-	{ "Product Options #2",       16, DEFINE_PRINT_UPDATE(ascii) },
-	{ "Product Options #3",       16, DEFINE_PRINT_UPDATE(ascii) },
-	{ RESERVED_FIELDS,            64, eeprom_field_print_reserved,
-					  eeprom_field_update_ascii },
+	{ "Major Revision",            2, DEFINE_FIELD_FUNC(bin_ver) },
+	{ "Minor Revision",            2, DEFINE_FIELD_FUNC(bin_ver) },
+	{ "1st MAC Address",           6, DEFINE_FIELD_FUNC(mac) },
+	{ "2nd MAC Address",           6, DEFINE_FIELD_FUNC(mac) },
+	{ "Production Date",           4, DEFINE_FIELD_FUNC(date) },
+	{ "Serial Number",            12, DEFINE_FIELD_FUNC(bin_rev) },
+	{ "3rd MAC Address (WIFI)",    6, DEFINE_FIELD_FUNC(mac) },
+	{ "4th MAC Address (Bluetooth)", 6, DEFINE_FIELD_FUNC(mac) },
+	{ "Layout Version",            1, DEFINE_FIELD_FUNC(bin) },
+	{ "CompuLab EEPROM ID",        3, DEFINE_FIELD_FUNC(bin) },
+	{ RESERVED_FIELDS,            80, DEFINE_FIELD_FUNC(reserved) },
+	{ "Product Name",             16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #1",       16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #2",       16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #3",       16, DEFINE_FIELD_FUNC(ascii) },
+	{ RESERVED_FIELDS,            64, FIELD_FUNC_RES_LAST },
 };
 
 void eeprom_layout_assign(struct eeprom_layout *layout, int layout_version)
