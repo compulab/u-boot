@@ -12,6 +12,11 @@
 #include <errno.h>
 
 #ifdef CONFIG_SYS_I2C
+#ifdef CONFIG_CMD_EEPROM_LAYOUT
+int cl_eeprom_layout_setup(struct eeprom_layout *layout, uchar *eeprom_buf,
+			   int layout_version, uint eeprom_bus,
+			   uint8_t eeprom_addr);
+#endif /* CONFIG_CMD_EEPROM_LAYOUT */
 int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus);
 u32 cl_eeprom_get_board_rev(uint eeprom_bus);
 int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus);

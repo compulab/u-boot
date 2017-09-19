@@ -19,6 +19,7 @@
 #include <fdt_support.h>
 #include <sata.h>
 #include <splash.h>
+#include <eeprom_layout.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/iomux.h>

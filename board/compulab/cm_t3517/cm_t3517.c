@@ -12,6 +12,7 @@
 #include <netdev.h>
 #include <usb.h>
 #include <mmc.h>
+#include <eeprom_layout.h>
 #include <linux/compiler.h>
 #include <linux/usb/musb.h>
 

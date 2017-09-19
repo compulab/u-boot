@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <miiphy.h>
 #include <cpsw.h>
+#include <eeprom_layout.h>
 
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware_am33xx.h>
