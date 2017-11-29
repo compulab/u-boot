@@ -431,34 +431,6 @@ int eeprom_field_update_date(struct eeprom_field *field, uchar *fbuf,
 	return 0;
 }
 
-/**
- * eeprom_field_read_serial() - Read serial number
- *
- * @field:     an initialized field
- * @fbuf:      field buffer
- * @buf:       read buffer
- * @buf_size:  read buffer size
- */
-int eeprom_field_read_serial(const struct eeprom_field *field, uchar *fbuf,
-			     uchar *buf, int buf_size)
-{
-	u32 *serial = (u32*) fbuf;
-	struct tag_serialnr *serialnr = (struct tag_serialnr*) buf;
-
-	if ((field->size < (2*sizeof(u32))) ||
-	    (buf_size < sizeof(struct tag_serialnr)))
-		return -1;
-
-	memset(buf, 0, buf_size);
-
-	if (serial[0] != 0xffffffff && serial[1] != 0xffffffff) {
-		serialnr->low = serial[0];
-		serialnr->high = serial[1];
-	}
-
-	return 0;
-}
-
 #define	LAYOUT_VERSION_LEGACY 1
 #define	LAYOUT_VERSION_VER1 2
 #define	LAYOUT_VERSION_VER2 3
@@ -475,7 +447,7 @@ extern struct eeprom_field layout_unknown[1];
 
 #define FIELD_FUNC_SERIAL eeprom_field_print_bin_rev,  \
 			  eeprom_field_update_bin_rev, \
-			  eeprom_field_read_serial
+			  eeprom_field_read_rev
 
 #ifdef CONFIG_CM_T3X
 struct eeprom_field layout_legacy[5] = {
