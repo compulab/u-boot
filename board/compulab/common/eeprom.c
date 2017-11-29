@@ -434,6 +434,7 @@ int eeprom_field_update_date(struct eeprom_field *field, uchar *fbuf,
 #define	LAYOUT_VERSION_VER1 2
 #define	LAYOUT_VERSION_VER2 3
 #define	LAYOUT_VERSION_VER3 4
+#define	LAYOUT_VERSION_VER4 5
 
 extern struct eeprom_field layout_unknown[1];
 
@@ -516,6 +517,30 @@ struct eeprom_field layout_v3[16] = {
 	{ RESERVED_FIELDS,            64, FIELD_FUNC_RES_LAST },
 };
 
+struct eeprom_field layout_v4[21] = {
+	{ "Major Revision",            2, DEFINE_FIELD_FUNC(bin_ver) },
+	{ "Minor Revision",            2, DEFINE_FIELD_FUNC(bin_ver) },
+	{ "1st MAC Address",           6, DEFINE_FIELD_FUNC(mac) },
+	{ "2nd MAC Address",           6, DEFINE_FIELD_FUNC(mac) },
+	{ "Production Date",           4, DEFINE_FIELD_FUNC(date) },
+	{ "Serial Number",            12, FIELD_FUNC_SERIAL },
+	{ "3rd MAC Address (WIFI)",    6, DEFINE_FIELD_FUNC(mac) },
+	{ "4th MAC Address (Bluetooth)", 6, DEFINE_FIELD_FUNC(mac) },
+	{ "Layout Version",            1, DEFINE_FIELD_FUNC(bin) },
+	{ "CompuLab EEPROM ID",        3, DEFINE_FIELD_FUNC(bin) },
+	{ "5th MAC Address",           6, DEFINE_FIELD_FUNC(mac) },
+	{ "6th MAC Address",           6, DEFINE_FIELD_FUNC(mac) },
+	{ RESERVED_FIELDS,             4, DEFINE_FIELD_FUNC(reserved) },
+	{ RESERVED_FIELDS,            64, DEFINE_FIELD_FUNC(reserved) },
+	{ "Product Name",             16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #1",       16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #2",       16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #3",       16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #4",       16, DEFINE_FIELD_FUNC(ascii) },
+	{ "Product Options #5",       16, DEFINE_FIELD_FUNC(ascii) },
+	{ RESERVED_FIELDS,            32, DEFINE_FIELD_FUNC(reserved) },
+};
+
 void eeprom_layout_assign(struct eeprom_layout *layout, int layout_version)
 {
 	switch (layout->layout_version) {
@@ -535,6 +560,10 @@ void eeprom_layout_assign(struct eeprom_layout *layout, int layout_version)
 		layout->fields = layout_v3;
 		layout->num_of_fields = ARRAY_SIZE(layout_v3);
 		break;
+	case LAYOUT_VERSION_VER4:
+		layout->fields = layout_v4;
+		layout->num_of_fields = ARRAY_SIZE(layout_v4);
+		break;
 	default:
 		__eeprom_layout_assign(layout, layout_version);
 	}
@@ -550,6 +579,8 @@ int eeprom_parse_layout_version(char *str)
 		return LAYOUT_VERSION_VER2;
 	else if (!strcmp(str, "v3"))
 		return LAYOUT_VERSION_VER3;
+	else if (!strcmp(str, "v4"))
+		return LAYOUT_VERSION_VER4;
 	else
 		return LAYOUT_VERSION_UNRECOGNIZED;
 }
@@ -564,6 +595,8 @@ int eeprom_layout_detect(unsigned char *data)
 		return LAYOUT_VERSION_VER2;
 	case 3:
 		return LAYOUT_VERSION_VER3;
+	case 4:
+		return LAYOUT_VERSION_VER4;
 	}
 
 	if (data[EEPROM_LAYOUT_VER_OFFSET] >= 0x20)
