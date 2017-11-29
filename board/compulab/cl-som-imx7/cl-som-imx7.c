@@ -477,57 +477,9 @@ static void cl_som_imx7_update_dtb_name(void)
 		       [CL_SOM_IMX7_BOARD_ID_DEF].fdt_file);
 }
 
-#define CL_SOM_IMX7_SERIAL_LEN1 9
-
-/*
- * cl_som_imx7_serial_valid1() - serial number validation pattern 1.
- * Validation pattern 1: 5A[0-9]{7}
- *
- * @serial_buf: serial number string.
- * Returns 0 on failure, 1 on success.
- */
-static int cl_som_imx7_serial_valid1(char serial_buf[])
-{
-       int i=0;
-
-       if (strlen(serial_buf) != CL_SOM_IMX7_SERIAL_LEN1)
-               return 0;
-       if (serial_buf[i++] != '5')
-               return 0;
-       if (serial_buf[i++] != 'A')
-               return 0;
-       for (; i < CL_SOM_IMX7_SERIAL_LEN1; i++)
-               if ((serial_buf[i] < '0') || (serial_buf[i] > '9'))
-                       return 0;
-
-       return 1;
-}
-
-#define CL_SOM_IMX7_SERIAL_LEN2 12
-
-/*
- * cl_som_imx7_serial_valid2() - serial number validation pattern 2.
- * Validation pattern 2: [0-9]{12}
- *
- * @serial_buf: serial number string.
- * Returns 0 on failure, 1 on success.
- */
-static int cl_som_imx7_serial_valid2(char *serial_buf)
-{
-	int i;
-
-	if (strlen(serial_buf) != CL_SOM_IMX7_SERIAL_LEN2)
-		return 0;
-
-	for (i=0; i < CL_SOM_IMX7_SERIAL_LEN2; i++)
-		if ((serial_buf[i] < '0') || (serial_buf[i] > '9'))
-			return 0;
-
-	return 1;
-}
-
 #define CL_SOM_IMX7_ENV_SERIAL "serial#"
-#define CL_SOM_IMX7_SERIAL_BUF_SIZE 17
+#define CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE 12
+#define CL_SOM_IMX7_SERIAL_BUF_SIZE (2*CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE+1)
 
 /*
  * cl_som_imx7_set_serial_env() - set environment variable serial#.
@@ -536,9 +488,11 @@ static int cl_som_imx7_serial_valid2(char *serial_buf)
  */
 static void cl_som_imx7_set_serial_env(void)
 {
-	struct tag_serialnr board_serial;
 	char *serial_ptr = getenv(CL_SOM_IMX7_ENV_SERIAL);
+	uchar serial_buf_bin[CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE];
 	char serial_buf[CL_SOM_IMX7_SERIAL_BUF_SIZE];
+	int leading_zero = 1;
+	int i;
 
 	if (serial_ptr) /* Serial number was set */
 		return;
@@ -547,30 +501,35 @@ static void cl_som_imx7_set_serial_env(void)
 	switch (cl_som_imx7_base_id) {
 	case CL_SOM_IMX7_SB_SOM:
 		cl_som_am57x_layout.read(&cl_som_am57x_layout, "Serial Number",
-					 (uchar*) &board_serial,
-					 sizeof(board_serial));
+					 (uchar*) &serial_buf_bin,
+					 CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE);
 		break;
 	case CL_SOM_IMX7_SB_IOT:
 	case CL_SOM_IMX7_IOTG:
 		sb_som_am57x_layout.read(&sb_som_am57x_layout, "Serial Number",
-					 (uchar*) &board_serial,
-					 sizeof(board_serial));
+					 (uchar*) &serial_buf_bin,
+					 CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE);
 		break;
 	default:
 		return;
 	}
 
-	/* Convert serial number to string */
-	sprintf(serial_buf, "%X%X", board_serial.high, board_serial.low);
-
-	/* Serial number validation */
-	if (!cl_som_imx7_serial_valid1(serial_buf) &&
-	    !cl_som_imx7_serial_valid2(serial_buf)) {
-		printf("%s: invalid serial number\n", __func__);
-		return;
+	memset(serial_buf, 0, CL_SOM_IMX7_SERIAL_BUF_SIZE);
+	serial_ptr = serial_buf;
+	/* Convert binary data to string */
+	for (i = 0; i < CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE; i++) {
+		if (leading_zero && !serial_buf_bin[i])
+			continue;
+		if (leading_zero) {
+			sprintf(serial_ptr, "%x", serial_buf_bin[i]);
+			serial_ptr += strlen(serial_ptr);
+			leading_zero = 0;
+		}
+		else {
+			sprintf(serial_ptr, "%02x", serial_buf_bin[i]);
+			serial_ptr += 2;
+		}
 	}
-
-	/* Validation pass - store serial number in the environment */
 	setenv(CL_SOM_IMX7_ENV_SERIAL, serial_buf);
 }
 
