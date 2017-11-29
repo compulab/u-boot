@@ -583,30 +583,12 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	int ret;
-
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 	cl_som_imx7_setup_i2c0();
 	cl_som_imx7_setup_gpmi_nand();
 	cl_som_imx7_setup_fec();
 	cl_som_imx7_spi_init();
-	ret = cl_eeprom_layout_setup(&cl_som_am57x_layout,
-				     cl_som_am57x_eeprom_buf,
-				     LAYOUT_VERSION_AUTODETECT,
-				     CONFIG_SYS_I2C_EEPROM_BUS,
-				     CONFIG_SYS_I2C_EEPROM_ADDR);
-	if (cl_som_imx7_base_i2c_init)
-		ret |= cl_eeprom_layout_setup(&sb_som_am57x_layout,
-					      sb_som_am57x_eeprom_buf,
-					      LAYOUT_VERSION_AUTODETECT,
-					      CL_SOM_IMX7_I2C_BUS_EXT,
-					      CL_SOM_IMX7_I2C_EEPROM_EXT);
-
-       if (ret)
-               printf("EEPROM layout initialization failure\n");
-
-       cl_som_imx7_get_baseboard_id();
 
 	return 0;
 }
@@ -660,24 +642,20 @@ int board_late_init(void)
 {
 	int ret;
 
-	cl_som_imx7_base_i2c_init = cl_som_imx7_setup_i2c1();
-
 #ifdef CONFIG_VIDEO_MXS
 	ret = enable_display();
 	if (ret < 0)
 		printf("Display enable failure\n");
 #endif /* CONFIG_VIDEO_MXS */
 
-	setenv("board_name", "CL-SOM-iMX7");
 	cl_som_imx7_setup_wdog();
-	cl_som_imx7_update_dtb_name();
-	cl_som_imx7_set_serial_env();
 
 	return 0;
 }
 
 int checkboard(void)
 {
+	int ret;
 	char *mode;
 
 	if (IS_ENABLED(CONFIG_ARMV7_BOOT_SEC_DEFAULT))
@@ -686,6 +664,27 @@ int checkboard(void)
 		mode = "non-secure";
 
 	printf("Board: CL-SOM-iMX7 in %s mode\n", mode);
+
+	setenv("board_name", "CL-SOM-iMX7");
+	cl_som_imx7_base_i2c_init = cl_som_imx7_setup_i2c1();
+	ret = cl_eeprom_layout_setup(&cl_som_am57x_layout,
+				     cl_som_am57x_eeprom_buf,
+				     LAYOUT_VERSION_AUTODETECT,
+				     CONFIG_SYS_I2C_EEPROM_BUS,
+				     CONFIG_SYS_I2C_EEPROM_ADDR);
+	if (ret)
+		printf("Module EEPROM layout initialization failure\n");
+	if (cl_som_imx7_base_i2c_init)
+		ret = cl_eeprom_layout_setup(&sb_som_am57x_layout,
+					     sb_som_am57x_eeprom_buf,
+					     LAYOUT_VERSION_AUTODETECT,
+					     CL_SOM_IMX7_I2C_BUS_EXT,
+					     CL_SOM_IMX7_I2C_EEPROM_EXT);
+	if (ret)
+		printf("Base board EEPROM layout initialization failure\n");
+	cl_som_imx7_get_baseboard_id();
+	cl_som_imx7_update_dtb_name();
+	cl_som_imx7_set_serial_env();
 
 	return 0;
 }

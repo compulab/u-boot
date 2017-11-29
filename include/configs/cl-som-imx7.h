@@ -248,4 +248,7 @@
 #define CONFIG_ENV_CALLBACK_LIST_STATIC "displaytype:displaytype"
 #endif /* CONFIG_VIDEO */
 
+/* Miscellaneous */
+#define CONFIG_DISPLAY_BOARDINFO_LATE
+
 #endif	/* __CONFIG_H */
