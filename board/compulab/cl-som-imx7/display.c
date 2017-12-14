@@ -397,6 +397,7 @@ static display_type env_parse_displaytype(char *disp_type)
 int enable_display(void)
 {
 	int ret = 0;
+	char *stdout_env = getenv("stdout");
 
 	switch (disp_type) {
 	case DISP_DVI:
@@ -411,6 +412,22 @@ int enable_display(void)
 		break;
 	}
 
+	/*
+	 * Update stdout and enderr environment parameters according to the
+	 * baseboard type
+	 */
+	if (stdout_env) /* stdout was set */
+		return 0;
+	if ((cl_som_imx7_base_id ==  CL_SOM_IMX7_SB_IOT) ||
+	    (cl_som_imx7_base_id ==  CL_SOM_IMX7_IOTG)) {
+		setenv("stdout", "serial,vga");
+		setenv("stderr", "serial,vga");
+	}
+	else {
+		setenv("stdout", "serial");
+		setenv("stderr", "serial");
+	}
+
 	return ret;
 }
 
@@ -423,7 +440,6 @@ int board_video_skip(void)
 {
 	int ret;
 	char *displaytype = getenv("displaytype");
-	char *stdout_env = getenv("stdout");
 
 	cl_som_imx7_lcd_pads_set();
 	if (cl_som_imx7_base_id == CL_SOM_IMX7_SB_SOM)
@@ -433,20 +449,6 @@ int board_video_skip(void)
 	if (disp_type < 0) {
 		printf("displaytype parsing failure\n");
 		return ret;
-	}
-
-	/* Update stdout and enderr environment parameters according to the
-	   baseboard type */
-	if (stdout_env) /* stdout was set */
-		return 0;
-	if ((cl_som_imx7_base_id ==  CL_SOM_IMX7_SB_IOT) ||
-	    (cl_som_imx7_base_id ==  CL_SOM_IMX7_IOTG)) {
-		setenv("stdout", "serial,vga");
-		setenv("stderr", "serial,vga");
-	}
-	else {
-		setenv("stdout", "serial");
-		setenv("stderr", "serial");
 	}
 
 	return 0;
