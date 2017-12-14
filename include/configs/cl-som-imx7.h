@@ -117,7 +117,7 @@
 		"setenv storagedev ${usbdev}:${usbpart};" \
 		"if run loadscript; then " \
 			"run bootscript; " \
-		"fi; " \
+		"fi;\0" \
 	"sdboot=setenv mmcdev ${mmcdev_def}; setenv mmcblk 0; run mmcboot\0" \
 	"emmcbootscript=setenv mmcdev 1; setenv mmcblk 2; run mmcbootscript\0" \
 	"emmcboot=setenv mmcdev 1; setenv mmcblk 2; run mmcboot\0" \
