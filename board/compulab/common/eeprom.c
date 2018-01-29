@@ -596,7 +596,7 @@ int eeprom_layout_detect(unsigned char *data)
 		return LAYOUT_VERSION_VER2;
 	case 3:
 		return LAYOUT_VERSION_VER3;
-	case 4:
+	case 4 ... 0x1f:
 		return LAYOUT_VERSION_VER4;
 	}
 
