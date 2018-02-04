@@ -413,6 +413,7 @@ typedef struct {
 
 static cl_som_imx7_base_board_param cl_som_imx7_base_board_param_db[] = {
        {"SB-SOM", "imx7d-sbc-imx7.dtb"},
+       {"SB-IOT", "imx7d-sbc-iot-imx7.dtb"},
        {"SBC-IOT", "imx7d-sbc-iot-imx7.dtb"},
        {"IOTG", "imx7d-sbc-iot-imx7.dtb"},
        {"other", "imx7d-cl-som-imx7.dtb"},
@@ -505,6 +506,7 @@ static void cl_som_imx7_set_serial_env(void)
 					 CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE);
 		break;
 	case CL_SOM_IMX7_SB_IOT:
+	case CL_SOM_IMX7_SBC_IOT:
 	case CL_SOM_IMX7_IOTG:
 		sb_som_am57x_layout.read(&sb_som_am57x_layout, "Serial Number",
 					 (uchar*) &serial_buf_bin,

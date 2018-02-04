@@ -42,6 +42,7 @@ extern int cl_som_imx7_base_i2c_init;
 typedef enum {
        CL_SOM_IMX7_SB_SOM,
        CL_SOM_IMX7_SB_IOT,
+       CL_SOM_IMX7_SBC_IOT,
        CL_SOM_IMX7_IOTG,
        CL_SOM_IMX7_OTHER,
 } cl_som_imx7_base;

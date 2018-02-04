@@ -419,6 +419,7 @@ int enable_display(void)
 	if (stdout_env) /* stdout was set */
 		return 0;
 	if ((cl_som_imx7_base_id ==  CL_SOM_IMX7_SB_IOT) ||
+	    (cl_som_imx7_base_id ==  CL_SOM_IMX7_SBC_IOT) ||
 	    (cl_som_imx7_base_id ==  CL_SOM_IMX7_IOTG)) {
 		setenv("stdout", "serial,vga");
 		setenv("stderr", "serial,vga");
