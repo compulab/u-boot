@@ -19,6 +19,8 @@ PADS_SET_PROT(uart1_pads)
 PADS_SET_PROT(espi1_pads)
 #endif /* CONFIG_SPI */
 
+PADS_SET_PROT(wdog_pads)
+
 #ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_FSL_ESDHC
 PADS_SET_PROT(usdhc3_emmc_pads)

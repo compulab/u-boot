@@ -140,9 +140,12 @@ static void cl_som_imx7_spl_dram_cfg_size(u32 ram_size)
 		     &cl_som_imx7_spl_calib_param);
 }
 
+#define CL_SOM_IMX7_WD_RESET_VAL 0x14 /* Watchdog reset value */
+
 static void cl_som_imx7_spl_dram_cfg(void)
 {
 	ulong ram_size_test, ram_size = 0;
+	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
 
 	for (ram_size = SZ_2G; ram_size >= SZ_256M; ram_size >>= 1) {
 		cl_som_imx7_spl_dram_cfg_size(ram_size);
@@ -151,9 +154,11 @@ static void cl_som_imx7_spl_dram_cfg(void)
 			break;
 	}
 
+	/* Reset the board in case of DRAM initialization failure */
 	if (ram_size < SZ_256M) {
-		puts("!!!ERROR!!! DRAM detection failed!!!\n");
-		hang();
+		puts("DRAM detection failed!!! Resetting ...\n");
+		cl_som_imx7_wdog_pads_set();
+		clrsetbits_le16(&wdog->wcr, 0, CL_SOM_IMX7_WD_RESET_VAL);
 	}
 }
 
