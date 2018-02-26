@@ -43,10 +43,7 @@ static iomux_v3_cfg_t const usdhc_pads[] = {
 	IOMUX_PADS(PAD_SD3_DAT1__SD3_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_DAT2__SD3_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD3_DAT3__SD3_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT4__SD3_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT5__SD3_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT6__SD3_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
-	IOMUX_PADS(PAD_SD3_DAT7__SD3_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD3_DAT4__GPIO7_IO01 | MUX_PAD_CTRL(PAD_CTL_PUS_100K_DOWN)),
 
 	IOMUX_PADS(PAD_SD4_CLK__SD4_CLK    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 	IOMUX_PADS(PAD_SD4_CMD__SD4_CMD    | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
@@ -60,15 +57,37 @@ static iomux_v3_cfg_t const usdhc_pads[] = {
 	IOMUX_PADS(PAD_SD4_DAT7__SD4_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL)),
 };
 
+#define MMC_CD  IMX_GPIO_NR(7, 1)
 void cm_fx6_set_usdhc_iomux(void)
 {
 	SETUP_IOMUX_PADS(usdhc_pads);
+	gpio_request(MMC_CD,"mmc_cd");
+	gpio_direction_input(MMC_CD);
 }
 
-/* CINS bit doesn't work, so always try to access the MMC card */
 int board_mmc_getcd(struct mmc *mmc)
 {
-	return 1;
+    struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+    int ret = 0;
+
+    switch (cfg->esdhc_base) {
+    case USDHC1_BASE_ADDR:
+    case USDHC2_BASE_ADDR:
+    default:
+        ret = 0;
+        break;
+    case USDHC3_BASE_ADDR:
+#ifdef CL_SOM_IMX6
+        ret = !gpio_get_value(MMC_CD);
+#else
+        ret = 1;
+#endif
+        break;
+    case USDHC4_BASE_ADDR:
+        ret = 1;
+        break;
+    }
+    return ret;
 }
 #endif
 
