@@ -72,12 +72,13 @@
 	"script=boot.scr\0" \
 	"loadscript=load ${storagetype} ${storagedev} ${loadaddr} ${script};\0" \
 	"loadkernel=load ${storagetype} ${storagedev} ${loadaddr} ${kernel};\0" \
-	"loadkernel_nand=nand read ${loadaddr} 0 600000\0" \
+	"loadkernel_nand=nand read ${loadaddr} 0 ${kernel_size}\0" \
 	"loadfdt=load ${storagetype} ${storagedev} ${fdtaddr} ${fdtfile};\0" \
 	"loadfdt_nand=nand read ${fdtaddr} 980000 10000\0" \
 	"bootscript=echo Running bootscript from ${storagetype} ...; source ${loadaddr};\0" \
 	"storagebootcmd=echo Booting from ${storagetype} ...; run ${storagetype}args; run doboot;\0" \
 	"kernel=zImage\0" \
+	"kernel_size=800000\0" \
 	"console=ttymxc0\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
