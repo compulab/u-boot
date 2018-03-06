@@ -432,7 +432,7 @@ static void cl_som_imx7_get_baseboard_id(void)
 	int ret, i;
 	char prod_name_base[CL_SOM_IMX7_PRODUCT_NAME_SIZE];
 
-	if (!cl_som_imx7_base_i2c_init)
+	if (sb_som_am57x_layout.data != sb_som_am57x_eeprom_buf)
 		return;
 
 	ret = sb_som_am57x_layout.read(&sb_som_am57x_layout, "Product Name",
@@ -508,6 +508,8 @@ static void cl_som_imx7_set_serial_env(void)
 	case CL_SOM_IMX7_SB_IOT:
 	case CL_SOM_IMX7_SBC_IOT:
 	case CL_SOM_IMX7_IOTG:
+		if (sb_som_am57x_layout.data != sb_som_am57x_eeprom_buf)
+			break;
 		sb_som_am57x_layout.read(&sb_som_am57x_layout, "Serial Number",
 					 (uchar*) &serial_buf_bin,
 					 CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE);
