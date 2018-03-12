@@ -213,6 +213,12 @@
 #define CONFIG_USB_KEYBOARD
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
 #define CONFIG_SYS_STDIO_DEREGISTER
+/* USB Networking options */
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_SMSC95XX
+#define CONFIG_USB_ETHER_RNDIS
+#define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_MCS7830
 
 /* Uncomment to enable iMX thermal driver support */
 /*#define CONFIG_IMX_THERMAL*/
