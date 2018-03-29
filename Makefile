@@ -765,7 +765,7 @@ DO_STATIC_RELA =
 endif
 
 # Always append ALL so that arch config.mk's can add custom ones
-ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map binary_size_check
+ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map binary_size_check u-boot.imx
 
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
@@ -1115,6 +1115,13 @@ SPL: spl/u-boot-spl.bin FORCE
 
 u-boot-with-spl.imx u-boot-with-nand-spl.imx: SPL u-boot.bin FORCE
 	$(Q)$(MAKE) $(build)=arch/arm/mach-imx $@
+
+u-boot.imx: SPL u-boot.img FORCE
+	@dd if=SPL of=$@ bs=1K seek=0 conv=notrunc 2>/dev/null
+	@dd if=u-boot.img of=$@ bs=1K seek=63 conv=notrunc 2>/dev/null
+ifeq ($(CONFIG_ATP_ENV),y)
+	@cp $@ u-boot-atp.imx
+endif
 
 MKIMAGEFLAGS_u-boot.ubl = -n $(UBL_CONFIG) -T ublimage -e $(CONFIG_SYS_TEXT_BASE)
 
