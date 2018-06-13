@@ -148,6 +148,8 @@
 	"echo USB boot attempt ...; run usbbootscript; " \
 	"echo NAND boot attempt  ...; run nandboot"
 
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x20000000)
 
