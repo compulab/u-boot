@@ -170,6 +170,7 @@ void board_init_f(ulong dummy)
 	arch_cpu_init();
 	/* setup GP timer */
 	timer_init();
+	cl_som_imx7_setup_i2c0();
 	cl_som_imx7_spl_spi_init();
 	cl_som_imx7_uart1_pads_set();
 	/* UART clocks enabled and gd valid - init serial console */

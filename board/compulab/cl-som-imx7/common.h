@@ -59,3 +59,9 @@ PADS_SET_PROT(lcd_control_pads)
 #endif /* CONFIG_VIDEO_MXS */
 
 #endif /* !CONFIG_SPL_BUILD */
+
+void cl_som_imx7_setup_i2c0(void);
+#if defined(CONFIG_SYS_I2C_MXC) || defined(CONFIG_SPL_I2C_SUPPORT)
+#define I2C_PAD_CTRL		(PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
+				PAD_CTL_HYS)
+#endif /* CONFIG_SYS_I2C_MXC || CONFIG_SPL_I2C_SUPPORT */

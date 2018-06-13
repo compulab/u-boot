@@ -10,7 +10,9 @@
 
 #include <common.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <asm/imx-common/mxc_i2c.h>
 #include <asm/arch-mx7/mx7-pins.h>
+#include "common.h"
 
 #define PADS_SET(pads_array)						       \
 void cl_som_imx7_##pads_array##_set(void)				       \
@@ -239,3 +241,36 @@ PADS_SET(lcd_control_pads)
 #endif /* CONFIG_VIDEO_MXS */
 
 #endif /* !CONFIG_SPL_BUILD */
+
+#if defined(CONFIG_SYS_I2C_MXC) || defined(CONFIG_SPL_I2C_SUPPORT)
+
+#define CL_SOM_IMX7_GPIO_I2C2_SCL	IMX_GPIO_NR(1, 6)
+#define CL_SOM_IMX7_GPIO_I2C2_SDA	IMX_GPIO_NR(1, 7)
+
+static struct i2c_pads_info cl_som_imx7_i2c_pad_info2 = {
+	.scl = {
+		.i2c_mode = MX7D_PAD_GPIO1_IO06__I2C2_SCL |
+			MUX_PAD_CTRL(I2C_PAD_CTRL),
+		.gpio_mode = MX7D_PAD_GPIO1_IO06__GPIO1_IO6 |
+			MUX_PAD_CTRL(I2C_PAD_CTRL),
+		.gp = CL_SOM_IMX7_GPIO_I2C2_SCL,
+	},
+	.sda = {
+		.i2c_mode = MX7D_PAD_GPIO1_IO07__I2C2_SDA |
+			MUX_PAD_CTRL(I2C_PAD_CTRL),
+		.gpio_mode = MX7D_PAD_GPIO1_IO07__GPIO1_IO7 |
+			MUX_PAD_CTRL(I2C_PAD_CTRL),
+		.gp = CL_SOM_IMX7_GPIO_I2C2_SDA,
+	},
+};
+
+/*
+ * cl_som_imx7_setup_i2c() - I2C  pinmux configuration.
+ */
+void cl_som_imx7_setup_i2c0(void)
+{
+	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &cl_som_imx7_i2c_pad_info2);
+}
+#else /* !CONFIG_SYS_I2C_MXC && !CONFIG_SPL_I2C_SUPPORT */
+void cl_som_imx7_setup_i2c0(void) {}
+#endif /* CONFIG_SYS_I2C_MXC || CONFIG_SPL_I2C_SUPPORT */

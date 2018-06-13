@@ -40,29 +40,6 @@ static struct eeprom_layout sb_som_am57x_layout;
 /* Baseboard I2C bus is initialized flag */
 int cl_som_imx7_base_i2c_init;
 
-#define I2C_PAD_CTRL		(PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
-				PAD_CTL_HYS)
-
-#define CL_SOM_IMX7_GPIO_I2C2_SCL	IMX_GPIO_NR(1, 6)
-#define CL_SOM_IMX7_GPIO_I2C2_SDA	IMX_GPIO_NR(1, 7)
-
-static struct i2c_pads_info cl_som_imx7_i2c_pad_info2 = {
-	.scl = {
-		.i2c_mode = MX7D_PAD_GPIO1_IO06__I2C2_SCL |
-			MUX_PAD_CTRL(I2C_PAD_CTRL),
-		.gpio_mode = MX7D_PAD_GPIO1_IO06__GPIO1_IO6 |
-			MUX_PAD_CTRL(I2C_PAD_CTRL),
-		.gp = CL_SOM_IMX7_GPIO_I2C2_SCL,
-	},
-	.sda = {
-		.i2c_mode = MX7D_PAD_GPIO1_IO07__I2C2_SDA |
-			MUX_PAD_CTRL(I2C_PAD_CTRL),
-		.gpio_mode = MX7D_PAD_GPIO1_IO07__GPIO1_IO7 |
-			MUX_PAD_CTRL(I2C_PAD_CTRL),
-		.gp = CL_SOM_IMX7_GPIO_I2C2_SDA,
-	},
-};
-
 static struct i2c_pads_info cl_som_imx7_i2c_pad_info4 = {
 	.scl = {
 		.i2c_mode = MX7D_PAD_GPIO1_IO10__I2C4_SCL |
@@ -86,10 +63,6 @@ static struct i2c_pads_info cl_som_imx7_i2c_pad_info4 = {
 /*
  * cl_som_imx7_setup_i2c() - I2C  pinmux configuration.
  */
-static void cl_som_imx7_setup_i2c0(void)
-{
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &cl_som_imx7_i2c_pad_info2);
-}
 static int cl_som_imx7_setup_i2c1(void)
 {
 	int ret;
@@ -107,7 +80,6 @@ static int cl_som_imx7_setup_i2c1(void)
 	return 0;
 }
 #else /* !CONFIG_SYS_I2C_MXC */
-static void cl_som_imx7_setup_i2c0(void) {}
 static int cl_som_imx7_setup_i2c1(void) { return 0; }
 #endif /* CONFIG_SYS_I2C_MXC */
 
