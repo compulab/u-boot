@@ -529,14 +529,13 @@ int board_init(void)
 }
 
 #ifdef CONFIG_POWER
-#define I2C_PMIC	0
 int power_init_board(void)
 {
 	struct pmic *p;
 	int ret;
 	unsigned int reg, rev_id;
 
-	ret = power_pfuze3000_init(I2C_PMIC);
+	ret = power_pfuze3000_init(CL_SOM_IMX7_I2C_BUS_PMIC);
 	if (ret)
 		return ret;
 

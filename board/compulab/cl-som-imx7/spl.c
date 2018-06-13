@@ -10,11 +10,15 @@
 
 #include <common.h>
 #include <spl.h>
+#include <i2c.h>
 #include <fsl_esdhc.h>
+#include <power/pfuze3000_pmic.h>
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/arch-mx7/mx7-pins.h>
 #include <asm/arch-mx7/clock.h>
 #include <asm/arch-mx7/mx7-ddr.h>
+#include <eeprom_layout.h>
+#include "../common/eeprom.h"
 #include "common.h"
 
 #ifdef CONFIG_FSL_ESDHC
@@ -130,10 +134,17 @@ static int cl_som_imx7_spl_dram_cfg_size(u32 ram_size)
 
 #define CL_SOM_IMX7_WD_RESET_VAL 0x1C /* Watchdog reset value */
 
+static void cl_som_imx7_spl_reset(void)
+{
+	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
+
+	cl_som_imx7_wdog_pads_set();
+	clrsetbits_le16(&wdog->wcr, 0, CL_SOM_IMX7_WD_RESET_VAL);
+	while (1);
+}
 static void cl_som_imx7_spl_dram_cfg(void)
 {
 	ulong ram_size_test, ram_size = 0;
-	struct wdog_regs *wdog = (struct wdog_regs *)WDOG1_BASE_ADDR;
 	int init_failure;
 
 	for (ram_size = SZ_2G; ram_size >= SZ_256M; ram_size >>= 1) {
@@ -148,8 +159,30 @@ static void cl_som_imx7_spl_dram_cfg(void)
 	/* Reset the board in case of DRAM initialization failure */
 	if (init_failure || (ram_size < SZ_256M)) {
 		puts("DRAM detection failed!!! Resetting ...\n");
-		cl_som_imx7_wdog_pads_set();
-		clrsetbits_le16(&wdog->wcr, 0, CL_SOM_IMX7_WD_RESET_VAL);
+		cl_som_imx7_spl_reset();
+	}
+}
+
+#define PFUZE3000_INTSTAT0_POR 0x01
+#define CL_SOM_IMX7_DUAL_RESET_MIN_BORAD_REV 120
+
+/* Reset module after power on  */
+static void cl_som_imx7_spl_por(void)
+{
+	u8 buf;
+
+	i2c_set_bus_num(CL_SOM_IMX7_I2C_BUS_PMIC);
+	i2c_read(CONFIG_POWER_PFUZE3000_I2C_ADDR, PFUZE3000_INTSTAT0, 1,
+		 &buf, 1);
+	if (buf == PFUZE3000_INTSTAT0_POR) {
+		u32 rev = cl_eeprom_get_board_rev(CONFIG_SYS_I2C_EEPROM_BUS);
+		/* Reset only if board revision is 1.20 or higher */
+		if (rev < CL_SOM_IMX7_DUAL_RESET_MIN_BORAD_REV)
+			return;
+
+		i2c_write(CONFIG_POWER_PFUZE3000_I2C_ADDR, PFUZE3000_INTSTAT0,
+			  1, &buf, 1);
+		cl_som_imx7_spl_reset();
 	}
 }
 
@@ -171,6 +204,8 @@ void board_init_f(ulong dummy)
 	/* setup GP timer */
 	timer_init();
 	cl_som_imx7_setup_i2c0();
+	/* Reset module after power on  */
+	cl_som_imx7_spl_por();
 	cl_som_imx7_spl_spi_init();
 	cl_som_imx7_uart1_pads_set();
 	/* UART clocks enabled and gd valid - init serial console */
