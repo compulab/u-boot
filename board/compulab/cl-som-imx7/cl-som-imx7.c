@@ -330,3 +330,26 @@ int checkboard(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_OF_BOARD_SETUP
+#include <malloc.h>
+#include "../common/common.h"
+
+int fdt_board_adjust(void)
+{
+	u32 cpurev = get_cpu_rev();
+
+	/* Disable features not supported by i.MX7Solo */
+	if (((cpurev & 0xFF000) >> 12) == MXC_CPU_MX7S) {
+		/* FEC2 with PHY */
+		fdt_node_disable("/soc/aips-bus@30800000/ethernet@30bf0000");
+		fdt_node_disable("/soc/aips-bus@30800000/ethernet@30be0000/mdio/ethernet-phy@1");
+		/* PCIe */
+		fdt_node_disable("/soc/pcie@0x33800000");
+		/* USB Host HSIC */
+		fdt_node_disable("/soc/aips-bus@30800000/usb@30b20000");
+	}
+
+	return 0;
+}
+#endif /* CONFIG_OF_BOARD_SETUP */

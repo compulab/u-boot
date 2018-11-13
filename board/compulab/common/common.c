@@ -198,7 +198,7 @@ int __weak ft_board_setup(void *blob, bd_t *bd)
 	int nodeoffset;
 
 	/* Resize FDT to be on the safe side */
-	fdt_shrink_to_minimum(blob);
+	fdt_shrink_to_minimum(blob, 0);
 
 	/* Call board specific routine to populate the node list */
 	fdt_board_adjust();
