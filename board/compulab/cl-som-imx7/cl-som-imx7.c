@@ -25,6 +25,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static int nand_enabled = 0;
+
 #ifdef CONFIG_SYS_I2C_MXC
 
 #define I2C_PAD_CTRL		(PAD_CTL_DSE_3P3V_32OHM | PAD_CTL_SRE_SLOW | \
@@ -95,6 +97,9 @@ int board_mmc_init(bd_t *bis)
 				mxc_get_clock(MXC_ESDHC_CLK);
 			break;
 		case 1:
+			if (nand_enabled)
+				return 0; /* nand enabled configuration */
+			/* emmc enabled configuration */
 			cl_som_imx7_usdhc3_emmc_pads_set();
 			gpio_request(CL_SOM_IMX7_GPIO_USDHC3_PWR, "usdhc3_pwr");
 			gpio_direction_output(CL_SOM_IMX7_GPIO_USDHC3_PWR, 0);
@@ -117,6 +122,28 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 #endif /* CONFIG_FSL_ESDHC */
+
+#ifdef CONFIG_NAND_MXS
+
+#define CL_SOM_IMX7_NAND_ENABLE		IMX_GPIO_NR(6, 13)
+
+static void get_nand_enable_state(void) {
+	cl_som_imx7_nand_enable_pads_set();
+	gpio_direction_input(CL_SOM_IMX7_NAND_ENABLE);
+	mdelay(1);
+	nand_enabled = gpio_get_value(CL_SOM_IMX7_NAND_ENABLE);
+}
+
+static void cl_som_imx7_setup_gpmi_nand(void)
+{
+	get_nand_enable_state();
+	/* nand enabled configuration */
+	cl_som_imx7_gpmi_nand_pads_set();
+	set_clk_nand();
+}
+#else /* !CONFIG_NAND_MXS */
+static void cl_som_imx7_setup_gpmi_nand(void) {}
+#endif /* CONFIG_NAND_MXS */
 
 #ifdef CONFIG_FEC_MXC
 
@@ -258,6 +285,7 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 	cl_som_imx7_setup_i2c();
+	cl_som_imx7_setup_gpmi_nand();
 	cl_som_imx7_setup_fec();
 	cl_som_imx7_spi_init();
 
@@ -348,6 +376,17 @@ int fdt_board_adjust(void)
 		fdt_node_disable("/soc/pcie@0x33800000");
 		/* USB Host HSIC */
 		fdt_node_disable("/soc/aips-bus@30800000/usb@30b20000");
+	}
+
+	/* Main storage setup */
+	if (nand_enabled) {
+		/* Enable GPMI and disable eMMC */
+		fdt_node_enable("/soc/gpmi-nand@33002000");
+		fdt_node_disable("/soc/aips-bus@30800000/usdhc@30b60000");
+	} else {
+		/* Enable eMMC and disable GPMI */
+		fdt_node_enable("/soc/aips-bus@30800000/usdhc@30b60000");
+		fdt_node_disable("/soc/gpmi-nand@33002000");
 	}
 
 	return 0;

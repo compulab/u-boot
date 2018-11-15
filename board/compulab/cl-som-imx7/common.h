@@ -28,4 +28,8 @@ PADS_SET_PROT(fec1_pads);
 #endif /* CONFIG_FEC_MXC */
 PADS_SET_PROT(usb_otg1_pads);
 PADS_SET_PROT(wdog_pads);
+#ifdef CONFIG_NAND_MXS
+PADS_SET_PROT(gpmi_nand_pads);
+PADS_SET_PROT(nand_enable_pads);
+#endif /* CONFIG_NAND_MXS */
 #endif /* !CONFIG_SPL_BUILD */
