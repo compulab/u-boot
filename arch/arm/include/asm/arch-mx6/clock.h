@@ -76,7 +76,7 @@ void enable_enet_clk(unsigned char enable);
 int enable_lcdif_clock(u32 base_addr, bool enable);
 void enable_qspi_clk(int qspi_num);
 void enable_thermal_clk(void);
-void mxs_set_lcdclk(u32 base_addr, u32 freq);
+int mxs_set_lcdclk(u32 base_addr, u32 freq);
 void select_ldb_di_clock_source(enum ldb_di_clock clk);
 void enable_eim_clk(unsigned char enable);
 int do_mx6_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);

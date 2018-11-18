@@ -614,7 +614,7 @@ static int enable_pll_video(u32 pll_div, u32 pll_num, u32 pll_denom,
  *
  * 'freq' using KHz as unit, see driver/video/mxsfb.c.
  */
-void mxs_set_lcdclk(u32 base_addr, u32 freq)
+int mxs_set_lcdclk(u32 base_addr, u32 freq)
 {
 	u32 reg = 0;
 	u32 hck = MXC_HCLK / 1000;
@@ -630,7 +630,7 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 	if (!is_mx6sx() && !is_mx6ul() && !is_mx6ull() && !is_mx6sl() &&
 	    !is_mx6sll()) {
 		debug("This chip not support lcd!\n");
-		return;
+		return -1;
 	}
 
 	if (!is_mx6sl()) {
@@ -638,7 +638,7 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 			reg = readl(&imx_ccm->cscdr2);
 			/* Can't change clocks when clock not from pre-mux */
 			if ((reg & MXC_CCM_CSCDR2_LCDIF1_CLK_SEL_MASK) != 0)
-				return;
+				return -1;
 		}
 	}
 
@@ -646,7 +646,7 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 		reg = readl(&imx_ccm->cscdr2);
 		/* Can't change clocks when clock not from pre-mux */
 		if ((reg & MXC_CCM_CSCDR2_LCDIF2_CLK_SEL_MASK) != 0)
-			return;
+			return -1;
 	}
 
 	temp = freq * max_pred * max_postd;
@@ -669,7 +669,7 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 
 		if (post_div > 4) {
 			printf("Fail to set rate to %dkhz", freq);
-			return;
+			return -1;
 		}
 	}
 
@@ -689,7 +689,7 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 
 	if (best == 0) {
 		printf("Fail to set rate to %dKHz", freq);
-		return;
+		return -1;
 	}
 
 	debug("best %d, pred = %d, postd = %d\n", best, pred, postd);
@@ -764,6 +764,8 @@ void mxs_set_lcdclk(u32 base_addr, u32 freq)
 
 		enable_lcdif_clock(base_addr, 1);
 	}
+
+	return 0;
 }
 
 int enable_lcdif_clock(u32 base_addr, bool enable)
