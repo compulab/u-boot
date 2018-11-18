@@ -25,6 +25,7 @@ PADS_SET_PROT(usdhc3_emmc_pads);
 #ifdef CONFIG_FEC_MXC
 PADS_SET_PROT(phy1_rst_pads);
 PADS_SET_PROT(fec1_pads);
+PADS_SET_PROT(fec2_pads);
 #endif /* CONFIG_FEC_MXC */
 PADS_SET_PROT(usb_otg1_pads);
 PADS_SET_PROT(wdog_pads);

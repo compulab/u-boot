@@ -13,6 +13,7 @@
 #include <phy.h>
 #include <netdev.h>
 #include <fsl_esdhc.h>
+#include <pca953x.h>
 #include <power/pmic.h>
 #include <power/pfuze3000_pmic.h>
 #include <asm/mach-imx/mxc_i2c.h>
@@ -229,10 +230,12 @@ int board_phy_config(struct phy_device *phydev)
  *
  * @env_var: MAC address environment variable
  * @eeprom_bus: I2C bus of the environment EEPROM
+ * @eeprom_field_mac_addr: EEPROM field name of the MAC address
  *
  * @return: 0 on success, < 0 on failure
  */
-static int cl_som_imx7_handle_mac_address(char *env_var, uint eeprom_bus)
+static int cl_som_imx7_handle_mac_address(char *env_var, uint eeprom_bus,
+					  char *eeprom_field_mac_addr)
 {
 	int ret;
 	unsigned char enetaddr[6];
@@ -245,6 +248,12 @@ static int cl_som_imx7_handle_mac_address(char *env_var, uint eeprom_bus)
 	if (ret)
 		return ret;
 
+	ret = cl_som_imx7_layout.read(&cl_som_imx7_layout,
+				       eeprom_field_mac_addr, enetaddr,
+				       sizeof(enetaddr));
+	if (ret)
+		return ret;
+
 	ret = is_valid_ethaddr(enetaddr);
 	if (!ret)
 		return -1;
@@ -253,23 +262,96 @@ static int cl_som_imx7_handle_mac_address(char *env_var, uint eeprom_bus)
 }
 
 #define CL_SOM_IMX7_FEC_DEV_ID_PRI 0
+#define CL_SOM_IMX7_FEC_DEV_ID_SEC 1
+#define CL_SOM_IMX7_PCA953X_PHY_RST_SEC 4
+#define CL_SOM_IMX7_FEC_PHYADDR_PRI CONFIG_FEC_MXC_PHYADDR
+#define CL_SOM_IMX7_FEC_PHYADDR_SEC 1
 
-int board_eth_init(bd_t *bis)
+/*
+ * cl_som_imx7_eth_init_pri() - primary Ethernet interface initialization
+ *
+ * @bis: board information
+ *
+ * @return: 0 on success, < 0 on failure
+ */
+static int cl_som_imx7_eth_init_pri(bd_t *bis)
 {
 	/* set Ethernet MAC address environment */
-	cl_som_imx7_handle_mac_address("ethaddr", CONFIG_SYS_I2C_EEPROM_BUS);
+	cl_som_imx7_handle_mac_address("ethaddr", CONFIG_SYS_I2C_EEPROM_BUS,
+				       "1st MAC Address");
 	/* Ethernet interface pinmux configuration  */
 	cl_som_imx7_phy1_rst_pads_set();
 	cl_som_imx7_fec1_pads_set();
-	/* PHY reset */
+
 	gpio_request(CL_SOM_IMX7_ETH1_PHY_NRST, "eth1_phy_nrst");
 	gpio_direction_output(CL_SOM_IMX7_ETH1_PHY_NRST, 0);
 	mdelay(10);
 	gpio_set_value(CL_SOM_IMX7_ETH1_PHY_NRST, 1);
 	/* MAC initialization */
 	return fecmxc_initialize_multi(bis, CL_SOM_IMX7_FEC_DEV_ID_PRI,
-				       CONFIG_FEC_MXC_PHYADDR, IMX_FEC_BASE,
-				       IMX_FEC_BASE);
+				       CL_SOM_IMX7_FEC_PHYADDR_PRI,
+				       IMX_FEC_BASE, IMX_FEC_BASE);
+}
+
+/*
+ * cl_som_imx7_eth_init_pri() - secondary Ethernet interface initialization
+ *
+ * @bis: board information
+ *
+ * @return: 0 on success, < 0 on failure
+ */
+static int cl_som_imx7_eth_init_sec(bd_t *bis)
+{
+	int ret;
+	u32 cpurev = get_cpu_rev();
+
+	/* i.MX7Solo include 1 Ethernet interface */
+	if (((cpurev & 0xFF000) >> 12) == MXC_CPU_MX7S)
+		return 0;
+
+	/* set Ethernet MAC address environment */
+	cl_som_imx7_handle_mac_address("eth1addr", CONFIG_SYS_I2C_EEPROM_BUS,
+				       "2nd MAC Address");
+	/* Ethernet interface pinmux configuration  */
+	cl_som_imx7_fec2_pads_set();
+	/* PHY reset */
+	ret = i2c_set_bus_num(SYS_I2C_BUS_SOM);
+	if (ret != 0) {
+		puts ("Failed to select the SOM I2C bus\n");
+		return -1;
+	}
+	ret = pca953x_set_dir(CONFIG_SYS_I2C_PCA953X_ADDR,
+			      1 << CL_SOM_IMX7_PCA953X_PHY_RST_SEC,
+			      PCA953X_DIR_OUT <<
+			      CL_SOM_IMX7_PCA953X_PHY_RST_SEC);
+	ret |= pca953x_set_val(CONFIG_SYS_I2C_PCA953X_ADDR,
+			       1 << CL_SOM_IMX7_PCA953X_PHY_RST_SEC, 0);
+	mdelay(10);
+	ret |= pca953x_set_val(CONFIG_SYS_I2C_PCA953X_ADDR,
+			       1 << CL_SOM_IMX7_PCA953X_PHY_RST_SEC,
+			       1 << CL_SOM_IMX7_PCA953X_PHY_RST_SEC);
+	if (ret != 0) {
+		puts ("Failed to reset the secondary Ethernet PHY\n");
+		return -1;
+	}
+	/* MAC initialization with the primary MDIO bus */
+	return fecmxc_initialize_multi(bis, CL_SOM_IMX7_FEC_DEV_ID_SEC,
+				       CL_SOM_IMX7_FEC_PHYADDR_SEC,
+				       ENET2_IPS_BASE_ADDR, IMX_FEC_BASE);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	int ret;
+
+	ret = cl_som_imx7_eth_init_pri(bis);
+	if (ret)
+		puts ("Ethernet initialization failure: primary interface\n");
+	ret |= cl_som_imx7_eth_init_sec(bis);
+	if (ret)
+		puts ("Ethernet initialization failure: secondary interface\n");
+
+	return ret;
 }
 
 /*
@@ -282,10 +364,13 @@ static void cl_som_imx7_setup_fec(void)
 	struct iomuxc_gpr_base_regs *const iomuxc_gpr_regs
 		= (struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
 
-	/* Use 125M anatop REF_CLK1 for ENET1, clear gpr1[13], gpr1[17]*/
+	/* Use 125M anatop REF_CLK1 for ENET1, clear gpr1[13], gpr1[17]
+	   Use 125M anatop REF_CLK2 for ENET2, clear gpr1[14], gpr1[18] */
 	clrsetbits_le32(&iomuxc_gpr_regs->gpr[1],
 			(IOMUXC_GPR_GPR1_GPR_ENET1_TX_CLK_SEL_MASK |
-			 IOMUXC_GPR_GPR1_GPR_ENET1_CLK_DIR_MASK), 0);
+			 IOMUXC_GPR_GPR1_GPR_ENET2_TX_CLK_SEL_MASK |
+			 IOMUXC_GPR_GPR1_GPR_ENET1_CLK_DIR_MASK |
+			 IOMUXC_GPR_GPR1_GPR_ENET2_CLK_DIR_MASK), 0);
 
 	set_clk_enet(ENET_125MHZ);
 }
