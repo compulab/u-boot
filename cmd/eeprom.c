@@ -125,7 +125,7 @@ static int eeprom_len(unsigned offset, unsigned end)
 }
 
 static int eeprom_rw_block(unsigned offset, uchar *addr, unsigned alen,
-			   uchar *buffer, unsigned len, bool read)
+			   uchar *buffer, unsigned len, bool read, int set_bus)
 {
 	int ret = 0;
 
@@ -138,7 +138,8 @@ static int eeprom_rw_block(unsigned offset, uchar *addr, unsigned alen,
 #else	/* I2C */
 
 #if defined(CONFIG_SYS_I2C_EEPROM_BUS)
-	i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
+	if (set_bus)
+		i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS);
 #endif
 
 	if (read)
@@ -153,7 +154,7 @@ static int eeprom_rw_block(unsigned offset, uchar *addr, unsigned alen,
 }
 
 static int eeprom_rw(unsigned dev_addr, unsigned offset, uchar *buffer,
-		     unsigned cnt, bool read)
+		     unsigned cnt, bool read, int set_bus)
 {
 	unsigned end = offset + cnt;
 	unsigned alen, len;
@@ -165,7 +166,8 @@ static int eeprom_rw(unsigned dev_addr, unsigned offset, uchar *buffer,
 
 		len = eeprom_len(offset, end);
 
-		rcode = eeprom_rw_block(offset, addr, alen, buffer, len, read);
+		rcode = eeprom_rw_block(offset, addr, alen, buffer, len, read,
+					set_bus);
 
 		buffer += len;
 		offset += len;
@@ -177,18 +179,19 @@ static int eeprom_rw(unsigned dev_addr, unsigned offset, uchar *buffer,
 	return rcode;
 }
 
-int eeprom_read(unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt)
+int eeprom_read(unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt,
+		int set_bus)
 {
 	/*
 	 * Read data until done or would cross a page boundary.
 	 * We must write the address again when changing pages
 	 * because the next page may be in a different device.
 	 */
-	return eeprom_rw(dev_addr, offset, buffer, cnt, 1);
+	return eeprom_rw(dev_addr, offset, buffer, cnt, 1, set_bus);
 }
 
 int eeprom_write(unsigned dev_addr, unsigned offset,
-		 uchar *buffer, unsigned cnt)
+		 uchar *buffer, unsigned cnt, int set_bus)
 {
 	int ret;
 
@@ -199,7 +202,7 @@ int eeprom_write(unsigned dev_addr, unsigned offset,
 	 * We must write the address again when changing pages
 	 * because the address counter only increments within a page.
 	 */
-	ret = eeprom_rw(dev_addr, offset, buffer, cnt, 0);
+	ret = eeprom_rw(dev_addr, offset, buffer, cnt, 0, set_bus);
 
 	eeprom_write_enable(dev_addr, 0);
 	return ret;
@@ -308,21 +311,21 @@ static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
 	if (action == EEPROM_READ) {
 		printf(fmt, i2c_addr, "read", addr, off, cnt);
 
-		rcode = eeprom_read(i2c_addr, off, (uchar *)addr, cnt);
+		rcode = eeprom_read(i2c_addr, off, (uchar *)addr, cnt, 0);
 
 		puts("done\n");
 		return rcode;
 	} else if (action == EEPROM_WRITE) {
 		printf(fmt, i2c_addr, "write", addr, off, cnt);
 
-		rcode = eeprom_write(i2c_addr, off, (uchar *)addr, cnt);
+		rcode = eeprom_write(i2c_addr, off, (uchar *)addr, cnt, 0);
 
 		puts("done\n");
 		return rcode;
 	}
 
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
-	rcode = eeprom_read(i2c_addr, 0, eeprom_buf, CONFIG_SYS_EEPROM_SIZE);
+	rcode = eeprom_read(i2c_addr, 0, eeprom_buf, CONFIG_SYS_EEPROM_SIZE, 0);
 	if (rcode < 0)
 		return rcode;
 
@@ -336,7 +339,7 @@ static int eeprom_execute_command(enum eeprom_action action, int i2c_bus,
 
 	layout.update(&layout, key, value);
 
-	rcode = eeprom_write(i2c_addr, 0, layout.data, CONFIG_SYS_EEPROM_SIZE);
+	rcode = eeprom_write(i2c_addr, 0, layout.data, CONFIG_SYS_EEPROM_SIZE, 0);
 #endif
 
 	return rcode;
