@@ -186,6 +186,42 @@ int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus)
 }
 
 #ifdef CONFIG_CMD_EEPROM_LAYOUT
+
+/*
+ * Routine: cl_eeprom_layout_setup
+ * Description:
+ * - Read EEPROM content.
+ * - Setup layout struct with the layout data and metadata.
+ *
+ * @layout:    A pointer to an existing struct layout.
+ * @eeprom_buf:        A buffer initialized with the eeprom data.
+ * @layout version: The version number of the layout.
+ * @eeprom_bus: EEPROM I2C bus ID.
+ * @eeprom_addr: EEPROM I2C address.
+ *
+ * @return: 0 on success, < 0 on failure
+ */
+int cl_eeprom_layout_setup(struct eeprom_layout *layout, uchar *eeprom_buf,
+                           int layout_version, uint eeprom_bus,
+			   uint8_t eeprom_addr)
+{
+	int ret;
+
+	ret = i2c_set_bus_num(eeprom_bus);
+	if (ret < 0)
+		return ret;
+
+	ret = i2c_read(eeprom_addr, 0, CONFIG_SYS_I2C_EEPROM_ADDR_LEN,
+		       eeprom_buf, CONFIG_SYS_EEPROM_SIZE);
+	if (ret < 0)
+		return ret;
+
+	eeprom_layout_setup(layout, eeprom_buf, CONFIG_SYS_EEPROM_SIZE,
+			    layout_version);
+
+	return 0;
+}
+
 /**
  * eeprom_field_print_bin_ver() - print a "version field" which contains binary
  *				  data

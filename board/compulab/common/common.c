@@ -10,6 +10,7 @@
 #include <asm/gpio.h>
 #include <asm/setup.h>
 
+#include <eeprom_layout.h>
 #include "common.h"
 #include "eeprom.h"
 

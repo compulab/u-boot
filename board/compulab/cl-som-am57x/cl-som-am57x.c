@@ -10,6 +10,7 @@
 #include <common.h>
 #include <palmas.h>
 #include <usb.h>
+#include <eeprom_layout.h>
 #include <asm/gpio.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>

@@ -21,6 +21,7 @@
 #include <mmc.h>
 #include <splash.h>
 #include <twl4030.h>
+#include <eeprom_layout.h>
 #include <linux/compiler.h>
 
 #include <asm/io.h>

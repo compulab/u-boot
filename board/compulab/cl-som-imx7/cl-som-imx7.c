@@ -20,6 +20,7 @@
 #include <asm/arch-mx7/mx7-pins.h>
 #include <asm/arch-mx7/sys_proto.h>
 #include <asm/arch-mx7/clock.h>
+#include <eeprom_layout.h>
 #include "../common/eeprom.h"
 #include "common.h"
 

@@ -11,6 +11,7 @@
 #include <cpsw.h>
 #include <environment.h>
 #include <miiphy.h>
+#include <eeprom_layout.h>
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
 #include "../common/eeprom.h"
