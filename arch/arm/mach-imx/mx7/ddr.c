@@ -14,6 +14,11 @@
 #include <asm/arch/mx7-ddr.h>
 #include <common.h>
 
+#define POLLING_COUNT_MAX 1000
+/* Recommended DDR PHY calibration value */
+#define CTRL_ZQ_CLK_DIV_VAL (0x7 & ZQ_CON2_CTRL_ZQ_CLK_DIV_MASK)
+#define DDR_PHY_CTRL_WAKE_UP_VAL 0xf
+
 /*
  * Routine: mx7_dram_cfg
  * Description: DDR controller configuration
@@ -21,12 +26,10 @@
  * @ddrc_regs_val: DDRC registers value
  * @ddrc_mp_val: DDRC_MP registers value
  * @ddr_phy_regs_val: DDR_PHY registers value
- * @calib_param: calibration parameters
- *
+ * @return: 0 on success, 1 otherwise
  */
-void mx7_dram_cfg(struct ddrc *ddrc_regs_val, struct ddrc_mp *ddrc_mp_val,
-		  struct ddr_phy *ddr_phy_regs_val,
-		  struct mx7_calibration *calib_param)
+int mx7_dram_cfg(struct ddrc *ddrc_regs_val, struct ddrc_mp *ddrc_mp_val,
+		 struct ddr_phy *ddr_phy_regs_val)
 {
 	struct src *const src_regs = (struct src *)SRC_BASE_ADDR;
 	struct ddrc *const ddrc_regs = (struct ddrc *)DDRC_IPS_BASE_ADDR;
@@ -35,7 +38,8 @@ void mx7_dram_cfg(struct ddrc *ddrc_regs_val, struct ddrc_mp *ddrc_mp_val,
 		(struct ddr_phy *)DDRPHY_IPS_BASE_ADDR;
 	struct iomuxc_gpr_base_regs *const iomuxc_gpr_regs =
 		(struct iomuxc_gpr_base_regs *)IOMUXC_GPR_BASE_ADDR;
-	int i;
+	u32 reg_val;
+	int polling_count = 0;
 
 	/* Assert DDR Controller preset and DDR PHY reset */
 	writel(SRC_DDRC_RCR_DDRC_CORE_RST_MASK, &src_regs->ddrc_rcr);
@@ -91,15 +95,39 @@ void mx7_dram_cfg(struct ddrc *ddrc_regs_val, struct ddrc_mp *ddrc_mp_val,
 	writel(ddr_phy_regs_val->offset_lp_con0, &ddr_phy_regs->offset_lp_con0);
 
 	/* calibration */
-	for (i = 0; i < calib_param->num_val; i++)
-		writel(calib_param->values[i], &ddr_phy_regs->zq_con0);
+	clrbits_le32(&ddr_phy_regs->zq_con0, ZQ_CON0_ZQ_MANUAL_STR_MASK);
+	clrbits_le32(&ddr_phy_regs->zq_con0, ZQ_CON0_ZQ_CLK_DIV_EN_MASK);
+	writel(CTRL_ZQ_CLK_DIV_VAL, &ddr_phy_regs->zq_con2);
+	setbits_le32(&ddr_phy_regs->zq_con0, ZQ_CON0_ZQ_CLK_DIV_EN_MASK);
+	reg_val = readl(&ddr_phy_regs->zq_con0);
+	reg_val &= ~ZQ_CON0_ZQ_MANUAL_MODE_MASK;
+	reg_val |= ZQ_CON0_ZQ_MANUAL_MODE_LONG_CALIB;
+	writel(reg_val, &ddr_phy_regs->zq_con0);
+	setbits_le32(&ddr_phy_regs->zq_con0, ZQ_CON0_ZQ_MANUAL_STR_MASK);
+	while (!(readl(&ddr_phy_regs->zq_con1) & ZQ_CON1_ZQ_DONE_MASK)) {
+		udelay(1);
+		if (++polling_count > POLLING_COUNT_MAX)
+			return 1;
+	}
+	clrbits_le32(&ddr_phy_regs->zq_con0, ZQ_CON0_ZQ_MANUAL_STR_MASK);
+	clrbits_le32(&ddr_phy_regs->zq_con0, ZQ_CON0_ZQ_CLK_DIV_EN_MASK);
 
 	/* Wake_up DDR PHY */
 	HW_CCM_CCGR_WR(CCGR_IDX_DDR, CCM_CLK_ON_N_N);
-	writel(IOMUXC_GPR_GPR8_ddr_phy_ctrl_wake_up(0xf) |
+	writel(IOMUXC_GPR_GPR8_ddr_phy_ctrl_wake_up(DDR_PHY_CTRL_WAKE_UP_VAL) |
 	       IOMUXC_GPR_GPR8_ddr_phy_dfi_init_start_MASK,
 	       &iomuxc_gpr_regs->gpr[8]);
 	HW_CCM_CCGR_WR(CCGR_IDX_DDR, CCM_CLK_ON_R_W);
+
+	/* Validation of DDRC normal operation mode */
+	polling_count = 0;
+	while ((readl(&ddrc_regs->stat) & STAT_OPERATING_MODE_MASK) !=
+	       STAT_OPERATING_MODE_NORMAL) {
+		udelay(1);
+		if (++polling_count > POLLING_COUNT_MAX)
+			return 1;
+	}
+	return 0;
 }
 
 /*

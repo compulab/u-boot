@@ -13,7 +13,8 @@
 /* DDRC Registers (DDRC_IPS_BASE_ADDR) */
 struct ddrc {
 	u32 mstr;		/* 0x0000 */
-	u32 reserved1[0x18];
+	u32 stat;		/* 0x0004 */
+	u32 reserved1[0x17];
 	u32 rfshtmg;		/* 0x0064 */
 	u32 reserved2[0x1a];
 	u32 init0;		/* 0x00d0 */
@@ -60,6 +61,10 @@ struct ddrc {
 #define MSTR_DATA_BUS_WIDTH_SHIFT	12
 #define MSTR_DATA_ACTIVE_RANKS_MASK	0xf << 24
 #define MSTR_DATA_ACTIVE_RANKS_SHIFT	24
+/* DDRC_STAT fields */
+#define STAT_OPERATING_MODE_MASK	0x3 << 0
+#define STAT_OPERATING_MODE_SHIFT	0
+#define STAT_OPERATING_MODE_NORMAL	0x1 << 0
 /* DDRC_ADDRMAP1 fields */
 #define ADDRMAP1_BANK_B0_MASK		0x1f << 0
 #define ADDRMAP1_BANK_B0_SHIFT		0
@@ -136,19 +141,27 @@ struct ddr_phy {
 	u32 mdll_con0;		/* 0x00b0 */
 	u32 reserved8[0x03];
 	u32 zq_con0;		/* 0x00c0 */
+	u32 zq_con1;            /* 0x00c4 */
+	u32 zq_con2;            /* 0x00c8 */
 };
 
 #define DDR_PHY_CMD_SDLL_CON0_CTRL_RESYNC_MASK BIT(24)
+/* DDR_PHY_ZQ_CON0 */
+#define ZQ_CON0_ZQ_MANUAL_STR_MASK 0x1 << 1
+#define ZQ_CON0_ZQ_MANUAL_STR_SHIFT 1
+#define ZQ_CON0_ZQ_MANUAL_MODE_MASK 0x3 << 2
+#define ZQ_CON0_ZQ_MANUAL_MODE_SHIFT 2
+#define ZQ_CON0_ZQ_MANUAL_MODE_LONG_CALIB 0x1 << 2
+#define ZQ_CON0_ZQ_CLK_DIV_EN_MASK 1 << 18
+#define ZQ_CON0_ZQ_CLK_DIV_EN_SHIFT 18
+/* DDR_PHY_ZQ_CON1 */
+#define ZQ_CON1_ZQ_DONE_MASK 0x1 << 0
+#define ZQ_CON1_ZQ_DONE_SHIFT 0
+/* DDR_PHY_ZQ_CON2 */
+#define ZQ_CON2_CTRL_ZQ_CLK_DIV_MASK 0xffff << 0
+#define ZQ_CON2_CTRL_ZQ_CLK_DIV_SHIFT 0
 
-#define MX7_CAL_VAL_MAX 5
-/* Calibration parameters */
-struct mx7_calibration {
-	int num_val;			/* Number of calibration values */
-	u32 values[MX7_CAL_VAL_MAX];	/* calibration values */
-};
-
-void mx7_dram_cfg(struct ddrc *ddrc_regs_val, struct ddrc_mp *ddrc_mp_val,
-		  struct ddr_phy *ddr_phy_regs_val,
-		  struct mx7_calibration *calib_param);
+int mx7_dram_cfg(struct ddrc *ddrc_regs_val, struct ddrc_mp *ddrc_mp_val,
+		 struct ddr_phy *ddr_phy_regs_val);
 
 #endif	/*__ASM_ARCH_MX7_DDR_H__ */
