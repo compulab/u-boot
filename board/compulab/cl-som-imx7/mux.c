@@ -69,6 +69,12 @@ PADS_SET(espi1_pads)
 
 #endif /* CONFIG_SPI */
 
+static iomux_v3_cfg_t const wdog_pads[] = {
+	MX7D_PAD_GPIO1_IO00__WDOG1_WDOG_B | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+PADS_SET(wdog_pads)
+
 #ifndef CONFIG_SPL_BUILD
 
 #ifdef CONFIG_FSL_ESDHC
@@ -150,12 +156,6 @@ static iomux_v3_cfg_t const usb_otg1_pads[] = {
 };
 
 PADS_SET(usb_otg1_pads)
-
-static iomux_v3_cfg_t const wdog_pads[] = {
-	MX7D_PAD_GPIO1_IO00__WDOG1_WDOG_B | MUX_PAD_CTRL(NO_PAD_CTRL),
-};
-
-PADS_SET(wdog_pads)
 
 #ifdef CONFIG_NAND_MXS
 

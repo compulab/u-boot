@@ -537,7 +537,7 @@ int power_init_board(void)
 	int ret;
 	unsigned int reg, rev_id;
 
-	ret = power_pfuze3000_init(I2C_PMIC);
+	ret = power_pfuze3000_init(CL_SOM_IMX7_I2C_BUS_PMIC);
 	if (ret)
 		return ret;
 
