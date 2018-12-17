@@ -302,6 +302,80 @@ static void cl_som_imx7_spi_init(void)
 static void cl_som_imx7_spi_init(void) {}
 #endif /* CONFIG_SPI */
 
+#define CL_SOM_IMX7_PRODUCT_NAME_SIZE 16
+
+typedef struct {
+	char name[CL_SOM_IMX7_PRODUCT_NAME_SIZE];
+	char fdt_file[25];
+} cl_som_imx7_base_board_param;
+
+static cl_som_imx7_base_board_param cl_som_imx7_base_board_param_db[] = {
+	{"SB-SOM", "imx7d-sbc-imx7.dtb"},
+	{"SB-IOT", "imx7d-sbc-iot-imx7.dtb"},
+	{"SBC-IOT", "imx7d-sbc-iot-imx7.dtb"},
+	{"IOTG", "imx7d-sbc-iot-imx7.dtb"},
+	{"other", "imx7d-cl-som-imx7.dtb"},
+};
+
+/* CL-SOM-iMX7 base board ID */
+cl_som_imx7_base cl_som_imx7_base_id = CL_SOM_IMX7_OTHER;
+
+/*
+ * cl_som_imx7_get_baseboard_id() - determine baseboard ID.
+ * Baseboard ID determined by the base board's
+ * EEPROM filed "product name".
+ */
+static void cl_som_imx7_get_baseboard_id(void)
+{
+	int ret, i;
+	char prod_name_base[CL_SOM_IMX7_PRODUCT_NAME_SIZE];
+
+	if (sb_som_imx7_layout.data != sb_som_imx7_eeprom_buf)
+		return;
+
+	ret = sb_som_imx7_layout.read(&sb_som_imx7_layout, "Product Name",
+				      (uchar*) prod_name_base,
+				      CL_SOM_IMX7_PRODUCT_NAME_SIZE);
+
+	if (ret) {
+		prod_name_base[0] = 0;
+		printf("Failed getting base board name\n");
+	}
+
+	for (i = 0; i < CL_SOM_IMX7_OTHER; i++) {
+		if (!strncmp(prod_name_base,
+			     cl_som_imx7_base_board_param_db[i].name,
+			     CL_SOM_IMX7_PRODUCT_NAME_SIZE)) {
+			cl_som_imx7_base_id = i;
+			break;
+		}
+	}
+}
+
+#define CL_SOM_IMX7_FDT_FILE_NAME "fdtfile"
+#define CL_SOM_IMX7_BOARD_ID_DEF CL_SOM_IMX7_OTHER
+
+/*
+ * cl_som_imx7_update_dtb_name() - update device tree blob file name.
+ * Device tree file name determined base board ID
+ */
+static void cl_som_imx7_update_dtb_name(void)
+{
+	char *fdt_file = env_get(CL_SOM_IMX7_FDT_FILE_NAME);
+
+	if (fdt_file) /* Device tree blob file name was set */
+		return;
+
+	if (cl_som_imx7_base_id < CL_SOM_IMX7_OTHER)
+		env_set(CL_SOM_IMX7_FDT_FILE_NAME,
+			cl_som_imx7_base_board_param_db[cl_som_imx7_base_id].
+			fdt_file);
+	else
+		env_set(CL_SOM_IMX7_FDT_FILE_NAME,
+			cl_som_imx7_base_board_param_db
+			[CL_SOM_IMX7_BOARD_ID_DEF].fdt_file);
+}
+
 int board_early_init_f(void)
 {
 	cl_som_imx7_uart1_pads_set();
@@ -400,6 +474,10 @@ int checkboard(void)
 					      CL_SOM_IMX7_I2C_EEPROM_EXT);
 	if (ret)
 		printf("EEPROM layout initialization failure\n");
+
+	cl_som_imx7_get_baseboard_id();
+	cl_som_imx7_update_dtb_name();
+
 	return 0;
 }
 

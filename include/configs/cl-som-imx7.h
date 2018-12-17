@@ -81,7 +81,6 @@
 	"console=ttymxc0\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdtfile=imx7d-sbc-imx7.dtb\0" \
 	"fdtaddr=0x83000000\0" \
 	"mmcdev_def="__stringify(CONFIG_SYS_MMC_DEV)"\0" \
 	"usbdev_def="__stringify(CONFIG_SYS_USB_DEV)"\0" \

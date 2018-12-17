@@ -26,6 +26,8 @@ config TARGET_CL_SOM_IMX7
 	select DM_THERMAL
 	select MX7D
 	select SUPPORT_SPL
+	select COMPULAB_COMMON
+	select SYS_I2C_EEPROM_BASE
 	imply CMD_DM
 
 config TARGET_MX7DSABRESD
