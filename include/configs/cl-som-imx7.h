@@ -130,6 +130,7 @@
 		"fi;\0" \
 	"displaytype=dvi\0" \
 	"stdin=serial,usbkbd\0" \
+	"baseboard_i2c_enable=true\0" \
 
 #define CONFIG_PREBOOT                 "usb start"
 

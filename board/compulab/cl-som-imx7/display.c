@@ -142,6 +142,8 @@ static struct disp_param dispparams[] = {
 
 /* Selected display preset ID */
 static display_preset selected_preset = PRSET_NONE;
+/* Selected display type */
+static display_type disp_type = DISP_NONE;
 
 #define TFP410_ID_H 0x00
 #define TFP410_ID_L 0x06
@@ -186,6 +188,9 @@ static int dvi_on(void)
 {
 	uchar buf;
 	int ret = -1;
+
+	if (!cl_som_imx7_base_i2c_init)
+		return 0;
 
 	ret = i2c_set_bus_num(CL_SOM_IMX7_I2C_BUS_EXT);
 	if (ret != 0) {
@@ -263,6 +268,9 @@ static int dvi_off(void)
 {
 	uchar buf;
 	int ret = -1;
+
+	if (!cl_som_imx7_base_i2c_init)
+		return 0;
 
 	ret = i2c_set_bus_num(CL_SOM_IMX7_I2C_BUS_EXT);
 	if (ret != 0) {
@@ -387,7 +395,7 @@ static display_type env_parse_displaytype(char *disp_type)
  * @disp_type: display type to enable.
  * Returns negative value on failure, 0 on success.
  */
-static int enable_display(display_type disp_type)
+int enable_display(void)
 {
 	int ret = 0;
 	char *stdout_env = env_get("stdout");
@@ -434,7 +442,6 @@ int board_video_skip(void)
 {
 	int ret;
 	char *displaytype = env_get("displaytype");
-	display_type disp_type;
 
 	cl_som_imx7_lcd_pads_set();
 	if (cl_som_imx7_base_id == CL_SOM_IMX7_SB_SOM)
@@ -443,12 +450,6 @@ int board_video_skip(void)
 	disp_type = env_parse_displaytype(displaytype);
 	if (disp_type < 0) {
 		printf("displaytype parsing failure\n");
-		return ret;
-	}
-
-	ret = enable_display(disp_type);
-	if (ret < 0) {
-		printf("Display enable failure\n");
 		return ret;
 	}
 

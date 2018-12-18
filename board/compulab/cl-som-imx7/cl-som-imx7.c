@@ -80,19 +80,35 @@ static struct i2c_pads_info cl_som_imx7_i2c_pad_info4 = {
 	},
 };
 
+/* Environment variable: base board I2C bus enable */
+#define CL_SOM_IMX7_ENV_BASE_I2C "baseboard_i2c_enable"
+
 /*
  * cl_som_imx7_setup_i2c() - I2C  pinmux configuration.
  */
-static void cl_som_imx7_setup_i2c(void)
+static void cl_som_imx7_setup_i2c0(void)
+{
+	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &cl_som_imx7_i2c_pad_info2);
+}
+static int cl_som_imx7_setup_i2c1(void)
 {
 	int ret;
+	char *base_i2c = env_get(CL_SOM_IMX7_ENV_BASE_I2C);
 
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &cl_som_imx7_i2c_pad_info2);
-	ret = setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &cl_som_imx7_i2c_pad_info4);
-	cl_som_imx7_base_i2c_init = ret ? 0:1;
+	if (base_i2c && (!strcmp(base_i2c, "yes") ||
+			 !strcmp(base_i2c, "true") ||
+			 !strcmp(base_i2c, "1"))) {
+		ret = setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &cl_som_imx7_i2c_pad_info4);
+		if (ret)
+			return 0;
+		return 1;
+	}
+
+	return 0;
 }
 #else /* !CONFIG_SYS_I2C_MXC */
-static void cl_som_imx7_setup_i2c(void) {}
+static void cl_som_imx7_setup_i2c0(void) {}
+static int cl_som_imx7_setup_i2c1(void) { return 0; }
 #endif /* CONFIG_SYS_I2C_MXC */
 
 int dram_init(void)
@@ -533,7 +549,7 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
-	cl_som_imx7_setup_i2c();
+	cl_som_imx7_setup_i2c0();
 	cl_som_imx7_setup_gpmi_nand();
 	cl_som_imx7_setup_fec();
 	cl_som_imx7_spi_init();
@@ -589,6 +605,14 @@ void cl_som_imx7_setup_wdog(void)
 
 int board_late_init(void)
 {
+	int ret;
+
+#ifdef CONFIG_VIDEO_MXS
+	ret = enable_display();
+	if (ret < 0)
+		printf("Display enable failure\n");
+#endif /* CONFIG_VIDEO_MXS */
+
 	env_set("board_name", "CL-SOM-iMX7");
 	cl_som_imx7_setup_wdog();
 	return 0;
@@ -606,6 +630,7 @@ int checkboard(void)
 
 	printf("Board: CL-SOM-iMX7 in %s mode\n", mode);
 
+	cl_som_imx7_base_i2c_init = cl_som_imx7_setup_i2c1();
 	ret = cl_eeprom_layout_setup(&cl_som_imx7_layout,
 				     cl_som_imx7_eeprom_buf,
 				     LAYOUT_VERSION_AUTODETECT,
