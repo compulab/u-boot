@@ -20,6 +20,7 @@
 #include <asm/arch-mx7/mx7-pins.h>
 #include <asm/arch-mx7/sys_proto.h>
 #include <asm/arch-mx7/clock.h>
+#include <asm/setup.h>
 #include <eeprom_layout.h>
 #include "../common/eeprom.h"
 #include "common.h"
@@ -376,6 +377,65 @@ static void cl_som_imx7_update_dtb_name(void)
 			[CL_SOM_IMX7_BOARD_ID_DEF].fdt_file);
 }
 
+#define CL_SOM_IMX7_ENV_SERIAL "serial#"
+#define CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE 12
+#define CL_SOM_IMX7_SERIAL_BUF_SIZE (2*CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE+1)
+
+/*
+ * cl_som_imx7_set_serial_env() - set environment variable serial#.
+ * The serial number is read from the EEPROM of the module or the mainboard.
+ *
+ */
+static void cl_som_imx7_set_serial_env(void)
+{
+	char *serial_ptr = env_get(CL_SOM_IMX7_ENV_SERIAL);
+	uchar serial_buf_bin[CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE];
+	char serial_buf[CL_SOM_IMX7_SERIAL_BUF_SIZE];
+	int leading_zero = 1;
+	int i;
+
+	if (serial_ptr) /* Serial number was set */
+		return;
+
+	/* Read serial number from the EEPROM */
+	switch (cl_som_imx7_base_id) {
+	case CL_SOM_IMX7_SB_SOM:
+		cl_som_imx7_layout.read(&cl_som_imx7_layout, "Serial Number",
+                                       (uchar*) &serial_buf_bin,
+                                       CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE);
+		break;
+	case CL_SOM_IMX7_SB_IOT:
+	case CL_SOM_IMX7_SBC_IOT:
+	case CL_SOM_IMX7_IOTG:
+		if (sb_som_imx7_layout.data != sb_som_imx7_eeprom_buf)
+			break;
+		sb_som_imx7_layout.read(&sb_som_imx7_layout, "Serial Number",
+					(uchar*) &serial_buf_bin,
+					CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE);
+		break;
+	default:
+		return;
+	}
+
+	memset(serial_buf, 0, CL_SOM_IMX7_SERIAL_BUF_SIZE);
+	serial_ptr = serial_buf;
+	/* Convert binary data to string */
+	for (i = 0; i < CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE; i++) {
+		if (leading_zero && !serial_buf_bin[i])
+			continue;
+		if (leading_zero) {
+			sprintf(serial_ptr, "%x", serial_buf_bin[i]);
+			serial_ptr += strlen(serial_ptr);
+			leading_zero = 0;
+		}
+		else {
+			sprintf(serial_ptr, "%02x", serial_buf_bin[i]);
+			serial_ptr += 2;
+		}
+	}
+	env_set(CL_SOM_IMX7_ENV_SERIAL, serial_buf);
+}
+
 int board_early_init_f(void)
 {
 	cl_som_imx7_uart1_pads_set();
@@ -477,6 +537,7 @@ int checkboard(void)
 
 	cl_som_imx7_get_baseboard_id();
 	cl_som_imx7_update_dtb_name();
+	cl_som_imx7_set_serial_env();
 
 	return 0;
 }
