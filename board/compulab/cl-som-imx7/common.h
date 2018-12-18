@@ -46,4 +46,12 @@ typedef enum {
 	CL_SOM_IMX7_OTHER,
 } cl_som_imx7_base;
 
+extern cl_som_imx7_base cl_som_imx7_base_id;
+
+#ifdef CONFIG_VIDEO_MXS
+int fdt_board_adjust_display(void);
+PADS_SET_PROT(lcd_pads);
+PADS_SET_PROT(lcd_control_pads);
+#endif /* CONFIG_VIDEO_MXS */
+
 #endif /* !CONFIG_SPL_BUILD */

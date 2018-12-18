@@ -633,6 +633,7 @@ int checkboard(void)
 
 int fdt_board_adjust(void)
 {
+	int ret = 0;
 	u32 cpurev = get_cpu_rev();
 
 	/* Disable features not supported by i.MX7Solo */
@@ -657,6 +658,11 @@ int fdt_board_adjust(void)
 		fdt_node_disable("/soc/gpmi-nand@33002000");
 	}
 
-	return 0;
+#ifdef CONFIG_VIDEO
+	/* Update display timing parameters */
+	ret = fdt_board_adjust_display();
+#endif /* CONFIG_VIDEO */
+
+	return ret;
 }
 #endif /* CONFIG_OF_BOARD_SETUP */

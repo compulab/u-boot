@@ -128,6 +128,8 @@
 				"run storagebootcmd;" \
 			"fi; " \
 		"fi;\0" \
+	"displaytype=dvi\0" \
+	"stdin=serial\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	"echo SD boot attempt ...; run sdbootscript; run sdboot; " \
@@ -208,5 +210,18 @@
 #define CONFIG_SYS_NAND_MAX_CHIPS      1
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #endif /* CONFIG_SPL_BUILD */
+
+/* Display */
+#ifdef CONFIG_VIDEO
+#define CONFIG_VIDEO_MXS
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define CONFIG_SPLASH_SOURCE
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_ENV_CALLBACK_LIST_STATIC "displaytype:displaytype"
+#endif /* CONFIG_VIDEO */
 
 #endif	/* __CONFIG_H */

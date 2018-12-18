@@ -14,4 +14,5 @@ ifdef CONFIG_SPL_BUILD
 obj-y  += spl.o
 else
 obj-y  += cl-som-imx7.o
+obj-$(CONFIG_VIDEO_MXS) += display.o
 endif
