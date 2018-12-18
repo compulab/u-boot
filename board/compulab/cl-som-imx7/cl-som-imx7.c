@@ -613,7 +613,6 @@ int board_late_init(void)
 		printf("Display enable failure\n");
 #endif /* CONFIG_VIDEO_MXS */
 
-	env_set("board_name", "CL-SOM-iMX7");
 	cl_som_imx7_setup_wdog();
 	return 0;
 }
@@ -630,6 +629,7 @@ int checkboard(void)
 
 	printf("Board: CL-SOM-iMX7 in %s mode\n", mode);
 
+	env_set("board_name", "CL-SOM-iMX7");
 	cl_som_imx7_base_i2c_init = cl_som_imx7_setup_i2c1();
 	ret = cl_eeprom_layout_setup(&cl_som_imx7_layout,
 				     cl_som_imx7_eeprom_buf,
