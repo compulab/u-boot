@@ -472,11 +472,6 @@ static void cl_som_imx7_set_serial_env(void)
 
 	/* Read serial number from the EEPROM */
 	switch (cl_som_imx7_base_id) {
-	case CL_SOM_IMX7_SB_SOM:
-		cl_som_imx7_layout.read(&cl_som_imx7_layout, "Serial Number",
-                                       (uchar*) &serial_buf_bin,
-                                       CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE);
-		break;
 	case CL_SOM_IMX7_SB_IOT:
 	case CL_SOM_IMX7_SBC_IOT:
 	case CL_SOM_IMX7_IOTG:
@@ -487,7 +482,9 @@ static void cl_som_imx7_set_serial_env(void)
 					CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE);
 		break;
 	default:
-		return;
+		cl_som_imx7_layout.read(&cl_som_imx7_layout, "Serial Number",
+                                       (uchar*) &serial_buf_bin,
+                                       CL_SOM_IMX7_SERIAL_BUF_BIN_SIZE);
 	}
 
 	memset(serial_buf, 0, CL_SOM_IMX7_SERIAL_BUF_SIZE);
