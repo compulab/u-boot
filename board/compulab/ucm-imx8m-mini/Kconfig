@@ -1,0 +1,30 @@
+if TARGET_UCM_IMX8M_MINI
+
+config SYS_BOARD
+	default "ucm-imx8m-mini"
+
+config SYS_VENDOR
+	default "compulab"
+
+config SYS_CONFIG_NAME
+	default "ucm-imx8m-mini"
+
+choice
+	prompt "DDR4 Init approach"
+	default IMX8M_LPDDR4_VAL
+	help
+	 DDR4 configuration approach
+
+config IMX8M_LPDDR4
+	bool "DDR4_INIT_EVK"
+	help
+	 imx8mm_evk board configuration approach
+
+config IMX8M_LPDDR4_VAL
+	bool "DDR4_INIT_VAL"
+	help
+	 imx8mm_val board configuration approach
+
+endchoice
+
+endif

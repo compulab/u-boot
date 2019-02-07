@@ -11,8 +11,8 @@
 #include <i2c.h>
 #include <eeprom_layout.h>
 #include <eeprom_field.h>
-#include <asm/setup.h>
 #include <linux/kernel.h>
+#include <asm/setup.h>
 #include "eeprom.h"
 
 #ifndef CONFIG_SYS_I2C_EEPROM_ADDR
@@ -83,7 +83,7 @@ static int cl_eeprom_setup(uint eeprom_bus)
 	return 0;
 }
 
-void get_board_serial(struct tag_serialnr *serialnr)
+void cpl_get_board_serial(struct tag_serialnr *serialnr)
 {
 	u32 serial[2];
 	uint offset;
