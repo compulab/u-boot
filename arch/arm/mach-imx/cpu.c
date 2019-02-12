@@ -235,7 +235,11 @@ int print_cpuinfo(void)
 
 #if defined(CONFIG_IMX_THERMAL) || defined(CONFIG_NXP_TMU)
 	struct udevice *thermal_dev;
+#ifdef CONFIG_TARGET_UCM_IMX8M_MINI
+	int cpu_tmp, ret;
+#else /* !CONFIG_TARGET_UCM_IMX8M_MINI */
 	int cpu_tmp, minc, maxc, ret;
+#endif /* CONFIG_TARGET_UCM_IMX8M_MINI */
 
 	printf("CPU:   Freescale i.MX%s rev%d.%d",
 	       get_imx_type((cpurev & 0xFF000) >> 12),
@@ -257,7 +261,9 @@ int print_cpuinfo(void)
 #endif
 
 #if defined(CONFIG_IMX_THERMAL) || defined(CONFIG_NXP_TMU)
+
 	puts("CPU:   ");
+#ifndef CONFIG_TARGET_UCM_IMX8M_MINI
 	switch (get_cpu_temp_grade(&minc, &maxc)) {
 	case TEMP_AUTOMOTIVE:
 		puts("Automotive temperature grade ");
@@ -273,6 +279,7 @@ int print_cpuinfo(void)
 		break;
 	}
 	printf("(%dC to %dC)", minc, maxc);
+#endif/* !CONFIG_TARGET_UCM_IMX8M_MINI */
 #if	defined(CONFIG_NXP_TMU)
 	ret = uclass_get_device_by_name(UCLASS_THERMAL, "cpu-thermal", &thermal_dev);
 #else
@@ -282,7 +289,11 @@ int print_cpuinfo(void)
 		ret = thermal_get_temp(thermal_dev, &cpu_tmp);
 
 		if (!ret)
+#ifdef CONFIG_TARGET_UCM_IMX8M_MINI
+			printf("Running at %dC\n", cpu_tmp);
+#else /* !CONFIG_TARGET_UCM_IMX8M_MINI */
 			printf(" at %dC\n", cpu_tmp);
+#endif /* CONFIG_TARGET_UCM_IMX8M_MINI */
 		else
 			debug(" - invalid sensor data\n");
 	} else {
