@@ -20,9 +20,9 @@
 #include <fsl_esdhc.h>
 #include <mmc.h>
 
-#ifdef CONFIG_IMX8M_LPDDR4
+#ifdef CONFIG_UCM_IMX8M_LPDDR4
 #include <asm/arch/imx8m_ddr.h>
-#else /* CONFIG_IMX8M_LPDDR4_VAL */
+#else /* CONFIG_UCM_IMX8M_LPDDR4_VAL */
 #include "ddr/ddr.h"
 #endif
 
@@ -30,10 +30,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void spl_dram_init(void)
 {
-#ifdef CONFIG_IMX8M_LPDDR4
+#ifdef CONFIG_UCM_IMX8M_LPDDR4
 	/* ddr train */
 	ddr_init(&lpddr4_timing);
-#else /* CONFIG_IMX8M_LPDDR4_VAL */
+#else /* CONFIG_UCM_IMX8M_LPDDR4_VAL */
 	/* ddr train */
 	ddr_init();
 #endif

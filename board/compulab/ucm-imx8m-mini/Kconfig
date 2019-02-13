@@ -11,16 +11,16 @@ config SYS_CONFIG_NAME
 
 choice
 	prompt "DDR4 Init approach"
-	default IMX8M_LPDDR4_VAL
+	default UCM_IMX8M_LPDDR4_VAL
 	help
 	 DDR4 configuration approach
 
-config IMX8M_LPDDR4
+config UCM_IMX8M_LPDDR4
 	bool "DDR4_INIT_EVK"
 	help
 	 imx8mm_evk board configuration approach
 
-config IMX8M_LPDDR4_VAL
+config UCM_IMX8M_LPDDR4_VAL
 	bool "DDR4_INIT_VAL"
 	help
 	 imx8mm_val board configuration approach
