@@ -16,7 +16,6 @@
 
 #ifndef _I2C_H_
 #define _I2C_H_
-
 /*
  * For now there are essentially two parts to this file - driver model
  * here at the top, and the older code below (with CONFIG_SYS_I2C being
@@ -348,7 +347,7 @@ void board_i2c_init(const void *blob);
 uint8_t i2c_reg_read(uint8_t addr, uint8_t reg);
 void i2c_reg_write(uint8_t addr, uint8_t reg, uint8_t val);
 
-#endif
+#endif /* CONFIG_DM_I2C_COMPAT */
 
 /**
  * struct dm_i2c_ops - driver operations for I2C uclass
@@ -538,7 +537,6 @@ int i2c_chip_ofdata_to_platdata(struct udevice *dev, struct dm_i2c_chip *chip);
 void i2c_dump_msgs(struct i2c_msg *msg, int nmsgs);
 
 #ifndef CONFIG_DM_I2C
-
 /*
  * WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
  *
@@ -879,6 +877,7 @@ unsigned int i2c_get_bus_speed(void);
 # define I2C_MULTI_BUS				0
 #endif
 
+#ifndef CONFIG_DM_I2C_COMPAT
 /* NOTE: These two functions MUST be always_inline to avoid code growth! */
 static inline unsigned int I2C_GET_BUS(void) __attribute__((always_inline));
 static inline unsigned int I2C_GET_BUS(void)
@@ -892,6 +891,7 @@ static inline void I2C_SET_BUS(unsigned int bus)
 	if (I2C_MULTI_BUS)
 		i2c_set_bus_num(bus);
 }
+#endif /* !CONFIG_DM_I2C_COMPAT */
 
 /* Multi I2C definitions */
 enum {
@@ -924,7 +924,6 @@ int i2c_get_bus_num_fdt(int node);
  * @return 0 if port was reset, -1 if not found
  */
 int i2c_reset_port_fdt(const void *blob, int node);
-
 #endif /* !CONFIG_DM_I2C */
 
 #endif	/* _I2C_H_ */

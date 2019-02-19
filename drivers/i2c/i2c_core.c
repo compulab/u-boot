@@ -209,6 +209,7 @@ void i2c_init_all(void)
 	return;
 }
 
+#ifndef CONFIG_DM_I2C_COMPAT
 /*
  * i2c_get_bus_num():
  * ------------------
@@ -299,6 +300,7 @@ int i2c_write(uint8_t chip, unsigned int addr, int alen,
 {
 	return I2C_ADAP->write(I2C_ADAP, chip, addr, alen, buffer, len);
 }
+#endif /* !CONFIG_DM_I2C_COMPAT */
 
 unsigned int i2c_set_bus_speed(unsigned int speed)
 {
@@ -319,6 +321,7 @@ unsigned int i2c_get_bus_speed(void)
 	return cur->speed;
 }
 
+#ifndef CONFIG_DM_I2C_COMPAT
 uint8_t i2c_reg_read(uint8_t addr, uint8_t reg)
 {
 	uint8_t buf;
@@ -342,6 +345,7 @@ void i2c_reg_write(uint8_t addr, uint8_t reg, uint8_t val)
 
 	i2c_write(addr, reg, 1, &val, 1);
 }
+#endif /* !CONFIG_DM_I2C_COMPAT */
 
 __weak void i2c_init(int speed, int slaveaddr)
 {
