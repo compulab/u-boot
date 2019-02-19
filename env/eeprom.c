@@ -32,7 +32,7 @@ static int eeprom_bus_read(unsigned dev_addr, unsigned offset,
 		i2c_set_bus_num(CONFIG_I2C_ENV_EEPROM_BUS);
 #endif
 
-	rcode = eeprom_read(dev_addr, offset, buffer, cnt);
+	rcode = eeprom_read(dev_addr, offset, buffer, cnt, 1);
 
 #if defined(CONFIG_I2C_ENV_EEPROM_BUS)
 	i2c_set_bus_num(old_bus);
@@ -52,7 +52,7 @@ static int eeprom_bus_write(unsigned dev_addr, unsigned offset,
 		i2c_set_bus_num(CONFIG_I2C_ENV_EEPROM_BUS);
 #endif
 
-	rcode = eeprom_write(dev_addr, offset, buffer, cnt);
+	rcode = eeprom_write(dev_addr, offset, buffer, cnt, 1);
 
 #if defined(CONFIG_I2C_ENV_EEPROM_BUS)
 	i2c_set_bus_num(old_bus);

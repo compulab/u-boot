@@ -60,7 +60,8 @@ int misc_init_r(void)
 	}
 
 	/* EEPROM is at address 0x50. */
-	ret = eeprom_read(0x50, 0, data, sizeof(data));
+	ret = eeprom_read(0x50, 0, data, sizeof(data), 1);
+
 	if (ret) {
 		puts("Cannot read I2C EEPROM.\n");
 		return 0;

@@ -309,7 +309,7 @@ int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
 
 	if (eeprom_read(CONFIG_ZYNQ_GEM_EEPROM_ADDR,
 			CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET,
-			ethaddr, 6))
+			ethaddr, 6, 1))
 		printf("I2C EEPROM MAC address read failed\n");
 #endif
 

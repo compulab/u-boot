@@ -197,7 +197,8 @@ int mac_read_from_eeprom(void)
 	unsigned char enetvar[32];
 
 	/* Read MAC addresses from EEPROM */
-	if (eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, CONFIG_SYS_I2C_MAC_OFFSET, buf, 28)) {
+	if (eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, CONFIG_SYS_I2C_MAC_OFFSET, buf,
+			28, 1)) {
 		printf("\nEEPROM @ 0x%02x read FAILED!!!\n",
 		       CONFIG_SYS_I2C_EEPROM_ADDR);
 	} else {
