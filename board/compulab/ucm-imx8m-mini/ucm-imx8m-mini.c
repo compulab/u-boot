@@ -24,6 +24,7 @@
 #include <power/pmic.h>
 #include <power/bd71837.h>
 #include "../common/tcpc.h"
+#include "../common/eeprom.h"
 #include <usb.h>
 #include <sec_mipi_dsim.h>
 #include <imx_mipi_dsi_bridge.h>
@@ -181,6 +182,35 @@ static void setup_iomux_fec(void)
 	gpio_direction_output(FEC_RST_PAD, 0);
 	udelay(500);
 	gpio_direction_output(FEC_RST_PAD, 1);
+}
+
+/*
+ * setup_mac_address() - set Ethernet MAC address environment.
+ *
+ * @return: 0 on success, -1 on failure
+ */
+static int setup_mac_address(void)
+{
+        int ret;
+        unsigned char enetaddr[6];
+
+        ret = eth_env_get_enetaddr("ethaddr", enetaddr);
+        if (ret)
+                return 0;
+
+        ret = cl_eeprom_read_mac_addr(enetaddr, CONFIG_SYS_I2C_EEPROM_BUS);
+        if (ret)
+                return ret;
+
+        ret = is_valid_ethaddr(enetaddr);
+        if (!ret)
+                return -1;
+
+	ret = eth_env_set_enetaddr("ethaddr", enetaddr);
+	if (!ret)
+		return -1;
+
+        return 0;
 }
 
 static int setup_fec(void)
@@ -389,6 +419,7 @@ int board_ehci_usb_phy_mode(struct udevice *dev)
 
 int board_init(void)
 {
+
 #ifdef CONFIG_USB_TCPC
 	setup_typec();
 #endif
@@ -717,9 +748,15 @@ size_t display_count = ARRAY_SIZE(displays);
 
 int board_late_init(void)
 {
+	int ret;
+
 #ifdef CONFIG_ENV_IS_IN_MMC
 	board_late_mmc_env_init();
 #endif
+
+	ret = setup_mac_address();
+	if (ret < 0)
+		printf("%s: Can't set MAC address\n", __func__);
 
 	return 0;
 }
