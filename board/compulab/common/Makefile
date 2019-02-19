@@ -8,6 +8,8 @@
 
 obj-y				+= common.o
 obj-y				+= mmc.o
-obj-$(CONFIG_SYS_I2C)		+= eeprom.o
+ifneq "$(or $(CONFIG_SYS_I2C),$(CONFIG_DM_I2C))" ""
+obj-y				+= eeprom.o
+endif # (CONFIG_SYS_I2C || CONFIG_DM_I2C2)
 obj-$(CONFIG_LCD)		+= omap3_display.o
 obj-$(CONFIG_SMC911X)		+= omap3_smc911x.o
