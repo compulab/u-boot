@@ -35,6 +35,18 @@
 		startup-delay-us = <100>;
 		off-on-delay-us = <12000>;
 	};
+
+	uart4: serial@30a60000 {
+		compatible = "fsl,imx8mq-uart",
+			     "fsl,imx6q-uart", "fsl,imx21-uart";
+		reg = <0x0 0x30a60000 0x0 0x10000>;
+		interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-parent = <&gpc>;
+		clocks = <&clk IMX8MM_CLK_UART4_ROOT>,
+			<&clk IMX8MM_CLK_UART4_ROOT>;
+		clock-names = "ipg", "per";
+		status = "disabled";
+	};
 };
 
 &iomuxc {
@@ -111,6 +123,16 @@
 			fsl,pins = <
 				MX8MM_IOMUXC_UART3_RXD_UART3_DCE_RX	0x49
 				MX8MM_IOMUXC_UART3_TXD_UART3_DCE_TX	0x49
+			>;
+		};
+
+
+		pinctrl_uart4: uart4grp {
+			fsl,pins = <
+				MX8MM_IOMUXC_ECSPI2_MISO_UART4_DCE_CTS_B 0x49
+				MX8MM_IOMUXC_ECSPI2_MOSI_UART4_DCE_TX    0x49
+				MX8MM_IOMUXC_ECSPI2_SS0_UART4_DCE_RTS_B  0x49
+				MX8MM_IOMUXC_ECSPI2_SCLK_UART4_DCE_RX    0x49
 			>;
 		};
 
@@ -408,6 +430,12 @@
 &uart3 { /* console */
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_uart3>;
+	status = "okay";
+};
+
+&uart4 { /* console */
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart4>;
 	status = "okay";
 };
 
