@@ -218,6 +218,7 @@ static void spl_mx6s_dram_init(enum ddr_config dram_config, bool reset)
 	udelay(100);
 }
 
+#define F1200MHZ
 static void spl_mx6q_dram_init(enum ddr_config dram_config, bool reset)
 {
 	volatile struct mmdc_p_regs *mmdc_p0;
@@ -237,18 +238,55 @@ static void spl_mx6q_dram_init(enum ddr_config dram_config, bool reset)
 	while (mmdc_p0->mpzqhwctrl & 0x00010000)
 		;
 
-	mmdc_p0->mpwldectrl0 = 0x00630068;
-	mmdc_p0->mpwldectrl1 = 0x0068005D;
-	mmdc_p1->mpwldectrl0 = 0x0035004C;
-	mmdc_p1->mpwldectrl1 = 0x00170026;
-	mmdc_p0->mpdgctrl0   = 0x04140428;
-	mmdc_p0->mpdgctrl1   = 0x037C037C;
-	mmdc_p1->mpdgctrl0   = 0x0374037C;
-	mmdc_p1->mpdgctrl1   = 0x0350032C;
-	mmdc_p0->mprddlctl   = 0x3C30303A;
-	mmdc_p1->mprddlctl   = 0x30322A3C;
-	mmdc_p0->mpwrdlctl   = 0x3A344038;
-	mmdc_p1->mpwrdlctl   = 0x48304A3E;
+#define FERROR
+#ifdef F0800MHZ
+	mmdc_p0->mpwldectrl0 = 0x0071007B;
+	mmdc_p0->mpwldectrl1 = 0x0076006C;
+	mmdc_p1->mpwldectrl0 = 0x003D0056;
+	mmdc_p1->mpwldectrl1 = 0x00110022;
+	mmdc_p0->mpdgctrl0   = 0x04100410;
+	mmdc_p0->mpdgctrl1   = 0x03560356;
+	mmdc_p1->mpdgctrl0   = 0x03540350;
+	mmdc_p1->mpdgctrl1   = 0x03480310;
+	mmdc_p0->mprddlctl   = 0x4C423E44;
+	mmdc_p1->mprddlctl   = 0x3C3E3A48;
+	mmdc_p0->mpwrdlctl   = 0x3A3A423C;
+	mmdc_p1->mpwrdlctl   = 0x4A364640;
+#undef FERROR
+#endif
+#ifdef F1000MHZ
+	mmdc_p0->mpwldectrl0 = 0x006F0076;
+	mmdc_p0->mpwldectrl1 = 0x0074006B;
+	mmdc_p1->mpwldectrl0 = 0x003D0053;
+	mmdc_p1->mpwldectrl1 = 0x00120021;
+	mmdc_p0->mpdgctrl0   = 0x040C0418;
+	mmdc_p0->mpdgctrl1   = 0x034A034A;
+	mmdc_p1->mpdgctrl0   = 0x034A034A;
+	mmdc_p1->mpdgctrl1   = 0x033C0320;
+	mmdc_p0->mprddlctl   = 0x483C3A40;
+	mmdc_p1->mprddlctl   = 0x383C3844;
+	mmdc_p0->mpwrdlctl   = 0x3838423C;
+	mmdc_p1->mpwrdlctl   = 0x4634463E;
+#undef FERROR
+#endif
+#ifdef F1200MHZ
+	mmdc_p0->mpwldectrl0 = 0x006D0077;
+	mmdc_p0->mpwldectrl1 = 0x00710068;
+	mmdc_p1->mpwldectrl0 = 0x003B0052;
+	mmdc_p1->mpwldectrl1 = 0x00100021;
+	mmdc_p0->mpdgctrl0   = 0x04040414;
+	mmdc_p0->mpdgctrl1   = 0x03680368;
+	mmdc_p1->mpdgctrl0   = 0x03380368;
+	mmdc_p1->mpdgctrl1   = 0x03300314;
+	mmdc_p0->mprddlctl   = 0x463A3842;
+	mmdc_p1->mprddlctl   = 0x363C3842;
+	mmdc_p0->mpwrdlctl   = 0x3838423C;
+	mmdc_p1->mpwrdlctl   = 0x4834443E;
+#undef FERROR
+#endif
+#ifdef FERROR
+#error Undefined MMDC frequency
+#endif
 	mmdc_p0->mprddqby0dl = 0x33333333;
 	mmdc_p0->mprddqby1dl = 0x33333333;
 	mmdc_p0->mprddqby2dl = 0x33333333;
