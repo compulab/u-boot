@@ -88,12 +88,12 @@ static struct mx6dq_iomux_ddr_regs ddr_iomux_q = { CM_FX6_DDR_IOMUX_CFG };
 static struct mx6dq_iomux_grp_regs grp_iomux_q = { CM_FX6_GPR_IOMUX_CFG };
 
 static struct mx6_mmdc_calibration cm_fx6_calib_s = {
-	.p0_mpwldectrl0	= 0x005B0061,
-	.p0_mpwldectrl1	= 0x004F0055,
-	.p0_mpdgctrl0	= 0x0314030C,
-	.p0_mpdgctrl1	= 0x025C0268,
-	.p0_mprddlctl	= 0x42464646,
-	.p0_mpwrdlctl	= 0x36322C34,
+	.p0_mpwldectrl0 = 0x005F0069,
+	.p0_mpwldectrl1 = 0x0057005C,
+	.p0_mpdgctrl0   = 0x02140214,
+	.p0_mpdgctrl1   = 0x02140214,
+	.p0_mprddlctl   = 0x46444648,
+	.p0_mpwrdlctl   = 0x36342E30,
 };
 
 static struct mx6_ddr_sysinfo cm_fx6_sysinfo_s = {
