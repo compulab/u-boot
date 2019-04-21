@@ -16,12 +16,15 @@ choice
 	 DDR4 configuration approach
 
 config UCM_IMX8M_LPDDR4
-	bool "DDR4_INIT_EVK"
+	bool "UCM_IMX8M_LPDDR4"
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
 	help
 	 imx8mm_evk board configuration approach
 
 config UCM_IMX8M_LPDDR4_VAL
-	bool "DDR4_INIT_VAL"
+	bool "UCM_IMX8M_LPDDR4_VAL"
 	help
 	 imx8mm_val board configuration approach
 
