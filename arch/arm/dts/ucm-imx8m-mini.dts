@@ -478,3 +478,10 @@
 &usbotg2 {
 	status = "disabled";
 };
+
+&cpu_alert0 {
+	temperature = <105000>;
+};
+&cpu_crit0 {
+	temperature = <115000>;
+};
