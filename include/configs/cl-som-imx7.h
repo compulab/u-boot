@@ -219,6 +219,8 @@
 #define CONFIG_USB_ETHER_RNDIS
 #define CONFIG_USB_ETHER_ASIX
 #define CONFIG_USB_ETHER_MCS7830
+/* USB Gadget */
+#define CONFIG_USB_FUNCTION_MASS_STORAGE
 
 /* Uncomment to enable iMX thermal driver support */
 /*#define CONFIG_IMX_THERMAL*/
