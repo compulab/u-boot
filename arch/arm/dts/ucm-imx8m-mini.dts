@@ -474,7 +474,8 @@
 };
 
 &usbotg1 {
-	status = "disabled";
+	dr_mode = "otg";
+	status = "okay";
 };
 
 &usbotg2 {
