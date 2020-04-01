@@ -141,6 +141,7 @@
 		pinctrl_usdhc2_gpio: usdhc2grpgpio {
 			fsl,pins = <
 				MX8MM_IOMUXC_SD2_RESET_B_GPIO2_IO19	0x41
+				MX8MM_IOMUXC_SD2_WP_USDHC2_WP		0
 			>;
 		};
 
@@ -447,6 +448,7 @@
 	pinctrl-1 = <&pinctrl_usdhc2_100mhz>, <&pinctrl_usdhc2_gpio>;
 	pinctrl-2 = <&pinctrl_usdhc2_200mhz>, <&pinctrl_usdhc2_gpio>;
 	bus-width = <4>;
+	fsl,wp-controller;
 	non-removable;
 	vmmc-supply = <&reg_usdhc2_vmmc>;
 	status = "okay";
