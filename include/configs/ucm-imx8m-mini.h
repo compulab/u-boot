@@ -53,8 +53,15 @@
 #define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_MXC_I2C3		/* enable I2C bus 3 */
 
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_BD71837
+
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-#endif
+#else /*ifdef CONFIG_SPL_BUILD*/
+#define CONFIG_DM_I2C_COMPAT
+#define CONFIG_DM_I2C
+#endif /*ifdef CONFIG_SPL_BUILD*/
 
 #define CONFIG_CMD_READ
 #define CONFIG_SERIAL_TAG
