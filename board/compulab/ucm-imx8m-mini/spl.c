@@ -175,8 +175,14 @@ int power_init_board(void)
 	/* unlock the PMIC regs */
 	pmic_reg_write(p, BD71837_REGLOCK, 0x1);
 
-	/* increase VDD_DRAM to 0.9v for 3Ghz DDR */
-	pmic_reg_write(p, BD71837_BUCK5_VOLT, 0x2);
+	/* decrease VDD_ARM to 0.85V for 1.2GHz operation */
+	/*pmic_reg_write(p, BD71837_BUCK2_VOLT_RUN, 0x0f);*/
+
+	/* increase VDD_SOC to 0.85V for 3Ghz DDR */
+	pmic_reg_write(p, BD71837_BUCK1_VOLT_RUN, 0x0f);
+
+	/* increase VDD_DRAM to 0.975V (9v5 required but not supported)*/
+	pmic_reg_write(p, BD71837_BUCK5_VOLT, 0x83);
 
 	/* lock the PMIC regs */
 	pmic_reg_write(p, BD71837_REGLOCK, 0x11);
