@@ -546,7 +546,14 @@ int board_init(void)
 
 int board_mmc_get_env_dev(int devno)
 {
-	return devno - 1;
+	const ulong user_env_devno = env_get_hex("env_mmcdev", ULONG_MAX);
+	if (user_env_devno != ULONG_MAX) {
+		printf("User Environment DevNo is set: Save environmet on MMC(%lu)\n", user_env_devno);
+		return (int)user_env_devno;
+	}
+	else {
+		return devno - 1;
+	}
 }
 
 int mmc_map_to_kernel_blk(int devno)
