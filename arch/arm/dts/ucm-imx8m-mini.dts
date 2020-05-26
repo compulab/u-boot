@@ -17,7 +17,7 @@
 #include "fsl-imx8mm.dtsi"
 
 / {
-	model = "CompuLab UCM i.MX8MM board";
+	model = "CompuLab UCM-iMX8M-Mini board";
 	compatible = "cpl,ucm-imx8m-mini", "fsl,imx8mm-evk", "fsl,imx8mm";
 
 	chosen {
