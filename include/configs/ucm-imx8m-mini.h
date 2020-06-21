@@ -134,11 +134,11 @@
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 	"mmcautodetect=yes\0" \
 	"emmc_ul=setenv iface mmc; setenv dev 1; setenv part 1;" \
-	"setenv bootargs console=${console} root=/dev/mmcblk2p2;\0" \
+	"setenv bootargs console=${console} root=/dev/mmcblk2p2 rw rootwait;\0" \
 	"sd_ul=setenv iface mmc; setenv dev 0; setenv part 1;" \
-	"setenv bootargs console=${console} root=/dev/mmcblk1p2;\0" \
+	"setenv bootargs console=${console} root=/dev/mmcblk1p2 rw rootwait;\0" \
 	"usb_ul=usb start; setenv iface usb; setenv dev 0; setenv part 1;" \
-	"setenv bootargs console=${console} root=/dev/sda2;\0" \
+	"setenv bootargs console=${console} root=/dev/sda2 rw rootwait;\0" \
 	"ulbootscript=load ${iface} ${dev}:${part} ${loadaddr} ${script};\0" \
 	"ulimage=load ${iface} ${dev}:${part} ${loadaddr} ${image}\0" \
 	"ulfdt=if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
