@@ -8,7 +8,9 @@
  */
 
 #include <common.h>
+#include <asm/mach-imx/mxc_i2c.h>
 #include <i2c.h>
+#include <dm.h>
 #include <eeprom_layout.h>
 #include <eeprom_field.h>
 #include <linux/kernel.h>
@@ -41,19 +43,47 @@
 static int cl_eeprom_bus;
 static int cl_eeprom_layout; /* Implicitly LAYOUT_INVALID */
 
+static struct udevice  *g_dev = NULL;
+
+static int cpl_eeprom_init(void) {
+
+	int i2c_bus = CONFIG_SYS_I2C_EEPROM_BUS;
+	uint8_t chip = CONFIG_SYS_I2C_EEPROM_ADDR;
+
+	struct udevice *bus, *dev;
+	int ret;
+
+	if (!g_dev) {
+
+		ret = uclass_get_device_by_seq(UCLASS_I2C, i2c_bus, &bus);
+		if (ret) {
+			printf("%s: No bus %d\n", __func__, i2c_bus);
+			return ret;
+		}
+
+		ret = dm_i2c_probe(bus, chip, 0, &dev);
+		if (ret) {
+			printf("%s: Can't find device id=0x%x, on bus %d\n",
+				__func__, chip, i2c_bus);
+			return ret;
+		}
+
+		/* Init */
+		g_dev = dev;
+	}
+
+	return 0;
+}
+
 static int cl_eeprom_read(uint offset, uchar *buf, int len)
 {
 	int res;
-	unsigned int current_i2c_bus = i2c_get_bus_num();
 
-	res = i2c_set_bus_num(cl_eeprom_bus);
+	res = cpl_eeprom_init();
 	if (res < 0)
 		return res;
 
-	res = i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, offset,
-			CONFIG_SYS_I2C_EEPROM_ADDR_LEN, buf, len);
-
-	i2c_set_bus_num(current_i2c_bus);
+	res  = dm_i2c_read(g_dev, offset, buf, len);
 
 	return res;
 }
