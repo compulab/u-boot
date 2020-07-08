@@ -191,13 +191,13 @@ int power_init_board(void)
 	pmic_reg_write(p, BD71837_REGLOCK, 0x1);
 
 	/* decrease VDD_ARM to 0.85V for 1.2GHz operation */
-	/*pmic_reg_write(p, BD71837_BUCK2_VOLT_RUN, 0x0f);*/
-
-	/* increase VDD_SOC to 0.85V for 3Ghz DDR */
 	pmic_reg_write(p, BD71837_BUCK1_VOLT_RUN, 0x0f);
 
 	/* increase VDD_DRAM to 0.975V (9v5 required but not supported)*/
 	pmic_reg_write(p, BD71837_BUCK5_VOLT, 0x83);
+
+	/* increase NVCC_DRAM_1V2 to 1.2v for DDR4 */
+	pmic_reg_write(p, BD71837_BUCK8_VOLT, 0x28);
 
 	/* lock the PMIC regs */
 	pmic_reg_write(p, BD71837_REGLOCK, 0x11);
@@ -236,9 +236,6 @@ void board_init_f(ulong dummy)
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
-	/* Clear global data
-	memset((void *)gd, 0, sizeof(gd_t));
-	*/
 	arch_cpu_init();
 
 	board_early_init_f();
@@ -262,4 +259,13 @@ void board_init_f(ulong dummy)
 	spl_dram_init();
 
 	board_init_r(NULL, 0);
+}
+
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	puts ("resetting ...\n");
+
+	reset_cpu(WDOG1_BASE_ADDR);
+
+	return 0;
 }
