@@ -465,7 +465,8 @@
 };
 
 &usbotg2 {
-	status = "disabled";
+	dr_mode = "host";
+	status = "okay";
 };
 
 &cpu_alert0 {
