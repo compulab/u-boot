@@ -136,8 +136,7 @@ int dram_init_banksize(void)
 		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
 		phys_size_t optee_size = (size_t)rom_pointer[1];
 
-
-		if ((optee_start + optee_size) < (PHYS_SDRAM + bank_1_size)) {
+		if ((optee_start + optee_size) <= (PHYS_SDRAM + bank_1_size)) {
 
 			gd->bd->bi_dram[bank].size = optee_start - gd->bd->bi_dram[bank].start;
 
@@ -146,7 +145,7 @@ int dram_init_banksize(void)
 				return -1;
 			}
 
-			gd->bd->bi_dram[bank].start = optee_start;
+			gd->bd->bi_dram[bank].start = optee_start + optee_size;
 			gd->bd->bi_dram[bank].size = PHYS_SDRAM +
 				bank_1_size - gd->bd->bi_dram[bank].start;
 		}
