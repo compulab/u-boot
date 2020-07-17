@@ -7,6 +7,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <linux/kernel.h>
+#include <linux/delay.h>
 #include <asm/arch/imx8mq_pins.h>
 #include <asm/mach-imx/gpio.h>
 #include <asm-generic/gpio.h>
