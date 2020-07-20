@@ -122,7 +122,7 @@ static void parse_common_args(int argc, char *argv[])
 	env_opts.config_file = CONFIG_FILE;
 #endif
 
-	while ((c = getopt_long(argc, argv, ":a:c:l:h:v:e", long_options, NULL)) !=
+	while ((c = getopt_long(argc, argv, ":a:c:l:h:ve", long_options, NULL)) !=
 	       EOF) {
 		switch (c) {
 #ifdef CONFIG_FILE
