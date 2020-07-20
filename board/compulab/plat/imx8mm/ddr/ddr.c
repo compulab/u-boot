@@ -63,11 +63,11 @@ struct lpddr4_desc {
 
 #define DEFAULT (('D' << 24) + ('E' << 16 ) + ( 'F' << 8 ) + 'A')
 static const struct lpddr4_desc lpddr4_array[] = {
-	{ .name = "Micron", .id = 0xff020008, .size = 2048, .count = 1, .timing = &ucm_dram_timing_ff020008}, //Only the first timing entry is in use
-	{ .name = "Micron", .id = 0xff000110, .size = 4096, .count = 1, .timing = &ucm_dram_timing_ff000110},
-	{ .name = "Samsung",.id = 0x01061010, .size = 2048, .count = 1, .timing = &ucm_dram_timing_01061010},
+	{ .name = "Nanya",  .id = 0x01050008, .size = 1024, .count = 1, .timing = &ucm_dram_timing_01050008}, //Only the first timing entry is in use
 	{ .name = "Nanya",  .id = 0x05000010, .size = 2048, .count = 1, .timing = &ucm_dram_timing_01061010},
-	{ .name = "Nanya",  .id = 0x01050008, .size = 1024, .count = 1, .timing = &ucm_dram_timing_01050008},
+	{ .name = "Samsung",.id = 0x01061010, .size = 2048, .count = 1, .timing = &ucm_dram_timing_01061010},
+	{ .name = "Micron", .id = 0xff020008, .size = 2048, .count = 1, .timing = &ucm_dram_timing_ff020008},
+	{ .name = "Micron", .id = 0xff000110, .size = 4096, .count = 1, .timing = &ucm_dram_timing_ff000110},
 };
 
 static unsigned int lpddr4_get_mr(void)
