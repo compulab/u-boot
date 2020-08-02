@@ -29,6 +29,21 @@
 		regulator-boot-on;
 		enable-active-high;
 	};
+
+	reg_usdhc2_vqmmc: regulator-usdhc2_1v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "usdhc2_1v8";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-always-on;
+	};
+};
+
+&usdhc2 {
+	pinctrl-names = "default";
+	mmc-ddr-1_8v;
+	non-removable;
+	vqmmc-supply = <&reg_usdhc2_vqmmc>;
 };
 
 &usbotg1 {
@@ -40,6 +55,12 @@
 
 &iomuxc {
 	sb-iotgimx8 {
+		pinctrl_usdhc2_gpio: usdhc2grpgpio {
+			fsl,pins = <
+				MX8MM_IOMUXC_SD2_RESET_B_GPIO2_IO19	0x41
+			>;
+		};
+
 		pinctl_usb_gpio: usb_gpio_grp {
 			fsl,pins = <
 				MX8MM_IOMUXC_SAI3_RXFS_GPIO4_IO28		0x00
