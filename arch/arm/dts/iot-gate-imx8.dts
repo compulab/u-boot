@@ -47,24 +47,28 @@
 };
 
 &usbotg1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctl_usb_gpio>;
+	vbus-supply = <&reg_vusb_5v>;
 	dr_mode = "host";
 	status = "okay";
 };
 
 &iomuxc {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_hog>;
+
 	sb-iotgimx8 {
+		pinctrl_hog: hoggrp {
+			fsl,pins = <
+				/* USB VBUS enable GPIO */
+				MX8MM_IOMUXC_SAI3_RXFS_GPIO4_IO28	0x00
+			>;
+		};
+
 		pinctrl_usdhc2_gpio: usdhc2grpgpio {
 			fsl,pins = <
 				MX8MM_IOMUXC_SD2_RESET_B_GPIO2_IO19	0x41
 			>;
 		};
 
-		pinctl_usb_gpio: usb_gpio_grp {
-			fsl,pins = <
-				MX8MM_IOMUXC_SAI3_RXFS_GPIO4_IO28		0x00
-			>;
-		};
 	};
 };
