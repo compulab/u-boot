@@ -7,6 +7,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <errno.h>
+#include <hang.h>
 #include <asm/io.h>
 #include <miiphy.h>
 #include <netdev.h>
@@ -182,12 +183,21 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 
 	return 0;
 }
+
+__weak int uboot_board_private_init(void) {
+	return 0;
+}
+
 int board_init(void)
 {
 
 #ifdef CONFIG_FEC_MXC
 	setup_fec();
 #endif
+	if (uboot_board_private_init()) {
+		printf("uboot_board_private_init() failed\n");
+		hang();
+	}
 	return 0;
 }
 
