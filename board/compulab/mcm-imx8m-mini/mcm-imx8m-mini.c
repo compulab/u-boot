@@ -28,3 +28,7 @@
 #include <asm/mach-imx/video.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+int uboot_board_private_init(void) {
+	return 0;
+}
