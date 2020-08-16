@@ -39,6 +39,20 @@
 	};
 };
 
+&i2c4 {/* Expansion connector I2C */
+	clock-frequency = <100000>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_i2c4>;
+	status = "okay";
+
+	gpio@22 {
+		compatible = "nxp,pca9555";
+		reg = <0x22>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+};
+
 &usdhc2 {
 	pinctrl-names = "default";
 	mmc-ddr-1_8v;
@@ -61,6 +75,13 @@
 			fsl,pins = <
 				/* USB VBUS enable GPIO */
 				MX8MM_IOMUXC_SAI3_RXFS_GPIO4_IO28	0x00
+			>;
+		};
+
+		pinctrl_i2c4: i2c4grp {
+			fsl,pins = <
+				MX8MM_IOMUXC_I2C4_SCL_I2C4_SCL		0x400001c3
+				MX8MM_IOMUXC_I2C4_SDA_I2C4_SDA		0x400001c3
 			>;
 		};
 
