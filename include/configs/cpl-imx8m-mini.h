@@ -202,8 +202,6 @@
 #define CONFIG_MXC_UART_BASE		UART3_BASE_ADDR
 
 /* Monitor Command Prompt */
-#undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT		"u-boot=> "
 #define CONFIG_SYS_PROMPT_HUSH_PS2     "> "
 #define CONFIG_SYS_CBSIZE              2048
 #define CONFIG_SYS_MAXARGS             64
