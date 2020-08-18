@@ -79,6 +79,10 @@ static int cl_eeprom_write(uint offset, uchar *buf, int len)
 #define BOARD_DDRINFO_SIZE 4
 static u32 board_ddrinfo = 0xdeadbeef;
 
+#define BOARD_DDRSUBIND_OFFSET 0x44
+#define BOARD_DDRSUBIND_SIZE 1
+static u8 board_ddrsubind = 0xff;
+
 #define BOARD_DRATE_OFFSET 0x50
 #define BOARD_DRATE_SIZE 4
 static u32 board_drate = 0xdeadbeef;
@@ -127,6 +131,23 @@ u32 cl_eeprom_set_drate(u32 drate, unsigned int r, unsigned int c)
 	udelay(5000);
 
 	return board_drate;
+};
+
+u8 cl_eeprom_get_subind(void)
+{
+	if (cl_eeprom_read(BOARD_DDRSUBIND_OFFSET, (uchar *)&board_ddrsubind, BOARD_DDRSUBIND_SIZE))
+		return 0xff;
+
+	return board_ddrsubind;
+};
+
+u8 cl_eeprom_set_subind(u8 ddrsubind)
+{
+	if (cl_eeprom_write(BOARD_DDRSUBIND_OFFSET, (uchar *)&ddrsubind, BOARD_DDRSUBIND_SIZE))
+		return 0xff;
+	board_ddrsubind = ddrsubind;
+
+	return board_ddrsubind;
 };
 
 /* override-size ifaces */
