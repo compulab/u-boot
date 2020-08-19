@@ -152,7 +152,10 @@ void spl_dram_init(void)
 	printf("DDRINFO(%s): %s %dG @ %d MHz\n", (ddr_found ? "D" : "?" ), lpddr4_array[i].name,
 			lpddr4_array[i].size, lpddr4_array[i].timing->fsp_table[0]);
 
-	ddr_init(lpddr4_array[i].timing);
+	if (ddr_init(lpddr4_array[i].timing)) {
+		SPL_TCM_INIT;
+		do_reset(NULL,0,0,NULL);
+	}
 
 	ddr_info_mrr = lpddr4_get_mr();
 	if (ddr_info_mrr == 0xFFFFFFFF ) {
