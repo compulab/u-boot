@@ -7,6 +7,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <linux/ctype.h>
 #include <common.h>
 #include <asm/mach-imx/mxc_i2c.h>
 #include <i2c.h>
@@ -22,8 +23,16 @@
 # define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 #endif
 
+#ifndef CONFIG_SYS_I2C_EEPROM_ADDR_SB
+# define CONFIG_SYS_I2C_EEPROM_ADDR_SB	0x54
+#endif
+
 #ifndef CONFIG_SYS_I2C_EEPROM_BUS
-#define CONFIG_SYS_I2C_EEPROM_BUS	0
+# define CONFIG_SYS_I2C_EEPROM_BUS	1
+#endif
+
+#ifndef CONFIG_SYS_I2C_EEPROM_BUS_SB
+# define CONFIG_SYS_I2C_EEPROM_BUS_SB	0
 #endif
 
 #define EEPROM_LAYOUT_VER_OFFSET	44
@@ -40,31 +49,43 @@
 #define LAYOUT_INVALID	0
 #define LAYOUT_LEGACY	0xff
 
-static int cl_eeprom_bus;
 static int cl_eeprom_layout; /* Implicitly LAYOUT_INVALID */
 
-static struct udevice  *g_dev = NULL;
+struct eeprom_path {
+	int bus;
+	uint8_t chip;
+};
+
+static const struct eeprom_path eeprom_som = {
+	CONFIG_SYS_I2C_EEPROM_BUS,
+	CONFIG_SYS_I2C_EEPROM_ADDR
+};
+static const struct eeprom_path eeprom_sb = {
+	CONFIG_SYS_I2C_EEPROM_BUS_SB,
+	CONFIG_SYS_I2C_EEPROM_ADDR_SB
+};
+
+static const struct eeprom_path *working_eeprom;
+
+static struct udevice *g_dev = NULL;
 
 static int cpl_eeprom_init(void) {
-
-	int i2c_bus = CONFIG_SYS_I2C_EEPROM_BUS;
-	uint8_t chip = CONFIG_SYS_I2C_EEPROM_ADDR;
 
 	struct udevice *bus, *dev;
 	int ret;
 
 	if (!g_dev) {
 
-		ret = uclass_get_device_by_seq(UCLASS_I2C, i2c_bus, &bus);
+		ret = uclass_get_device_by_seq(UCLASS_I2C, working_eeprom->bus, &bus);
 		if (ret) {
-			printf("%s: No bus %d\n", __func__, i2c_bus);
+			printf("%s: No bus %d\n", __func__, working_eeprom->bus);
 			return ret;
 		}
 
-		ret = dm_i2c_probe(bus, chip, 0, &dev);
+		ret = dm_i2c_probe(bus, working_eeprom->chip, 0, &dev);
 		if (ret) {
 			printf("%s: Can't find device id=0x%x, on bus %d\n",
-				__func__, chip, i2c_bus);
+				__func__, working_eeprom->chip, working_eeprom->bus);
 			return ret;
 		}
 
@@ -88,7 +109,7 @@ static int cl_eeprom_read(uint offset, uchar *buf, int len)
 	return res;
 }
 
-static int cl_eeprom_setup(uint eeprom_bus)
+static int cl_eeprom_setup(const struct eeprom_path *eeprom)
 {
 	int res;
 
@@ -96,10 +117,11 @@ static int cl_eeprom_setup(uint eeprom_bus)
 	 * We know the setup was already done when the layout is set to a valid
 	 * value and we're using the same bus as before.
 	 */
-	if (cl_eeprom_layout != LAYOUT_INVALID && eeprom_bus == cl_eeprom_bus)
+	if (cl_eeprom_layout != LAYOUT_INVALID && eeprom == working_eeprom)
 		return 0;
 
-	cl_eeprom_bus = eeprom_bus;
+	working_eeprom = eeprom;
+	g_dev = NULL;
 	res = cl_eeprom_read(EEPROM_LAYOUT_VER_OFFSET,
 			     (uchar *)&cl_eeprom_layout, 1);
 	if (res) {
@@ -120,7 +142,7 @@ void cpl_get_board_serial(struct tag_serialnr *serialnr)
 
 	memset(serialnr, 0, sizeof(*serialnr));
 
-	if (cl_eeprom_setup(CONFIG_SYS_I2C_EEPROM_BUS))
+	if (cl_eeprom_setup(&eeprom_som))
 		return;
 
 	offset = (cl_eeprom_layout != LAYOUT_LEGACY) ?
@@ -139,12 +161,12 @@ void cpl_get_board_serial(struct tag_serialnr *serialnr)
  * Routine: cl_eeprom_read_mac_addr
  * Description: read mac address and store it in buf.
  */
-int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus)
+int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus __attribute__((unused)))
 {
 	uint offset;
 	int err;
 
-	err = cl_eeprom_setup(eeprom_bus);
+	err = cl_eeprom_setup(&eeprom_som);
 	if (err)
 		return err;
 
@@ -160,7 +182,7 @@ static u32 board_rev;
  * Routine: cl_eeprom_get_board_rev
  * Description: read system revision from eeprom
  */
-u32 cl_eeprom_get_board_rev(uint eeprom_bus)
+u32 cl_eeprom_get_board_rev(uint eeprom_bus __attribute__((unused)))
 {
 	char str[5]; /* Legacy representation can contain at most 4 digits */
 	uint offset = BOARD_REV_OFFSET_LEGACY;
@@ -168,7 +190,7 @@ u32 cl_eeprom_get_board_rev(uint eeprom_bus)
 	if (board_rev)
 		return board_rev;
 
-	if (cl_eeprom_setup(eeprom_bus))
+	if (cl_eeprom_setup(&eeprom_som))
 		return 0;
 
 	if (cl_eeprom_layout != LAYOUT_LEGACY)
@@ -198,14 +220,14 @@ u32 cl_eeprom_get_board_rev(uint eeprom_bus)
  *
  * @return: 0 on success, < 0 on failure
  */
-int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus)
+int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus __attribute__((unused)))
 {
 	int err;
 
 	if (buf == NULL)
 		return -EINVAL;
 
-	err = cl_eeprom_setup(eeprom_bus);
+	err = cl_eeprom_setup(&eeprom_som);
 	if (err)
 		return err;
 
@@ -214,6 +236,32 @@ int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus)
 		buf[PRODUCT_NAME_SIZE - 1] = '\0';
 
 	return err;
+}
+
+static int cl_eeprom_read_product_name(char *buf, const struct eeprom_path *eeprom)
+{
+	int len;
+	int err;
+	uchar tmp[PRODUCT_NAME_SIZE];
+
+	err = cl_eeprom_setup(eeprom);
+	if (err)
+		printf("%s: Error accesing i2c %x@%x\n", __func__, eeprom->bus, eeprom->chip);
+	else
+		err = cl_eeprom_read(PRODUCT_NAME_OFFSET, tmp, PRODUCT_NAME_SIZE);
+
+	if (!err && tmp[0] != 0xff) // Check if the flash isn't written
+		len = snprintf(buf, PRODUCT_NAME_SIZE, (char*)tmp);
+	else
+		len = snprintf(buf, PRODUCT_NAME_SIZE, "unknown");
+
+	return len;
+}
+void cl_eeprom_get_suite(char *buf)
+{
+	buf += cl_eeprom_read_product_name(buf, &eeprom_som);
+	buf += sprintf(buf, " @ ");
+	buf += cl_eeprom_read_product_name(buf, &eeprom_sb);
 }
 
 #ifdef CONFIG_CMD_EEPROM_LAYOUT

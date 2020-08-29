@@ -188,6 +188,22 @@ __weak int uboot_board_private_init(void) {
 	return 0;
 }
 
+static void show_suite_info(void)
+{
+	char *buf = malloc(200); //More than necessary
+
+	if(!buf) {
+		printf("%s: Not enough memory\n", __func__);
+		return;
+	}
+
+	cl_eeprom_get_suite(buf);
+	printf("Suite:\t%s\n", buf);
+
+	free(buf);
+	return;
+}
+
 int board_init(void)
 {
 
@@ -198,6 +214,7 @@ int board_init(void)
 		printf("uboot_board_private_init() failed\n");
 		hang();
 	}
+	show_suite_info();
 	return 0;
 }
 
