@@ -73,7 +73,6 @@ int dram_init(void)
 	phys_size_t sdram_size;
 	int ret;
 	ret = board_phys_sdram_size(&sdram_size);
-	printf("%s: size %llu\n", __func__, sdram_size);
 	if (ret)
 		return ret;
 

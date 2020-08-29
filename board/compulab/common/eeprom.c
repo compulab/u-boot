@@ -260,7 +260,7 @@ static int cl_eeprom_read_product_name(char *buf, const struct eeprom_path *eepr
 void cl_eeprom_get_suite(char *buf)
 {
 	buf += cl_eeprom_read_product_name(buf, &eeprom_som);
-	buf += sprintf(buf, " @ ");
+	buf += sprintf(buf, " on ");
 	buf += cl_eeprom_read_product_name(buf, &eeprom_sb);
 }
 
