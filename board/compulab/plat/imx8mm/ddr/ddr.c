@@ -70,7 +70,11 @@ struct lpddr4_desc {
 
 #define DEFAULT (('D' << 24) + ('E' << 16 ) + ( 'F' << 8 ) + 'A')
 static const struct lpddr4_desc lpddr4_array[] = {
+#ifdef CONFIG_TARGET_MCM_IMX8M_MINI
 	{ .name = "Nanya",	.id = 0x05000010, .subind = 0xff, .size = 2048, .count = 1, .timing = &ucm_dram_timing_01061010},
+#else
+	{ .name = "Nanya",	.id = 0x05000010, .subind = 0xff, .size = 2048, .count = 1, .timing = &ucm_dram_timing_05000010},
+#endif
 	{ .name = "Samsung",	.id = 0x01061010, .subind = 0xff, .size = 2048, .count = 1, .timing = &ucm_dram_timing_01061010},
 	{ .name = "Samsung",	.id = 0x01050008, .subind = 0xff, .size = 1024, .count = 1, .timing = &ucm_dram_timing_01050008},
 	{ .name = "Kingston",	.id = 0xff000010, .subind = 0x04, .size = 4096, .count = 1, .timing = &ucm_dram_timing_ff000110},
