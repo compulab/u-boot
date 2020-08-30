@@ -17,23 +17,24 @@
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #undef CONFIG_BOOTCOMMAND
 
+#define ENV_CONSOLE console=ttymxc2,115200 earlycon=ec_imx6q,0x30880000,115200
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	CONFIG_MFG_ENV_SETTINGS \
 	"autoload=off\0" \
 	"script=boot.scr\0" \
 	"image=Image\0" \
-	"console=ttymxc2,115200	earlycon=ec_imx6q,0x30880000,115200\0" \
 	"fdt_addr=0x43000000\0"	\
 	"fdt_high=0xffffffffffffffff\0"	\
 	"initrd_high=0xffffffffffffffff\0" \
 	"root_opt=rootwait rw\0" \
+	"bootargs_common="__stringify(ENV_CONSOLE)" net.ifnames=0\0" \
 	"emmc_ul=setenv boot_dev_str eMMC; run boot_try_msg; " \
 	"setenv iface mmc; setenv dev 2; setenv part 1;" \
-	"setenv bootargs console=${console} root=/dev/mmcblk2p2 " \
+	"setenv bootargs ${bootargs_common} root=/dev/mmcblk2p2 " \
 	"${root_opt};\0" \
 	"usb_ul=setenv boot_dev_str USB; run boot_try_msg; usb reset; " \
 	"setenv iface usb; setenv dev 0; setenv part 1; " \
-	"setenv bootargs console=${console} root=/dev/sda2 ${root_opt};\0" \
+	"setenv bootargs ${bootargs_common} root=/dev/sda2 ${root_opt};\0" \
 	"ulbootscript=load ${iface} ${dev}:${part} ${loadaddr} ${script};\0" \
 	"ulimage=load ${iface} ${dev}:${part} ${loadaddr} ${image}\0" \
 	"ulfdt=load ${iface} ${dev}:${part} ${fdt_addr} ${fdt_file};\0" \
