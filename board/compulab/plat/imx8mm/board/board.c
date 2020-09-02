@@ -213,6 +213,9 @@ int board_init(void)
 		printf("uboot_board_private_init() failed\n");
 		hang();
 	}
+	if (IS_ENABLED(CONFIG_LED))
+		led_default_state();
+
 	show_suite_info();
 	return 0;
 }
