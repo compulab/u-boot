@@ -32,6 +32,17 @@
 		off-on-delay-us = <12000>;
 	};
 
+	leds {
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gpio_led>;
+
+		status_led {
+			label = "status";
+			gpios = <&gpio1 12 GPIO_ACTIVE_LOW>;
+			default-state = "on";
+		};
+	};
 };
 
 &iomuxc {
@@ -217,6 +228,12 @@
 		pinctrl_wdog: wdoggrp {
 			fsl,pins = <
 				MX8MM_IOMUXC_GPIO1_IO02_WDOG1_WDOG_B		0xc6
+			>;
+		};
+
+		pinctrl_gpio_led: gpioledgrp {
+			fsl,pins = <
+				MX8MM_IOMUXC_GPIO1_IO12_GPIO1_IO12	0x19
 			>;
 		};
 	};

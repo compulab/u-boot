@@ -21,6 +21,7 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <asm/arch/clock.h>
 #include <spl.h>
+#include <led.h>
 #include <asm/mach-imx/dma.h>
 #include <power/pmic.h>
 #include <power/bd71837.h>
