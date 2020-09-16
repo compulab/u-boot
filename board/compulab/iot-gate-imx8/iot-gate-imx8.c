@@ -308,6 +308,10 @@ static void iot_gate_imx8_update_uart1_node(void *blob)
 		return;
 
 	/* Update node regulator-uart1-mode */
+	prop_data_gpio[0]=
+		fdt_getprop_u32_default(blob, IOT_GATE_IMX8_DTB_PATH_UART1_MODE,
+					"gpio", 0);
+	prop_data_gpio[0] = cpu_to_fdt32(prop_data_gpio[0]);
 	do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_UART1_MODE, "gpio",
 			 prop_data_gpio, sizeof(prop_data_gpio), 0);
 	do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_UART1_MODE, "enable-active-low",
