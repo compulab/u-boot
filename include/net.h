@@ -397,7 +397,7 @@ struct ip_udp_hdr {
 	u16		udp_dst;	/* UDP destination port		*/
 	u16		udp_len;	/* Length of UDP packet		*/
 	u16		udp_xsum;	/* Checksum			*/
-};
+} __attribute__((packed));
 
 #define IP_UDP_HDR_SIZE		(sizeof(struct ip_udp_hdr))
 #define UDP_HDR_SIZE		(IP_UDP_HDR_SIZE - IP_HDR_SIZE)
