@@ -48,4 +48,6 @@ void board_late_mmc_env_init(void)
 
 	sprintf(cmd, "mmc dev %d", dev_no);
 	run_command(cmd, 0);
+
+	return;
 }
