@@ -87,9 +87,11 @@ static u8 board_ddrsubind = 0xff;
 #define BOARD_DRATE_SIZE 4
 static u32 board_drate = 0xdeadbeef;
 
+#ifdef CONFIG_SPL_REPORT_FAKE_MEMSIZE
 #define BOARD_OSIZE_OFFSET 0x80
 #define BOARD_OSIZE_SIZE 4
 static u32 board_osize = 0xdeadbeef;
+#endif
 
 #define BOARD_DDRINFO_VALID(A) (A != 0xdeadbeef)
 
@@ -150,6 +152,7 @@ u8 cl_eeprom_set_subind(u8 ddrsubind)
 	return board_ddrsubind;
 };
 
+#ifdef CONFIG_SPL_REPORT_FAKE_MEMSIZE
 /* override-size ifaces */
 u32 cl_eeprom_get_osize(void)
 {
@@ -168,5 +171,6 @@ u32 cl_eeprom_set_osize(u32 osize)
 
 	return board_osize;
 };
+#endif //CONFIG_SPL_REPORT_FAKE_MEMSIZE
 
 #endif

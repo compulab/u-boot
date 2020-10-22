@@ -22,8 +22,9 @@ u32 cl_eeprom_set_ddrinfo(u32 ddrinfo);
 u32 cl_eeprom_get_subind(void);
 u32 cl_eeprom_set_subind(u32 subind);
 
+#ifdef CONFIG_SPL_REPORT_FAKE_MEMSIZE
 u32 cl_eeprom_get_osize(void);
-
+#endif
 static unsigned int lpddr4_mr_read(unsigned int mr_rank, unsigned int mr_addr)
 {
 	unsigned int tmp;
@@ -202,7 +203,7 @@ void spl_dram_init(void)
 			printf("DDRINFO(EEPROM): i2c dev 1; i2c md 0x51 0x40 0x50\n");
 		}
 	}
-
+#ifdef CONFIG_SPL_REPORT_FAKE_MEMSIZE
 	/* Pass the dram size to th U-Boot through the tcm memory */
 	{ /* To figure out what to store into the TCM buffer */
 	  /* For debug purpouse only. To override the real memsize */
@@ -212,4 +213,8 @@ void spl_dram_init(void)
 
 		lpddr4_tcm_desc->size = ddr_tcm_size;
 	}
+#else
+	lpddr4_tcm_desc->size = lpddr4_array[i].size;
+#endif
+
 }
