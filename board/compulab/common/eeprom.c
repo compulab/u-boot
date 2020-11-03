@@ -35,17 +35,6 @@
 # define CONFIG_SYS_I2C_EEPROM_BUS_SB	0
 #endif
 
-#define EEPROM_LAYOUT_VER_OFFSET	44
-#define BOARD_SERIAL_OFFSET		20
-#define BOARD_SERIAL_OFFSET_LEGACY	8
-#define BOARD_REV_OFFSET		0
-#define BOARD_REV_OFFSET_LEGACY		6
-#define BOARD_REV_SIZE			2
-#define PRODUCT_NAME_OFFSET		128
-#define PRODUCT_NAME_SIZE		16
-#define MAC_ADDR_OFFSET			4
-#define MAC_ADDR_OFFSET_LEGACY		0
-
 #define LAYOUT_INVALID	0
 #define LAYOUT_LEGACY	0xff
 
@@ -238,6 +227,30 @@ int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus __attribute__((unused
 	return err;
 }
 
+static int cl_eeprom_read_options(char *buf, const struct eeprom_path *eeprom)
+{
+	int len = 0;
+	int err;
+	uchar tmp[PRODUCT_OPTION_SIZE];
+
+	err = cl_eeprom_setup(eeprom);
+	if (err) {
+		printf("%s: Error accesing i2c %x@%x\n", __func__, eeprom->bus, eeprom->chip);
+		return snprintf(buf, PRODUCT_NAME_SIZE, "unknown");
+	}
+
+	for(int i = 0; i < PRODUCT_OPTION_NUM; ++i) {
+		err = cl_eeprom_read(PRODUCT_OPTION_OFFSET + PRODUCT_OPTION_SIZE * i, tmp, PRODUCT_OPTION_SIZE);
+		if (!err && tmp[0] != 0xff) // Check if the flash isn't written
+			len += snprintf(buf + len, PRODUCT_OPTION_SIZE, (char*)tmp);
+	}
+	return len;
+}
+int cl_eeprom_read_som_options(char *buf)
+{
+	return cl_eeprom_read_options(buf, &eeprom_som);
+}
+
 static int cl_eeprom_read_product_name(char *buf, const struct eeprom_path *eeprom)
 {
 	int len;
@@ -257,6 +270,11 @@ static int cl_eeprom_read_product_name(char *buf, const struct eeprom_path *eepr
 
 	return len;
 }
+int cl_eeprom_read_som_name(char *buf)
+{
+	return cl_eeprom_read_product_name(buf, &eeprom_som);
+}
+
 void cl_eeprom_get_suite(char *buf)
 {
 	buf += cl_eeprom_read_product_name(buf, &eeprom_som);

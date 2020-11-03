@@ -26,6 +26,7 @@
 #include <power/pmic.h>
 #include <power/bd71837.h>
 #include <usb.h>
+#include <asm/setup.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/video.h>
 #include <linux/delay.h>
@@ -87,6 +88,32 @@ int dram_init(void)
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
+static void fdt_set_sn(void *blob)
+{
+	u32 rev;
+	char buf[100];
+	int len;
+	union {
+		struct tag_serialnr	s;
+		u64			u;
+	} serialnr;
+
+	len = cl_eeprom_read_som_name(buf);
+	fdt_setprop(blob, 0, "product-name", buf, len);
+
+	cpl_get_board_serial(&serialnr.s);
+	fdt_setprop(blob, 0, "serial-number", buf, sprintf(buf, "%llx", serialnr.u) + 1);
+
+	rev = cl_eeprom_get_board_rev(0);
+	fdt_setprop(blob, 0, "board-revision", buf,
+		sprintf(buf, "%u.%02u", rev/100 , rev%100 ) + 1);
+
+	len = cl_eeprom_read_som_options(buf);
+	fdt_setprop(blob, 0, "board-options", buf, len);
+
+	return;
+}
+
 static int fdt_set_env_addr(void *blob, bd_t *bd)
 {
 	char tmp[32];
@@ -111,6 +138,7 @@ static int fdt_set_env_addr(void *blob, bd_t *bd)
 int ft_board_setup(void *blob, bd_t *bd)
 {
 	fdt_set_env_addr(blob, bd);
+	fdt_set_sn(blob);
 	return 0;
 }
 #endif
