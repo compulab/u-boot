@@ -114,7 +114,7 @@ static void fdt_set_sn(void *blob)
 	return;
 }
 
-static int fdt_set_env_addr(void *blob, bd_t *bd)
+static int fdt_set_env_addr(void *blob)
 {
 	char tmp[32];
 	int nodeoff = fdt_add_subnode(blob, 0, "fw_env");
@@ -133,11 +133,12 @@ static int fdt_set_env_addr(void *blob, bd_t *bd)
 			break;
 		}
 	}
+	return 0;
 }
 
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	fdt_set_env_addr(blob, bd);
+	fdt_set_env_addr(blob);
 	fdt_set_sn(blob);
 	return 0;
 }
