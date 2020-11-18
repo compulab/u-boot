@@ -32,6 +32,7 @@
 #include <linux/delay.h>
 #include "ddr/ddr.h"
 #include "common/eeprom.h"
+#include "common/rtc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -258,8 +259,35 @@ static void show_suite_info(void)
 	return;
 }
 
+static void disable_rtc_bus_on_battery(void)
+{
+	struct udevice *bus, *dev;
+	int ret;
+
+	ret = uclass_get_device_by_seq(UCLASS_I2C, CONFIG_SYS_I2C_RTC_BUS, &bus);
+	if (ret) {
+		printf("%s: No bus %d\n", __func__, CONFIG_SYS_I2C_RTC_BUS);
+		return;
+	}
+
+	ret = dm_i2c_probe(bus, CONFIG_SYS_I2C_RTC_ADDR, 0, &dev);
+	if (ret) {
+		printf("%s: Can't find device id=0x%x, on bus %d\n",
+			__func__, CONFIG_SYS_I2C_RTC_BUS, CONFIG_SYS_I2C_RTC_ADDR);
+		return;
+	}
+
+	if((ret = dm_i2c_reg_write(dev, ABX8XX_REG_CFG_KEY, ABX8XX_CFG_KEY_MISC)) ||
+	    (ret = dm_i2c_reg_write(dev, ABX8XX_REG_BATMODE, ABX8XX_BATMODE_IOBM_NOT)))
+		printf("%s: i2c write error %d\n", __func__, ret);
+
+	return;
+}
+
 int board_init(void)
 {
+
+	disable_rtc_bus_on_battery();
 
 #ifdef CONFIG_FEC_MXC
 	setup_fec();
