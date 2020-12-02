@@ -142,7 +142,8 @@
 		"run setboottypem;" \
 		"run trybootk;" \
 		"run setboottypez;" \
-		"run trybootk;\0"
+		"run trybootk;\0" \
+	"ethactusb=test ! -z \"${ext_phy}\" && test ! -z \"${usb_net}\" && setenv ethact ${usb_net};\0"
 
 #ifdef CL_SOM_IMX6
 #define EMMC "setenv storagedev 3;"\
@@ -172,7 +173,7 @@
 	"run setupnandboot;" \
 	"run nandboot;"
 
-#define CONFIG_PREBOOT		"usb start"
+#define CONFIG_PREBOOT		"usb start; run ethactusb"
 
 /* SPI */
 #define CONFIG_SPI
