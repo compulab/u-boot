@@ -652,6 +652,7 @@ static struct phy_device *search_for_existing_phy(struct mii_dev *bus,
 	return NULL;
 }
 
+int phy_status=0;
 static struct phy_device *get_phy_device_by_mask(struct mii_dev *bus,
 		unsigned phy_mask, phy_interface_t interface)
 {
@@ -672,6 +673,8 @@ static struct phy_device *get_phy_device_by_mask(struct mii_dev *bus,
 			return phydev;
 	}
 	printf("Phy %d not found\n", ffs(phy_mask) - 1);
+	/* Quick and dirty */
+	phy_status = 1;
 	return phy_device_create(bus, ffs(phy_mask) - 1, 0xffffffff, interface);
 }
 

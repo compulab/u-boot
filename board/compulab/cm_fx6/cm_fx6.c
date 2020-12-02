@@ -500,8 +500,14 @@ static int mx6_rgmii_rework(struct phy_device *phydev)
 	return 0;
 }
 
+extern int phy_status;
 int board_phy_config(struct phy_device *phydev)
 {
+	if (phy_status) {
+        setenv("ext_phy" , "yes");
+        return 0;
+    }
+
 	mx6_rgmii_rework(phydev);
 
 	if (phydev->drv->config)
@@ -893,6 +899,7 @@ int board_late_init(void)
 #ifdef CONFIG_ATP_ENV
 	setenv("atp" , "yes");
 #endif
+
 	return 0;
 }
 
