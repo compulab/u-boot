@@ -383,12 +383,17 @@ static int cm_fx6_setup_usb_host(void)
 {
 	int err;
 
+	SETUP_IOMUX_PAD(PAD_SD3_RST__GPIO7_IO08 | MUX_PAD_CTRL(NO_PAD_CTRL));
 	err = gpio_request(CM_FX6_USB_HUB_RST, "usb hub rst");
 	if (err)
 		return err;
 
 	SETUP_IOMUX_PAD(PAD_GPIO_0__USB_H1_PWR | MUX_PAD_CTRL(NO_PAD_CTRL));
-	SETUP_IOMUX_PAD(PAD_SD3_RST__GPIO7_IO08 | MUX_PAD_CTRL(NO_PAD_CTRL));
+	err = gpio_request(CM_FX6_USB_HB1_PWR, "usb h1 pwr");
+	if (err)
+		return err;
+
+	gpio_direction_output(CM_FX6_USB_HB1_PWR, 1);
 
 	return 0;
 }
