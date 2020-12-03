@@ -545,23 +545,6 @@ static iomux_v3_cfg_t const enet_pads[] = {
 	IOMUX_PADS(PAD_RGMII_TD2__RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
 	IOMUX_PADS(PAD_RGMII_TD3__RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
 
-	IOMUX_PADS(PAD_RGMII_RXC__GPIO6_IO30	| MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD0__GPIO6_IO25	| MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD1__GPIO6_IO27	| MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD2__GPIO6_IO28	| MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RD3__GPIO6_IO29	| MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_RGMII_RX_CTL__GPIO6_IO24	| MUX_PAD_CTRL(NO_PAD_CTRL)),
-
-	IOMUX_PADS(PAD_GPIO_0__CCM_CLKO1    | MUX_PAD_CTRL(NO_PAD_CTRL)),
-	IOMUX_PADS(PAD_GPIO_3__CCM_CLKO2    | MUX_PAD_CTRL(NO_PAD_CTRL)),
-#ifdef CL_SOM_IMX6
-	IOMUX_PADS(PAD_EIM_A19__GPIO2_IO19 | MUX_PAD_CTRL(NO_PAD_CTRL)),
-#else
-	IOMUX_PADS(PAD_SD4_DAT0__GPIO2_IO08 | MUX_PAD_CTRL(0x84)),
-#endif
-};
-
-static iomux_v3_cfg_t const enet_pads_up[] = {
 	IOMUX_PADS(PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
 	IOMUX_PADS(PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
 	IOMUX_PADS(PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
@@ -569,6 +552,12 @@ static iomux_v3_cfg_t const enet_pads_up[] = {
 	IOMUX_PADS(PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
 	IOMUX_PADS(PAD_RGMII_RX_CTL__RGMII_RX_CTL |
 						MUX_PAD_CTRL(ENET_PAD_CTRL)),
+
+#ifdef CL_SOM_IMX6
+	IOMUX_PADS(PAD_EIM_A19__GPIO2_IO19 | MUX_PAD_CTRL(NO_PAD_CTRL)),
+#else
+	IOMUX_PADS(PAD_SD4_DAT0__GPIO2_IO08 | MUX_PAD_CTRL(0x84)),
+#endif
 };
 
 static int handle_mac_address(char *env_var, uint eeprom_bus)
@@ -605,34 +594,12 @@ int board_eth_init(bd_t *bis)
 
 	SETUP_IOMUX_PADS(enet_pads);
 
-	gpio_request(IMX_GPIO_NR(6, 30),"6_30");
-	gpio_request(IMX_GPIO_NR(6, 25),"6_25");
-	gpio_request(IMX_GPIO_NR(6, 27),"6_27");
-	gpio_request(IMX_GPIO_NR(6, 28),"6_28");
-	gpio_request(IMX_GPIO_NR(6, 29),"6_29");
-	gpio_request(IMX_GPIO_NR(6, 24),"6_24");
-	gpio_request(PHY_ENET_NRST, "enet_nrst");
-
-	gpio_direction_output(IMX_GPIO_NR(6, 30), 0);
-	gpio_direction_output(IMX_GPIO_NR(6, 25), 0);
-	gpio_direction_output(IMX_GPIO_NR(6, 27), 0);
-	gpio_direction_output(IMX_GPIO_NR(6, 28), 0);
-	gpio_direction_output(IMX_GPIO_NR(6, 29), 0);
-	gpio_direction_output(IMX_GPIO_NR(6, 24), 0);
-
 	/* phy reset */
+	gpio_request(PHY_ENET_NRST, "enet_nrst");
 	gpio_direction_output(PHY_ENET_NRST, 0);
 	udelay(1000);
 	gpio_set_value(PHY_ENET_NRST, 1);
 	udelay(1000);
-	SETUP_IOMUX_PADS(enet_pads_up);
-
-	gpio_free(IMX_GPIO_NR(6, 30));
-	gpio_free(IMX_GPIO_NR(6, 25));
-	gpio_free(IMX_GPIO_NR(6, 27));
-	gpio_free(IMX_GPIO_NR(6, 28));
-	gpio_free(IMX_GPIO_NR(6, 29));
-	gpio_free(IMX_GPIO_NR(6, 24));
 
 	if (is_mx6dqp()) {
 		/*
