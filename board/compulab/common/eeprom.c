@@ -124,14 +124,14 @@ static int cl_eeprom_setup(const struct eeprom_path *eeprom)
 	return 0;
 }
 
-void cpl_get_board_serial(struct tag_serialnr *serialnr)
+static void cpl_get_board_serial(struct tag_serialnr *serialnr, const struct eeprom_path *eeprom)
 {
 	u32 serial[2];
 	uint offset;
 
 	memset(serialnr, 0, sizeof(*serialnr));
 
-	if (cl_eeprom_setup(&eeprom_som))
+	if (cl_eeprom_setup(eeprom))
 		return;
 
 	offset = (cl_eeprom_layout != LAYOUT_LEGACY) ?
@@ -144,6 +144,14 @@ void cpl_get_board_serial(struct tag_serialnr *serialnr)
 		serialnr->low = serial[0];
 		serialnr->high = serial[1];
 	}
+}
+inline void cpl_get_som_serial(struct tag_serialnr *serialnr)
+{
+	return cpl_get_board_serial(serialnr, &eeprom_som);
+}
+inline void cpl_get_sb_serial(struct tag_serialnr *serialnr)
+{
+	return cpl_get_board_serial(serialnr, &eeprom_sb);
 }
 
 /*
@@ -198,7 +206,29 @@ u32 cl_eeprom_get_board_rev(uint eeprom_bus __attribute__((unused)))
 	}
 
 	return board_rev;
-};
+}
+
+static u32 cl_eeprom_get_revision(const struct eeprom_path *eeprom)
+{
+	u32 revision;
+
+	if (cl_eeprom_setup(eeprom))
+		return 0;
+
+	if (cl_eeprom_read(BOARD_REV_OFFSET, (uchar *)&revision, BOARD_REV_SIZE))
+		return 0;
+
+	return revision;
+}
+u32 cl_eeprom_get_som_revision(void)
+{
+	return cl_eeprom_get_revision(&eeprom_som);
+}
+u32 cl_eeprom_get_sb_revision(void)
+{
+	return cl_eeprom_get_revision(&eeprom_sb);
+}
+
 
 /*
  * Routine: cl_eeprom_get_board_rev
@@ -250,6 +280,10 @@ int cl_eeprom_read_som_options(char *buf)
 {
 	return cl_eeprom_read_options(buf, &eeprom_som);
 }
+int cl_eeprom_read_sb_options(char *buf)
+{
+	return cl_eeprom_read_options(buf, &eeprom_sb);
+}
 
 static int cl_eeprom_read_product_name(char *buf, const struct eeprom_path *eeprom)
 {
@@ -270,6 +304,12 @@ static int cl_eeprom_read_product_name(char *buf, const struct eeprom_path *eepr
 
 	return len;
 }
+
+int cl_eeprom_read_sb_name(char *buf)
+{
+	return cl_eeprom_read_product_name(buf, &eeprom_sb);
+}
+
 int cl_eeprom_read_som_name(char *buf)
 {
 	return cl_eeprom_read_product_name(buf, &eeprom_som);

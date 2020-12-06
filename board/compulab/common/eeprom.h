@@ -27,30 +27,25 @@
 
 #if (defined(CONFIG_SYS_I2C) || defined(CONFIG_DM_I2C))
 int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus);
-u32 cl_eeprom_get_board_rev(uint eeprom_bus);
+u32 cl_eeprom_get_som_revision(void);
+u32 cl_eeprom_get_sb_revision(void);
 int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus);
+int cl_eeprom_read_sb_name(char *buf);
 int cl_eeprom_read_som_name(char *buf);
 int cl_eeprom_read_som_options(char *buf);
+int cl_eeprom_read_sb_options(char *buf);
 void cl_eeprom_get_suite(char* buf);
-void cpl_get_board_serial(struct tag_serialnr *serialnr);
+void cpl_get_som_serial(struct tag_serialnr *serialnr);
+void cpl_get_sb_serial(struct tag_serialnr *serialnr);
 #else
 static inline int cl_eeprom_read_mac_addr(uchar *buf, uint eeprom_bus)
 {
 	return 1;
 }
-static inline u32 cl_eeprom_get_board_rev(uint eeprom_bus)
-{
-	return 0;
-}
 static inline int cl_eeprom_get_product_name(uchar *buf, uint eeprom_bus)
 {
 	return -ENOSYS;
 }
-static inline void cpl_get_board_serial(struct tag_serialnr *serialnr)
-{
-	return 0;
-}
-
 #endif
 
 #endif
