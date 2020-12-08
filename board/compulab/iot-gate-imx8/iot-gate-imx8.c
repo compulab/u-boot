@@ -166,6 +166,7 @@ int sub_board_late_init(void)
 #define IOT_GATE_IMX8_CARD_ID_EMPTY  0 /* card id - uninhabited */
 #define IOT_GATE_IMX8_CARD_ID_DI4O4  1 /* Card ID - IED-DI4O4   */
 #define IOT_GATE_IMX8_CARD_ID_RS_485 2 /* Card ID - IED-RS485   */
+#define IOT_GATE_IMX8_CARD_ID_TPM    3 /* Card ID - IED-TPM     */
 #define IOT_GATE_IMX8_CARD_ID_CAN    4 /* Card ID - IED-CAN     */
 #define IOT_GATE_IMX8_CARD_ID_RS_232 6 /* Card ID - IED-RS232   */
 #define IOT_GATE_IMX8_DTB_PATH_UART2 "/soc@0/bus@30800000/serial@30890000"
@@ -226,6 +227,7 @@ static int iot_gate_imx8_update_ext_ied(void *blob)
 				 "okay", sizeof("okay"), 1);
 		break;
 	case IOT_GATE_IMX8_CARD_ID_CAN:
+	case IOT_GATE_IMX8_CARD_ID_TPM:
 		do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_ECSPI2, "status",
 				 "okay", sizeof("okay"), 1);
 		break;
@@ -249,6 +251,7 @@ static int iot_gate_imx8_update_ext_ied(void *blob)
 				 "okay", sizeof("okay"), 1);
 		break;
 	case IOT_GATE_IMX8_CARD_ID_CAN:
+	case IOT_GATE_IMX8_CARD_ID_TPM:
 		do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_ECSPI3, "status",
 				 "okay", sizeof("okay"), 1);
 		break;
