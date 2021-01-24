@@ -178,6 +178,7 @@ int sub_board_late_init(void)
 #define IOT_GATE_IMX8_CARD_ID_RS_485 2 /* Card ID - IED-RS485   */
 #define IOT_GATE_IMX8_CARD_ID_TPM    3 /* Card ID - IED-TPM     */
 #define IOT_GATE_IMX8_CARD_ID_CAN    4 /* Card ID - IED-CAN     */
+#define IOT_GATE_IMX8_CARD_ID_CL420  5 /* Card ID - IED-CL420   */
 #define IOT_GATE_IMX8_CARD_ID_RS_232 6 /* Card ID - IED-RS232   */
 #define IOT_GATE_IMX8_DTB_PATH_UART2 "/soc@0/bus@30800000/serial@30890000"
 #define IOT_GATE_IMX8_DTB_PATH_UART4 "/soc@0/bus@30800000/serial@30a60000"
@@ -187,6 +188,8 @@ int sub_board_late_init(void)
 #define IOT_GATE_IMX8_DTB_PATH_CAN1 "/soc@0/bus@30800000/spi@30840000/can@0"
 #define IOT_GATE_IMX8_DTB_PATH_TPM0 "/soc@0/bus@30800000/spi@30830000/tpm@0"
 #define IOT_GATE_IMX8_DTB_PATH_TPM1 "/soc@0/bus@30800000/spi@30840000/tpm@0"
+#define IOT_GATE_IMX8_DTB_PATH_ADC0 "/soc@0/bus@30800000/spi@30830000/adc@0"
+#define IOT_GATE_IMX8_DTB_PATH_ADC1 "/soc@0/bus@30800000/spi@30840000/adc@0"
 
 /*
  * iot_gate_imx8_update_ext_ied()
@@ -243,6 +246,7 @@ static int iot_gate_imx8_update_ext_ied(void *blob)
 		break;
 	case IOT_GATE_IMX8_CARD_ID_CAN:
 	case IOT_GATE_IMX8_CARD_ID_TPM:
+	case IOT_GATE_IMX8_CARD_ID_CL420:
 		do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_ECSPI2, "status",
 				 "okay", sizeof("okay"), 1);
 		if (revision == IOT_GATE_IMX8_CARD_ID_CAN)
@@ -250,6 +254,9 @@ static int iot_gate_imx8_update_ext_ied(void *blob)
 					 "okay", sizeof("okay"), 1);
 		else if (revision == IOT_GATE_IMX8_CARD_ID_TPM)
 			do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_TPM0, "status",
+					 "okay", sizeof("okay"), 1);
+		else if (revision == IOT_GATE_IMX8_CARD_ID_CL420)
+			do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_ADC0, "status",
 					 "okay", sizeof("okay"), 1);
 		break;
 	default:
@@ -273,6 +280,7 @@ static int iot_gate_imx8_update_ext_ied(void *blob)
 		break;
 	case IOT_GATE_IMX8_CARD_ID_CAN:
 	case IOT_GATE_IMX8_CARD_ID_TPM:
+	case IOT_GATE_IMX8_CARD_ID_CL420:
 		do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_ECSPI3, "status",
 				 "okay", sizeof("okay"), 1);
 		if (revision == IOT_GATE_IMX8_CARD_ID_CAN)
@@ -280,6 +288,9 @@ static int iot_gate_imx8_update_ext_ied(void *blob)
 					 "okay", sizeof("okay"), 1);
 		else if (revision == IOT_GATE_IMX8_CARD_ID_TPM)
 			do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_TPM1, "status",
+					 "okay", sizeof("okay"), 1);
+		else if (revision == IOT_GATE_IMX8_CARD_ID_CL420)
+			do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_ADC1, "status",
 					 "okay", sizeof("okay"), 1);
 		break;
 	default:
