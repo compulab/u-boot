@@ -183,6 +183,11 @@ int sub_board_late_init(void)
 #define IOT_GATE_IMX8_DTB_PATH_UART4 "/soc@0/bus@30800000/serial@30a60000"
 #define IOT_GATE_IMX8_DTB_PATH_ECSPI2 "/soc@0/bus@30800000/spi@30830000"
 #define IOT_GATE_IMX8_DTB_PATH_ECSPI3 "/soc@0/bus@30800000/spi@30840000"
+#define IOT_GATE_IMX8_DTB_PATH_CAN0 "/soc@0/bus@30800000/spi@30830000/can@0"
+#define IOT_GATE_IMX8_DTB_PATH_CAN1 "/soc@0/bus@30800000/spi@30840000/can@0"
+#define IOT_GATE_IMX8_DTB_PATH_TPM0 "/soc@0/bus@30800000/spi@30830000/tpm@0"
+#define IOT_GATE_IMX8_DTB_PATH_TPM1 "/soc@0/bus@30800000/spi@30840000/tpm@0"
+
 /*
  * iot_gate_imx8_update_ext_ied()
  * Update device tree of the extended board IED-BASE.
@@ -240,6 +245,12 @@ static int iot_gate_imx8_update_ext_ied(void *blob)
 	case IOT_GATE_IMX8_CARD_ID_TPM:
 		do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_ECSPI2, "status",
 				 "okay", sizeof("okay"), 1);
+		if (revision == IOT_GATE_IMX8_CARD_ID_CAN)
+			do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_CAN0, "status",
+					 "okay", sizeof("okay"), 1);
+		else if (revision == IOT_GATE_IMX8_CARD_ID_TPM)
+			do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_TPM0, "status",
+					 "okay", sizeof("okay"), 1);
 		break;
 	default:
 		printf("%s: invalid slot 0 card ID: %d\n", __func__, revision);
@@ -264,6 +275,12 @@ static int iot_gate_imx8_update_ext_ied(void *blob)
 	case IOT_GATE_IMX8_CARD_ID_TPM:
 		do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_ECSPI3, "status",
 				 "okay", sizeof("okay"), 1);
+		if (revision == IOT_GATE_IMX8_CARD_ID_CAN)
+			do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_CAN1, "status",
+					 "okay", sizeof("okay"), 1);
+		else if (revision == IOT_GATE_IMX8_CARD_ID_TPM)
+			do_fixup_by_path(blob, IOT_GATE_IMX8_DTB_PATH_TPM1, "status",
+					 "okay", sizeof("okay"), 1);
 		break;
 	default:
 		printf("%s: invalid slot 1 card ID: %d\n", __func__, revision);
