@@ -297,6 +297,11 @@ static void disable_rtc_bus_on_battery(void)
 	return;
 }
 
+#define FSL_SIP_GPC			0xC2000000
+#define FSL_SIP_CONFIG_GPC_PM_DOMAIN	0x3
+#define DISPMIX				9
+#define MIPI				10
+
 int board_init(void)
 {
 
@@ -311,6 +316,9 @@ int board_init(void)
 	}
 	if (IS_ENABLED(CONFIG_LED))
 		led_default_state();
+
+	call_imx_sip(FSL_SIP_GPC, FSL_SIP_CONFIG_GPC_PM_DOMAIN, DISPMIX, true, 0);
+	call_imx_sip(FSL_SIP_GPC, FSL_SIP_CONFIG_GPC_PM_DOMAIN, MIPI, true, 0);
 
 	show_suite_info();
 	return 0;
