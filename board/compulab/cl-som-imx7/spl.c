@@ -164,12 +164,20 @@ static void cl_som_imx7_spl_dram_cfg(void)
 }
 
 #define PFUZE3000_INTSTAT0_POR 0x01
+#define PFUZE3000_SW3VOLT 0x3c
+#define PFUZE3000_SW3VALUE 0x09
 #define CL_SOM_IMX7_DUAL_RESET_MIN_BORAD_REV 120
 
 /* Reset module after power on  */
 static void cl_som_imx7_spl_por(void)
 {
 	u8 buf;
+
+	/* Set SW3VOLT SW3[3:0]=4'b1001 = 1.35V */
+	i2c_set_bus_num(CL_SOM_IMX7_I2C_BUS_PMIC);
+	buf = PFUZE3000_SW3VALUE;
+	i2c_write(CONFIG_POWER_PFUZE3000_I2C_ADDR, PFUZE3000_SW3VOLT, 1,
+		 &buf, 1);
 
 	i2c_set_bus_num(CL_SOM_IMX7_I2C_BUS_PMIC);
 	i2c_read(CONFIG_POWER_PFUZE3000_I2C_ADDR, PFUZE3000_INTSTAT0, 1,
