@@ -14,6 +14,7 @@
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/gpio.h>
 #include "ddr.h"
+#include "../ucm-imx8m-mini.h"
 
 /* Forward declarations */
 u32 cl_eeprom_get_ddrinfo(void);
@@ -58,20 +59,6 @@ struct lpddr4_desc {
 	unsigned int _default;
 	struct dram_timing_info *timing;
 	char *desc[4];
-};
-
-struct lpddr4_tcm_desc {
-	unsigned int size;
-	unsigned int sign;
-	unsigned int index;
-	unsigned int count;
-};
-
-struct lpddr4_tcm_desc {
-	unsigned int size;
-	unsigned int sign;
-	unsigned int index;
-	unsigned int count;
 };
 
 #define DEFAULT (('D' << 24) + ('E' << 16 ) + ( 'F' << 8 ) + 'A')
