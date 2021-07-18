@@ -266,6 +266,12 @@ config TARGET_UCM_IMX8M_MINI
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 
+config TARGET_MCM_IMX8M_MINI
+	bool "CompuLab mcm-imx8m-mini"
+	select IMX8MM
+	select SUPPORT_SPL
+	select IMX8M_LPDDR4
+
 endchoice
 
 source "board/freescale/imx8mq_evk/Kconfig"
@@ -284,5 +290,6 @@ source "board/beacon/imx8mn/Kconfig"
 source "board/phytec/phycore_imx8mm/Kconfig"
 source "board/phytec/phycore_imx8mp/Kconfig"
 source "board/compulab/ucm-imx8m-mini/Kconfig"
+source "board/compulab/mcm-imx8m-mini/Kconfig"
 
 endif
