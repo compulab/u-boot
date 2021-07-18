@@ -153,7 +153,7 @@ int board_postclk_init(void)
 static phys_size_t imx8_ddr_size(void)
 {
     unsigned long value = readl(TCM_DATA_CFG);
-    phys_size_t dram_size = 0x40000000;;
+    phys_size_t dram_size = 0x40000000;
 
     switch (value) {
     case 4096:
