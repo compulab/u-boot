@@ -9,26 +9,9 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "ucm-imx8m-mini"
 
-choice
-	prompt "RAM Volume select"
-	default RAM_2G
-	help
-	 This option configures 2G RAM only
+config DEFAULT_DTB
+	string "U-Boot Default Device Tree File"
+	depends on TARGET_UCM_IMX8M_MINI
+	default "sbc-ucm-imx8m-mini.dtb"
 
-config RAM_1G
-	bool "RAM_1G"
-	help
-	 This option configures 1G RAM only
-
-config RAM_2G
-	bool "RAM_2G"
-	help
-	 imx8mm_val board configuration approach
-
-config RAM_4G
-	bool "RAM_4G"
-	help
-	 This option configures 4G RAM only
-
-endchoice
 endif

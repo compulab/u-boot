@@ -14,8 +14,8 @@
 
 /dts-v1/;
 
-#include "fsl-imx8mm.dtsi"
-
+#include <dt-bindings/usb/pd.h>
+#include "imx8mm.dtsi"
 
 / {
 	model = "CompuLab UCM-iMX8M-Mini board";
@@ -24,12 +24,6 @@
 	chosen {
 		bootargs = "console=ttymxc2,115200 earlycon=ec_imx6q,0x30880000,115200";
 		stdout-patch = &uart3;
-	};
-
-	aliases {
-		mmc0 = &usdhc2;
-		mmc1 = &usdhc3;
-		/delete-property/ mmc2;
 	};
 
 	reg_usdhc2_vmmc: regulator-usdhc2 {
@@ -43,17 +37,6 @@
 		off-on-delay-us = <12000>;
 	};
 
-	uart4: serial@30a60000 {
-		compatible = "fsl,imx8mq-uart",
-			     "fsl,imx6q-uart", "fsl,imx21-uart";
-		reg = <0x0 0x30a60000 0x0 0x10000>;
-		interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
-		interrupt-parent = <&gpc>;
-		clocks = <&clk IMX8MM_CLK_UART4_ROOT>,
-			<&clk IMX8MM_CLK_UART4_ROOT>;
-		clock-names = "ipg", "per";
-		status = "disabled";
-	};
 };
 
 &iomuxc {
@@ -443,12 +426,6 @@
 	status = "okay";
 };
 
-&uart4 { /* console */
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_uart4>;
-	status = "okay";
-};
-
 &usdhc2 {
 	pinctrl-names = "default", "state_100mhz", "state_200mhz";
 	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
@@ -488,7 +465,8 @@
 };
 
 &usbotg2 {
-	status = "disabled";
+	dr_mode = "host";
+	status = "okay";
 };
 
 &cpu_alert0 {

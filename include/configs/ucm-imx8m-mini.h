@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 CompuLab
+ * Copyright 2020 CompuLab
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -9,12 +9,7 @@
 
 #include <linux/sizes.h>
 #include <asm/arch/imx-regs.h>
-
 #include "imx_env.h"
-
-#ifdef CONFIG_SECURE_BOOT
-#define CONFIG_CSF_SIZE			0x2000 /* 8K region */
-#endif
 
 #define CONFIG_SPL_MAX_SIZE		(148 * 1024)
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
@@ -26,20 +21,19 @@
 #ifdef CONFIG_SPL_BUILD
 /*#define CONFIG_ENABLE_DDR_TRAINING_DEBUG*/
 #define CONFIG_SPL_WATCHDOG_SUPPORT
-#define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_DRIVERS_MISC_SUPPORT
 #define CONFIG_SPL_I2C_SUPPORT
-#define CONFIG_SPL_LDSCRIPT		"arch/arm/cpu/armv8/u-boot-spl.lds"
-#define CONFIG_SPL_STACK		0x91fff0
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_BSS_START_ADDR      0x00910000
-#define CONFIG_SPL_BSS_MAX_SIZE        0x2000	/* 8 KB */
-#define CONFIG_SYS_SPL_MALLOC_START    0x42200000
-#define CONFIG_SYS_SPL_MALLOC_SIZE     0x80000	/* 512 KB */
-#define CONFIG_SYS_ICACHE_OFF
-#define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_MALLOC_F_ADDR		0x912000 /* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
+
+#define CONFIG_SPL_STACK            0x920000
+#define CONFIG_SPL_BSS_START_ADDR   0x910000
+#define CONFIG_SPL_BSS_MAX_SIZE     SZ_8K
+#define CONFIG_SYS_SPL_MALLOC_START 0x42200000
+#define CONFIG_SYS_SPL_MALLOC_SIZE  SZ_512K
+
+/* malloc f used before GD_FLG_FULL_MALLOC_INIT set */
+#define CONFIG_MALLOC_F_ADDR        0x912000
 
 #define CONFIG_SPL_ABORT_ON_RAW_IMAGE /* For RAW image gives a error info not panic */
 
@@ -56,10 +50,6 @@
 #define CONFIG_POWER_I2C
 #define CONFIG_POWER_BD71837
 
-#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-#else /*ifdef CONFIG_SPL_BUILD*/
-#define CONFIG_DM_I2C_COMPAT
-#define CONFIG_DM_I2C
 #endif /*ifdef CONFIG_SPL_BUILD*/
 
 #define CONFIG_CMD_READ
@@ -68,9 +58,7 @@
 
 #define CONFIG_REMAKE_ELF
 
-#define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_POSTCLK_INIT
-#define CONFIG_BOARD_LATE_INIT
 
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_BOARD_SETUP
@@ -83,13 +71,8 @@
 /* ENET Config */
 /* ENET1 */
 #if defined(CONFIG_CMD_NET)
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
-#define CONFIG_MII
 #define CONFIG_ETHPRIME                 "FEC"
 
-#define CONFIG_FEC_MXC
 #define CONFIG_FEC_XCV_TYPE             RGMII
 #define CONFIG_FEC_MXC_PHYADDR          0
 #define FEC_QUIRK_ENET_MAC
@@ -126,19 +109,20 @@
 	"fdt_addr=0x43000000\0"			\
 	"fdt_high=0xffffffffffffffff\0"		\
 	"boot_fdt=yes\0" \
-	"fdt_file="CONFIG_DEFAULT_DEVICE_TREE".dtb\0" \
+	"fdt_file="CONFIG_DEFAULT_DTB"\0" \
 	"initrd_addr=0x43800000\0"		\
 	"initrd_high=0xffffffffffffffff\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 	"mmcautodetect=yes\0" \
-	"emmc_ul=setenv iface mmc; setenv dev 1; setenv part 1;" \
-	"setenv bootargs console=${console} root=/dev/mmcblk2p2 rw rootwait;\0" \
-	"sd_ul=setenv iface mmc; setenv dev 0; setenv part 1;" \
-	"setenv bootargs console=${console} root=/dev/mmcblk1p2 rw rootwait;\0" \
+	"root_opt=rootwait rw\0" \
+	"emmc_ul=setenv iface mmc; setenv dev 2; setenv part 1;" \
+	"setenv bootargs console=${console} root=/dev/mmcblk2p2 ${root_opt};\0" \
+	"sd_ul=setenv iface mmc; setenv dev 1; setenv part 1;" \
+	"setenv bootargs console=${console} root=/dev/mmcblk1p2 ${root_opt};\0" \
 	"usb_ul=usb start; setenv iface usb; setenv dev 0; setenv part 1;" \
-	"setenv bootargs console=${console} root=/dev/sda2 rw rootwait;\0" \
+	"setenv bootargs console=${console} root=/dev/sda2 ${root_opt};\0" \
 	"ulbootscript=load ${iface} ${dev}:${part} ${loadaddr} ${script};\0" \
 	"ulimage=load ${iface} ${dev}:${part} ${loadaddr} ${image}\0" \
 	"ulfdt=if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
@@ -197,9 +181,8 @@
         (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_ENV_OFFSET               (34 * 512) /* Max possible GPT size */
-#define CONFIG_ENV_SIZE			0x1000
-#define CONFIG_SYS_MMC_ENV_DEV		0   /* USDHC2 */
+#define CONFIG_SYS_MMC_ENV_DEV		1   /* USDHC2 */
+#define CONFIG_SYS_MMC_ENV_PART		1
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
 
 /* Size of malloc() pool */
@@ -220,7 +203,6 @@
 
 #define CONFIG_BAUDRATE			115200
 
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART3_BASE_ADDR
 
 /* Monitor Command Prompt */
@@ -233,29 +215,15 @@
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
-#define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
-#define CONFIG_MXC_OCOTP
-#define CONFIG_CMD_FUSE
 
 #define CONFIG_IMX_BOOTAUX
 
 /* USDHC */
-#define CONFIG_CMD_MMC
-#define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_USDHC
 
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_FSL_ESDHC_ADDR       0
-
-#define CONFIG_SUPPORT_EMMC_BOOT	/* eMMC specific */
-#define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-
-#define CONFIG_MXC_GPIO
-
-#define CONFIG_MXC_OCOTP
-#define CONFIG_CMD_FUSE
 
 #ifndef CONFIG_DM_I2C
 #define CONFIG_SYS_I2C
@@ -286,10 +254,7 @@
 
 #endif
 
-#define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_USB_GADGET_VBUS_DRAW 2
-
-#define CONFIG_CI_UDC
 
 #define CONFIG_MXC_USB_PORTSC  (PORT_PTS_UTMI | PORT_PTS_PTW)
 #define CONFIG_USB_MAX_CONTROLLER_COUNT         2
@@ -307,7 +272,8 @@
 #define CONFIG_RM67191
 #endif
 
-#define CONFIG_OF_SYSTEM_SETUP
+#define CONFIG_BOARD_POSTCLK_INIT
+#define CONFIG_OF_BOARD_SETUP
 
 #if defined(CONFIG_ANDROID_SUPPORT)
 #include "ucm-imx8m-mini_android.h"
