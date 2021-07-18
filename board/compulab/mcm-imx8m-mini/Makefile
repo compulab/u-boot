@@ -6,8 +6,9 @@
 
 obj-y += mcm-imx8m-mini.o
 
-ifdef CONFIG_SPL_BUILD
 ccflags-y += -I$(srctree)/board/compulab/plat/imx8mm/
+
+ifdef CONFIG_SPL_BUILD
 obj-y += spl.o
 endif
 

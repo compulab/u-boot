@@ -14,4 +14,13 @@ extern struct dram_timing_info ucm_dram_timing_01050008;
 
 void spl_dram_init(void);
 
+#define TCM_DATA_CFG 0x7e0000
+
+struct lpddr4_tcm_desc {
+	unsigned int size;
+	unsigned int sign;
+	unsigned int index;
+	unsigned int count;
+};
+
 #endif

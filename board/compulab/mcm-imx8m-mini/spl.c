@@ -21,7 +21,6 @@
 #include <fsl_esdhc_imx.h>
 #include <mmc.h>
 #include "ddr/ddr.h"
-#include "mcm-imx8m-mini.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -27,7 +27,7 @@
 #include <usb.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/video.h>
-#include "mcm-imx8m-mini.h"
+#include "ddr/ddr.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
