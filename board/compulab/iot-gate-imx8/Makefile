@@ -1,0 +1,15 @@
+#
+# Copyright 2018 CompuLab
+#
+# SPDX-License-Identifier:      GPL-2.0+
+#
+
+ccflags-y += -I$(srctree)/board/compulab/plat/imx8mm/
+
+ifdef CONFIG_SPL_BUILD
+obj-y += spl.o
+else 
+obj-y += iot-gate-imx8.o
+endif
+
+obj-y += ../plat/imx8mm/
