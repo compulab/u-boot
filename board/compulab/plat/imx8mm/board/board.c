@@ -29,6 +29,8 @@
 #include <asm/setup.h>
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/video.h>
+#include <imx_sip.h>
+#include <linux/arm-smccc.h>
 #include <linux/delay.h>
 #include "ddr/ddr.h"
 #include "common/eeprom.h"
@@ -150,7 +152,7 @@ static int fdt_set_env_addr(void *blob)
 	return 0;
 }
 
-int ft_board_setup(void *blob, bd_t *bd)
+int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	fdt_set_env_addr(blob);
 	fdt_set_sn(blob);
@@ -305,6 +307,8 @@ static void disable_rtc_bus_on_battery(void)
 int board_init(void)
 {
 
+	struct arm_smccc_res res;
+
 	disable_rtc_bus_on_battery();
 
 #ifdef CONFIG_FEC_MXC
@@ -317,8 +321,10 @@ int board_init(void)
 	if (IS_ENABLED(CONFIG_LED))
 		led_default_state();
 
-	call_imx_sip(FSL_SIP_GPC, FSL_SIP_CONFIG_GPC_PM_DOMAIN, DISPMIX, true, 0);
-	call_imx_sip(FSL_SIP_GPC, FSL_SIP_CONFIG_GPC_PM_DOMAIN, MIPI, true, 0);
+	arm_smccc_smc(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN,
+		      DISPMIX, true, 0, 0, 0, 0, &res);
+	arm_smccc_smc(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN,
+		      MIPI, true, 0, 0, 0, 0, &res);
 
 	show_suite_info();
 	return 0;

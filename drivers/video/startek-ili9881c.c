@@ -11,6 +11,8 @@
 #include <panel.h>
 #include <asm/gpio.h>
 #include <linux/err.h>
+#include <dm/device_compat.h>
+#include <linux/delay.h>
 
 #define   LCD_XSIZE_TFT   720
 #define   LCD_YSIZE_TFT   1280
@@ -318,7 +320,7 @@ static int ili9881c_send_cmd_data(struct mipi_dsi_device *dsi, u8 cmd, u8 data)
 static int ili9881c_enable(struct udevice *dev)
 {
 	struct ili9881c_panel_priv *priv = dev_get_priv(dev);
-	struct mipi_dsi_panel_plat *plat = dev_get_platdata(dev);
+	struct mipi_dsi_panel_plat *plat = dev_get_plat(dev);
 	struct mipi_dsi_device *dsi = plat->device;
 	u8 color_format = color_format_from_dsi_format(priv->format);
 	int ret;
@@ -405,7 +407,7 @@ static int ili9881c_enable(struct udevice *dev)
 
 static int ili9881c_panel_enable_backlight(struct udevice *dev)
 {
-	struct mipi_dsi_panel_plat *plat = dev_get_platdata(dev);
+	struct mipi_dsi_panel_plat *plat = dev_get_plat(dev);
 	struct mipi_dsi_device *device = plat->device;
 	int ret;
 
@@ -419,7 +421,7 @@ static int ili9881c_panel_enable_backlight(struct udevice *dev)
 static int ili9881c_panel_get_display_timing(struct udevice *dev,
 					    struct display_timing *timings)
 {
-	struct mipi_dsi_panel_plat *plat = dev_get_platdata(dev);
+	struct mipi_dsi_panel_plat *plat = dev_get_plat(dev);
 	struct mipi_dsi_device *device = plat->device;
 	struct ili9881c_panel_priv *priv = dev_get_priv(dev);
 
@@ -494,12 +496,12 @@ static const struct udevice_id ili9881c_panel_ids[] = {
 };
 
 U_BOOT_DRIVER(ili9881c_panel) = {
-	.name			  = "ili9881c_panel",
-	.id			  = UCLASS_PANEL,
-	.of_match		  = ili9881c_panel_ids,
-	.ops			  = &ili9881c_panel_ops,
-	.probe			  = ili9881c_panel_probe,
-	.remove			  = ili9881c_panel_disable,
-	.platdata_auto_alloc_size = sizeof(struct mipi_dsi_panel_plat),
-	.priv_auto_alloc_size	= sizeof(struct ili9881c_panel_priv),
+	.name		= "ili9881c_panel",
+	.id		= UCLASS_PANEL,
+	.of_match	= ili9881c_panel_ids,
+	.ops		= &ili9881c_panel_ops,
+	.probe		= ili9881c_panel_probe,
+	.remove		= ili9881c_panel_disable,
+	.plat_auto	= sizeof(struct mipi_dsi_panel_plat),
+	.priv_auto	= sizeof(struct ili9881c_panel_priv),
 };

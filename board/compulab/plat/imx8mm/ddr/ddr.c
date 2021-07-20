@@ -13,8 +13,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clock.h>
 #include <asm/mach-imx/gpio.h>
+#include <linux/delay.h>
 #include "ddr.h"
-#include "../ucm-imx8m-mini.h"
 
 /* Forward declarations */
 u32 cl_eeprom_get_ddrinfo(void);
