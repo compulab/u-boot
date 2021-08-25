@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <mmc.h>
 #include <command.h>
+#include <env.h>
 
 static int check_mmc_autodetect(void)
 {
