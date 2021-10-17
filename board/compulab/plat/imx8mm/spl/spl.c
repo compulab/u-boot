@@ -22,9 +22,22 @@
 #include <asm/mach-imx/mxc_i2c.h>
 #include <fsl_esdhc_imx.h>
 #include <mmc.h>
+#include <usb.h>
 #include "ddr/ddr.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static int _board_phy_mode=USB_INIT_HOST;
+
+int board_usb_phy_mode(int port)
+{
+	return _board_phy_mode;
+}
+
+static void board_soft_otg(void)
+{
+	_board_phy_mode=USB_INIT_DEVICE;
+}
 
 int spl_board_boot_device(enum boot_device boot_dev_spl)
 {
@@ -35,6 +48,9 @@ int spl_board_boot_device(enum boot_device boot_dev_spl)
 	case SD3_BOOT:
 	case MMC3_BOOT:
 		return BOOT_DEVICE_MMC2;
+	case USB_BOOT:
+		board_soft_otg();
+		return BOOT_DEVICE_BOARD;
 	default:
 		return BOOT_DEVICE_NONE;
 	}
