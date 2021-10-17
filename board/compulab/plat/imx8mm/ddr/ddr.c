@@ -15,6 +15,7 @@
 #include <asm/mach-imx/gpio.h>
 #include <linux/delay.h>
 #include "ddr.h"
+#include "ddr_ddrphy_trained_csr.h"
 
 /* Forward declarations */
 u32 cl_eeprom_get_ddrinfo(void);
@@ -167,6 +168,10 @@ void spl_dram_init(void)
 
 	printf("DDRINFO(%s): %s %dG @ %d MHz\n", (ddr_found ? "D" : "?" ), lpddr4_array[i].name,
 			lpddr4_array[i].size, lpddr4_array[i].timing->fsp_table[0]);
+
+	//Initialize the common part of all trainigs
+	lpddr4_array[i].timing->ddrphy_trained_csr = ddr_ddrphy_trained_csr;
+	lpddr4_array[i].timing->ddrphy_trained_csr_num = ARRAY_SIZE(ddr_ddrphy_trained_csr);
 
 	if (ddr_init(lpddr4_array[i].timing)) {
 		SPL_TCM_INIT;
