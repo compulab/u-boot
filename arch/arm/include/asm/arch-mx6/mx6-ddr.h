@@ -260,12 +260,21 @@ struct mx6dq_iomux_ddr_regs {
 	u32 dram_dqm3;
 	u32 dram_sdqs2;
 	u32 dram_dqm2;
-	u32 res2[16];
+	u32 res2[2];
+	u32 dram_addr02;
+	u32 dram_addr03;
+	u32 dram_addr04;
+	u32 dram_addr05;
+	u32 dram_addr06;
+	u32 dram_addr07;
+	u32 dram_addr08;
+	u32 dram_addr09;
+	u32 res3[6];
 	u32 dram_cas;
-	u32 res3[2];
+	u32 res4[2];
 	u32 dram_ras;
 	u32 dram_reset;
-	u32 res4[2];
+	u32 res5[2];
 	u32 dram_sdclk_0;
 	u32 dram_sdba2;
 	u32 dram_sdcke0;
@@ -273,7 +282,7 @@ struct mx6dq_iomux_ddr_regs {
 	u32 dram_sdcke1;
 	u32 dram_sdodt0;
 	u32 dram_sdodt1;
-	u32 res5;
+	u32 res6;
 	u32 dram_sdqs0;
 	u32 dram_dqm0;
 	u32 dram_sdqs1;
@@ -442,6 +451,9 @@ struct mx6_mmdc_calibration {
 };
 
 /* configure iomux (pinctl/padctl) */
+void mx6dqp_dram_iocfg(unsigned width,
+		      const struct mx6dq_iomux_ddr_regs *,
+		      const struct mx6dq_iomux_grp_regs *);
 void mx6dq_dram_iocfg(unsigned width,
 		      const struct mx6dq_iomux_ddr_regs *,
 		      const struct mx6dq_iomux_grp_regs *);

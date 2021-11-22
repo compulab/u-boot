@@ -82,10 +82,64 @@ enum ddr_config {
 	.grp_ctlds	= 0x00000038, \
 	.grp_ddr_type	= 0x000C0000,
 
+#define SOM_IMX6_QDP_DDR_IOMUX_CFG \
+	.dram_sdqs0	= 0x00000038, \
+	.dram_sdqs1	= 0x00000038, \
+	.dram_sdqs2	= 0x00000038, \
+	.dram_sdqs3	= 0x00000038, \
+	.dram_sdqs4	= 0x00000038, \
+	.dram_sdqs5	= 0x00000038, \
+	.dram_sdqs6	= 0x00000038, \
+	.dram_sdqs7	= 0x00000038, \
+	.dram_addr02	= 0x00018200, \
+	.dram_addr03	= 0x00008000, \
+	.dram_addr04	= 0x00018200, \
+	.dram_addr05	= 0x00018200, \
+	.dram_addr06	= 0x00018200, \
+	.dram_addr07	= 0x00018200, \
+	.dram_addr08	= 0x00018200, \
+	.dram_addr09	= 0x00018200, \
+	.dram_dqm0	= 0x00000038, \
+	.dram_dqm1	= 0x00000038, \
+	.dram_dqm2	= 0x00000038, \
+	.dram_dqm3	= 0x00000038, \
+	.dram_dqm4	= 0x00000038, \
+	.dram_dqm5	= 0x00000038, \
+	.dram_dqm6	= 0x00000038, \
+	.dram_dqm7	= 0x00000038, \
+	.dram_cas	= 0x00000038, \
+	.dram_ras	= 0x00000038, \
+	.dram_sdclk_0	= 0x00000038, \
+	.dram_sdclk_1	= 0x00000038, \
+	.dram_sdcke0	= 0x00003000, \
+	.dram_sdcke1	= 0x00003000, \
+	.dram_reset	= 0x00000038, \
+	.dram_sdba2	= 0x00000000, \
+	.dram_sdodt0	= 0x00000038, \
+	.dram_sdodt1	= 0x00000038,
+
+#define SOM_IMX6_QDP_GPR_IOMUX_CFG \
+	.grp_b0ds	= 0x00000038, \
+	.grp_b1ds	= 0x00000038, \
+	.grp_b2ds	= 0x00000038, \
+	.grp_b3ds	= 0x00000038, \
+	.grp_b4ds	= 0x00000038, \
+	.grp_b5ds	= 0x00000038, \
+	.grp_b6ds	= 0x00000038, \
+	.grp_b7ds	= 0x00000038, \
+	.grp_addds	= 0x00000038, \
+	.grp_ddrmode_ctl = 0x00020000, \
+	.grp_ddrpke	= 0x00000000, \
+	.grp_ddrmode	= 0x00020000, \
+	.grp_ctlds	= 0x00000038, \
+	.grp_ddr_type	= 0x000C0000,
+
 static struct mx6sdl_iomux_ddr_regs ddr_iomux_s = { CM_FX6_DDR_IOMUX_CFG };
 static struct mx6sdl_iomux_grp_regs grp_iomux_s = { CM_FX6_GPR_IOMUX_CFG };
 static struct mx6dq_iomux_ddr_regs ddr_iomux_q = { CM_FX6_DDR_IOMUX_CFG };
 static struct mx6dq_iomux_grp_regs grp_iomux_q = { CM_FX6_GPR_IOMUX_CFG };
+static struct mx6dq_iomux_ddr_regs qp_ddr_iomux_q = { SOM_IMX6_QDP_DDR_IOMUX_CFG };
+static struct mx6dq_iomux_grp_regs qp_grp_iomux_q = { SOM_IMX6_QDP_GPR_IOMUX_CFG };
 
 static struct mx6_mmdc_calibration cm_fx6_calib_s = {
 	.p0_mpwldectrl0	= 0x005B0061,
@@ -254,39 +308,70 @@ static int cm_fx6_spl_dram_init(void)
 		break;
 	case MXC_CPU_MX6D:
 	case MXC_CPU_MX6Q:
-		mx6dq_dram_iocfg(64, &ddr_iomux_q, &grp_iomux_q);
+		if (is_mx6dqp()) {
+			#define spl_mx6dqp_dram_init spl_mx6q_dram_init
+			puts("DualPlus/QuadPlus CPU detected\n");
+			mx6dqp_dram_iocfg(64, &qp_ddr_iomux_q, &qp_grp_iomux_q);
+			spl_mx6dqp_dram_init(DDR_64BIT_4GB, false);
+			bank1_size = get_ram_size((long int *)PHYS_SDRAM_1, 0x80000000);
+			if (bank1_size == 0x80000000)
+				return 0;
 
-		spl_mx6q_dram_init(DDR_64BIT_4GB, false);
-		bank1_size = get_ram_size((long int *)PHYS_SDRAM_1, 0x80000000);
-		if (bank1_size == 0x80000000)
-			return 0;
-
-		if (bank1_size == 0x40000000) {
-			bank2_size = get_ram_size((long int *)PHYS_SDRAM_2,
+			if (bank1_size == 0x40000000) {
+				bank2_size = get_ram_size((long int *)PHYS_SDRAM_2,
 								0x80000000);
-			if (bank2_size == 0x40000000) {
+				if (bank2_size == 0x40000000) {
 				/* Don't do a full reset here */
-				spl_mx6q_dram_init(DDR_64BIT_2GB, false);
-			} else {
-				spl_mx6q_dram_init(DDR_64BIT_1GB, true);
+				    spl_mx6dqp_dram_init(DDR_64BIT_2GB, false);
+				} else {
+				    spl_mx6dqp_dram_init(DDR_64BIT_1GB, true);
+				}
+
+				return 0;
 			}
 
-			return 0;
-		}
+			spl_mx6dqp_dram_init(DDR_32BIT_512MB, true);
+			bank1_size = get_ram_size((long int *)PHYS_SDRAM_1, 0x80000000);
+			if (bank1_size == 0x20000000)
+				return 0;
 
-		spl_mx6q_dram_init(DDR_32BIT_512MB, true);
-		bank1_size = get_ram_size((long int *)PHYS_SDRAM_1, 0x80000000);
-		if (bank1_size == 0x20000000)
-			return 0;
+			spl_mx6dqp_dram_init(DDR_16BIT_256MB, true);
+			bank1_size = get_ram_size((long int *)PHYS_SDRAM_1, 0x80000000);
+			if (bank1_size == 0x10000000)
+				return 0;
+	        } else { //non QuadPlus or DualPlus SoC
+			puts("Dual/Quad CPU detected\n");
+			mx6dq_dram_iocfg(64, &ddr_iomux_q, &grp_iomux_q);
+			spl_mx6q_dram_init(DDR_64BIT_4GB, false);
+			bank1_size = get_ram_size((long int *)PHYS_SDRAM_1, 0x80000000);
+			if (bank1_size == 0x80000000)
+				return 0;
 
-		spl_mx6q_dram_init(DDR_16BIT_256MB, true);
-		bank1_size = get_ram_size((long int *)PHYS_SDRAM_1, 0x80000000);
-		if (bank1_size == 0x10000000)
-			return 0;
+			if (bank1_size == 0x40000000) {
+				bank2_size = get_ram_size((long int *)PHYS_SDRAM_2,
+								0x80000000);
+				if (bank2_size == 0x40000000) {
+				/* Don't do a full reset here */
+				    spl_mx6q_dram_init(DDR_64BIT_2GB, false);
+				} else {
+				    spl_mx6q_dram_init(DDR_64BIT_1GB, true);
+				}
 
-		break;
+				return 0;
+			}
+
+			spl_mx6q_dram_init(DDR_32BIT_512MB, true);
+			bank1_size = get_ram_size((long int *)PHYS_SDRAM_1, 0x80000000);
+			if (bank1_size == 0x20000000)
+				return 0;
+
+			spl_mx6q_dram_init(DDR_16BIT_256MB, true);
+			bank1_size = get_ram_size((long int *)PHYS_SDRAM_1, 0x80000000);
+			if (bank1_size == 0x10000000)
+				return 0;
+
+                }
 	}
-
 	return -1;
 }
 
