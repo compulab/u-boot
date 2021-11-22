@@ -694,6 +694,7 @@ int misc_init_r(void)
 	return 0;
 }
 
+#ifdef ENABLE_COMPULAB_LAYOUT
 int dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
@@ -729,6 +730,7 @@ int dram_init_banksize(void)
 
 	return 0;
 }
+#endif
 
 int dram_init(void)
 {
