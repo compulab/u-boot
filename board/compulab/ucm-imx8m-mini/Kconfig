@@ -10,24 +10,25 @@ config SYS_CONFIG_NAME
 	default "ucm-imx8m-mini"
 
 choice
-	prompt "DDR4 Init approach"
-	default UCM_IMX8M_LPDDR4_VAL
+	prompt "RAM Volume select"
+	default RAM_2G
 	help
-	 DDR4 configuration approach
+	 This option configures 2G RAM only
 
-config UCM_IMX8M_LPDDR4
-	bool "UCM_IMX8M_LPDDR4"
-	select IMX8MM
-	select SUPPORT_SPL
-	select IMX8M_LPDDR4
+config RAM_1G
+	bool "RAM_1G"
 	help
-	 imx8mm_evk board configuration approach
+	 This option configures 1G RAM only
 
-config UCM_IMX8M_LPDDR4_VAL
-	bool "UCM_IMX8M_LPDDR4_VAL"
+config RAM_2G
+	bool "RAM_2G"
 	help
 	 imx8mm_val board configuration approach
 
-endchoice
+config RAM_4G
+	bool "RAM_4G"
+	help
+	 This option configures 4G RAM only
 
+endchoice
 endif

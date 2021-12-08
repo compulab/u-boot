@@ -101,6 +101,8 @@ void board_lmb_reserve(struct lmb *lmb)
 	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
 		if (sp < gd->bd->bi_dram[bank].start)
 			continue;
+		if (!gd->bd->bi_dram[bank].size)
+			continue;
 		bank_end = gd->bd->bi_dram[bank].start +
 			gd->bd->bi_dram[bank].size;
 		if (sp >= bank_end)

@@ -223,7 +223,7 @@ __weak int board_phys_sdram_size(phys_size_t *size)
 	return 0;
 }
 
-int dram_init(void)
+__weak int dram_init(void)
 {
 	phys_size_t sdram_size;
 	int ret;
@@ -241,7 +241,7 @@ int dram_init(void)
 	return 0;
 }
 
-int dram_init_banksize(void)
+__weak int dram_init_banksize(void)
 {
 	int bank = 0;
 	int ret;
@@ -293,7 +293,7 @@ int dram_init_banksize(void)
 	return 0;
 }
 
-phys_size_t get_effective_memsize(void)
+__weak phys_size_t get_effective_memsize(void)
 {
 	int ret;
 	phys_size_t sdram_size;

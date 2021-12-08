@@ -30,6 +30,7 @@
 #include <imx_mipi_dsi_bridge.h>
 #include <mipi_dsi_panel.h>
 #include <asm/mach-imx/video.h>
+#include "ucm-imx8m-mini.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -149,15 +150,116 @@ int board_postclk_init(void)
 }
 #endif
 
+static phys_size_t imx8_ddr_size(void)
+{
+    unsigned long value = readl(TCM_DATA_CFG);
+    phys_size_t dram_size = 0x40000000;;
+
+    switch (value) {
+    case 4096:
+        /*value = 3084;*/
+    case 3084:
+    case 2048:
+    case 1536:
+    case 1024:
+    case 768:
+    case 512:
+    case 256:
+        dram_size = ( value << 20 );
+        break;
+    default:
+        break;
+    };
+    return dram_size;
+}
+	/* Get the top of usable RAM */
+ulong board_get_usable_ram_top(ulong total_size)
+{
+
+        if(gd->ram_top > 0x100000000)
+            gd->ram_top = 0x100000000;
+
+        return gd->ram_top;
+}
+
 int dram_init(void)
 {
+	phys_size_t sdram_size;
+	int ret;
+	ret = board_phys_sdram_size(&sdram_size);
+	if (ret)
+		return ret;
+
 	/* rom_pointer[1] contains the size of TEE occupies */
-	if (rom_pointer[1])
-		gd->ram_size = PHYS_SDRAM_SIZE - rom_pointer[1];
-	else
-		gd->ram_size = PHYS_SDRAM_SIZE;
+	gd->ram_size = sdram_size - rom_pointer[1];
 
 	return 0;
+}
+
+int dram_init_banksize(void)
+{
+	int bank = 0;
+	int ret;
+	phys_size_t total_size, bank_1_size, bank_2_size;
+
+	ret = board_phys_sdram_size(&total_size);
+	if (ret)
+		return ret;
+
+	switch (total_size) {
+		case 4 * (1L << 30):
+			bank_1_size = 3 * (1L << 30);
+			bank_2_size = 1 * (1L << 30);
+			break;
+		default:
+			bank_1_size = total_size;
+			bank_2_size = 0;
+			break;
+	}
+
+	gd->bd->bi_dram[bank].start = PHYS_SDRAM;
+	if (rom_pointer[1]) {
+		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
+		phys_size_t optee_size = (size_t)rom_pointer[1];
+
+		gd->bd->bi_dram[bank].size = optee_start -gd->bd->bi_dram[bank].start;
+		if ((optee_start + optee_size) < (PHYS_SDRAM + bank_1_size)) {
+			if ( ++bank >= CONFIG_NR_DRAM_BANKS) {
+				puts("CONFIG_NR_DRAM_BANKS is not enough\n");
+				return -1;
+			}
+
+			gd->bd->bi_dram[bank].start = optee_start + optee_size;
+			gd->bd->bi_dram[bank].size = PHYS_SDRAM +
+				bank_1_size - gd->bd->bi_dram[bank].start;
+		}
+	} else {
+		gd->bd->bi_dram[bank].size = bank_1_size;
+	}
+
+	if(bank_2_size) {
+		if ( ++bank >= CONFIG_NR_DRAM_BANKS) {
+			puts("CONFIG_NR_DRAM_BANKS is not enough for SDRAM_2\n");
+			return -1;
+		}
+		gd->bd->bi_dram[bank].start = PHYS_SDRAM_2;
+		gd->bd->bi_dram[bank].size = bank_2_size;
+	}
+	return 0;
+}
+
+phys_size_t get_effective_memsize(void)
+{
+	/* return the first bank as effective memory */
+	if (rom_pointer[1])
+		return ((phys_addr_t)rom_pointer[0] - PHYS_SDRAM);
+
+	switch(gd->ram_size) {
+		case 4 * (1L<<30):
+			return 3 * (1L<<30);
+		default:
+			return gd->ram_size;
+	}
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP
