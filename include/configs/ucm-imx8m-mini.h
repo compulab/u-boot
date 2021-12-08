@@ -33,7 +33,6 @@
 #define CONFIG_SPL_STACK		0x91fff0
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
-#define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_BSS_START_ADDR      0x00910000
 #define CONFIG_SPL_BSS_MAX_SIZE        0x2000	/* 8 KB */
 #define CONFIG_SYS_SPL_MALLOC_START    0x42200000
@@ -208,7 +207,9 @@
 
 #define PHYS_SDRAM              0x40000000
 #define PHYS_SDRAM_2            0x100000000
-#define CONFIG_NR_DRAM_BANKS    2
+#define PHYS_SDRAM_SIZE         0x80000000 /* 2GB default size*/
+#undef PHYS_SDRAM_2_SIZE /* Memory chip autodetection */
+#define CONFIG_NR_DRAM_BANKS    4
 
 #define CONFIG_SYS_SDRAM_BASE   PHYS_SDRAM
 #define PHYS_SDRAM_SIZE			0x80000000 /* 2GB DDR */

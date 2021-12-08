@@ -139,6 +139,8 @@ int board_early_init_f(void)
 
 	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
 
+	init_uart_clk(2);
+
 	return 0;
 }
 
@@ -150,10 +152,10 @@ int board_postclk_init(void)
 }
 #endif
 
-static phys_size_t imx8_ddr_size(void)
+int board_phys_sdram_size(phys_size_t *size)
 {
     unsigned long value = readl(TCM_DATA_CFG);
-    phys_size_t dram_size = 0x40000000;
+    *size = 0x80000000;
 
     switch (value) {
     case 4096:
@@ -165,12 +167,12 @@ static phys_size_t imx8_ddr_size(void)
     case 768:
     case 512:
     case 256:
-        dram_size = ( value << 20 );
+        *size = ( value << 20 );
         break;
     default:
         break;
     };
-    return dram_size;
+    return 0;
 }
 	/* Get the top of usable RAM */
 ulong board_get_usable_ram_top(ulong total_size)

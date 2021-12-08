@@ -20,7 +20,7 @@
 #include <fsl_esdhc.h>
 #include <mmc.h>
 
-#include <asm/arch/imx8m_ddr.h>
+#include <asm/arch/ddr.h>
 #include "ddr/ddr.h"
 #include "ucm-imx8m-mini.h"
 
@@ -100,6 +100,7 @@ int board_mmc_init(bd_t *bis)
 	for (i = 0; i < CONFIG_SYS_FSL_USDHC_NUM; i++) {
 		switch (i) {
 		case 0:
+			init_clk_usdhc(1);
 			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 			imx_iomux_v3_setup_multiple_pads(
 				usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
@@ -109,6 +110,7 @@ int board_mmc_init(bd_t *bis)
 			gpio_direction_output(USDHC2_PWR_GPIO, 1);
 			break;
 		case 1:
+			init_clk_usdhc(2);
 			usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
 			imx_iomux_v3_setup_multiple_pads(
 				usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
@@ -218,10 +220,12 @@ int board_fit_config_name_match(const char *name)
 void board_init_f(ulong dummy)
 {
 	int ret;
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
 
-	/* Clear global data */
+	/* Clear global data
 	memset((void *)gd, 0, sizeof(gd_t));
-
+	*/
 	arch_cpu_init();
 
 	board_early_init_f();
@@ -229,9 +233,6 @@ void board_init_f(ulong dummy)
 	timer_init();
 
 	preloader_console_init();
-
-	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end - __bss_start);
 
 	ret = spl_init();
 	if (ret) {
