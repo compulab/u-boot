@@ -210,7 +210,8 @@ int print_cpuinfo(void)
 
 	cpurev = get_cpu_rev();
 
-#if defined(CONFIG_IMX_THERMAL) || defined(CONFIG_IMX_TMU)
+#if	!defined(CONFIG_TARGET_IOT_GATE_IMX8) && \
+	(defined(CONFIG_IMX_THERMAL) || defined(CONFIG_NXP_TMU))
 	struct udevice *thermal_dev;
 	int cpu_tmp, minc, maxc, ret;
 
@@ -233,7 +234,8 @@ int print_cpuinfo(void)
 		mxc_get_clock(MXC_ARM_CLK) / 1000000);
 #endif
 
-#if defined(CONFIG_IMX_THERMAL) || defined(CONFIG_IMX_TMU)
+#if	!defined(CONFIG_TARGET_IOT_GATE_IMX8) && \
+	(defined(CONFIG_IMX_THERMAL) || defined(CONFIG_NXP_TMU))
 	puts("CPU:   ");
 	switch (get_cpu_temp_grade(&minc, &maxc)) {
 	case TEMP_AUTOMOTIVE:
