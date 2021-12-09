@@ -138,11 +138,17 @@ static int fdt_set_env_addr(void *blob)
 	return 0;
 }
 
+__weak int sub_ft_board_setup(void *blob, struct bd_info *bd)
+{
+	return 0;
+}
+
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	fdt_set_env_addr(blob);
 	fdt_set_sn(blob);
-	return 0;
+
+	return sub_ft_board_setup(blob, bd);
 }
 #endif
 
@@ -373,6 +379,11 @@ static void board_bootdev_init(void)
 	env_set_ulong("bootdev", bootdev);
 }
 
+__weak int sub_board_late_init(void)
+{
+	return 0;
+}
+
 int board_late_init(void)
 {
 	int ret;
@@ -386,7 +397,8 @@ int board_late_init(void)
 	if (ret < 0)
 		printf("%s: Can't set MAC address\n", __func__);
 
-	return 0;
+	ret = sub_board_late_init();
+	return ret;
 }
 
 #ifdef CONFIG_FSL_FASTBOOT
