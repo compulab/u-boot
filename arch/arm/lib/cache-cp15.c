@@ -116,11 +116,8 @@ __weak void dram_bank_mmu_setup(int bank)
 	for (i = bd->bi_dram[bank].start >> MMU_SECTION_SHIFT;
 	     i < (bd->bi_dram[bank].start >> MMU_SECTION_SHIFT) +
 		 (bd->bi_dram[bank].size >> MMU_SECTION_SHIFT);
-	     i++) {
-		if(!bd->bi_dram[bank].size)
-			continue;
+	     i++)
 		set_section_dcache(i, DCACHE_DEFAULT_OPTION);
-	}
 }
 
 /* to activate the MMU we need to set up virtual memory: use 1M areas */

@@ -76,20 +76,6 @@ ulong board_get_usable_ram_top(ulong total_size)
         return gd->ram_top;
 }
 
-int dram_init(void)
-{
-	phys_size_t sdram_size;
-	int ret;
-	ret = board_phys_sdram_size(&sdram_size);
-	if (ret)
-		return ret;
-
-	/* rom_pointer[1] contains the size of TEE occupies */
-	gd->ram_size = sdram_size - rom_pointer[1];
-
-	return 0;
-}
-
 #ifdef CONFIG_OF_BOARD_SETUP
 static void fdt_set_sn(void *blob)
 {

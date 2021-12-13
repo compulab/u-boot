@@ -181,26 +181,32 @@ static unsigned int imx8m_find_dram_entry_in_mem_map(void)
 
 void enable_caches(void)
 {
-	/* If OPTEE runs, remove OPTEE memory from MMU table to avoid speculative prefetch
-	 * If OPTEE does not run, still update the MMU table according to dram banks structure
-	 * to set correct dram size from board_phys_sdram_size
-	 */
-	int i = 0;
-	/*
-	 * please make sure that entry initial value matches
-	 * imx8m_mem_map for DRAM1
-	 */
-	int entry = imx8m_find_dram_entry_in_mem_map();
-	u64 attrs = imx8m_mem_map[entry].attrs;
+	/* If OPTEE runs, remove OPTEE memory from MMU table to avoid speculative prefetch */
+	if (rom_pointer[1]) {
+		/*
+		 * TEE are loaded, So the ddr bank structures
+		 * have been modified update mmu table accordingly
+		 */
+		int i = 0;
+		/*
+		 * please make sure that entry initial value matches
+		 * imx8m_mem_map for DRAM1
+		 */
+		int entry = imx8m_find_dram_entry_in_mem_map();
+		u64 attrs = imx8m_mem_map[entry].attrs;
 
-	while (i < CONFIG_NR_DRAM_BANKS && entry < ARRAY_SIZE(imx8m_mem_map)) {
-		if (gd->bd->bi_dram[i].start == 0)
-			break;
-		imx8m_mem_map[entry].phys = gd->bd->bi_dram[i].start;
-		imx8m_mem_map[entry].virt = gd->bd->bi_dram[i].start;
-		imx8m_mem_map[entry].size = gd->bd->bi_dram[i].size;
-		imx8m_mem_map[entry].attrs = attrs;
-		i++; entry++;
+		while (i < CONFIG_NR_DRAM_BANKS &&
+		       entry < ARRAY_SIZE(imx8m_mem_map)) {
+			if (gd->bd->bi_dram[i].start == 0)
+				break;
+			imx8m_mem_map[entry].phys = gd->bd->bi_dram[i].start;
+			imx8m_mem_map[entry].virt = gd->bd->bi_dram[i].start;
+			imx8m_mem_map[entry].size = gd->bd->bi_dram[i].size;
+			imx8m_mem_map[entry].attrs = attrs;
+			debug("Added memory mapping (%d): %llx %llx\n", entry,
+			      imx8m_mem_map[entry].phys, imx8m_mem_map[entry].size);
+			i++; entry++;
+		}
 	}
 
 	icache_enable();
@@ -220,7 +226,7 @@ __weak int board_phys_sdram_size(phys_size_t *size)
 	return 0;
 }
 
-__weak int dram_init(void)
+int dram_init(void)
 {
 	phys_size_t sdram_size;
 	int ret;
@@ -259,7 +265,7 @@ __weak int dram_init_banksize(void)
 	}
 
 	gd->bd->bi_dram[bank].start = PHYS_SDRAM;
-	if (0 /*rom_pointer[1]*/) {
+	if (rom_pointer[1]) {
 		phys_addr_t optee_start = (phys_addr_t)rom_pointer[0];
 		phys_size_t optee_size = (size_t)rom_pointer[1];
 
@@ -290,7 +296,7 @@ __weak int dram_init_banksize(void)
 	return 0;
 }
 
-__weak phys_size_t get_effective_memsize(void)
+phys_size_t get_effective_memsize(void)
 {
 	int ret;
 	phys_size_t sdram_size;
@@ -1604,7 +1610,7 @@ void do_error(struct pt_regs *pt_regs, unsigned int esr)
 #endif
 #endif
 
-#if defined(CONFIG_IMX8MN) || defined(CONFIG_IMX8MP)
+#if defined(CONFIG_IMX8MN) /*|| defined(CONFIG_IMX8MP)*/
 enum env_location env_get_location(enum env_operation op, int prio)
 {
 	enum boot_device dev = get_boot_device();
