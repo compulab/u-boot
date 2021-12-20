@@ -263,18 +263,21 @@ config TARGET_PHYCORE_IMX8MP
 config TARGET_UCM_IMX8M_MINI
 	bool "CompuLab ucm-imx8m-mini"
 	select IMX8MM
+	select BINMAN
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 
 config TARGET_MCM_IMX8M_MINI
 	bool "CompuLab mcm-imx8m-mini"
 	select IMX8MM
+	select BINMAN
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 
 config TARGET_IOT_GATE_IMX8
 	bool "CompuLab iot-gate-imx8"
 	select IMX8MM
+	select BINMAN
 	select SUPPORT_SPL
 	select IMX8M_LPDDR4
 

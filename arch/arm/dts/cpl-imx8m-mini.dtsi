@@ -14,6 +14,7 @@
 
 #include <dt-bindings/usb/pd.h>
 #include "imx8mm.dtsi"
+#include "cpl-imx8m-mini-u-boot.dtsi"
 
 / {
 	chosen {
