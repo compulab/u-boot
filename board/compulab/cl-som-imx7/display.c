@@ -37,7 +37,6 @@
 #define FDT_TIMING_DVI "/soc/aips-bus@30400000/lcdif@30730000/display/display-timings/dvi"
 #define FDT_NODE_REG_DVI "/regulators/dvi_en_3v3"
 #define FDT_NODE_REG_LCD "/regulators/lcd_nstby_3v3"
-#define FLIP_32B(val) ((val>>24)&0xff) | ((val<<8)&0xff0000) | ((val>>8)&0xff00) | ((val<<24)&0xff000000)
 
 /* Display type code */
 typedef enum {

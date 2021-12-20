@@ -28,6 +28,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static cl_som_imx7_rev board_rev = CL_SOM_IMX7_REV_UNKNOWN; /* Board revision */
 static int nand_enabled = 0;
 
 static uchar cl_som_am57x_eeprom_buf[CONFIG_SYS_EEPROM_SIZE];
@@ -169,12 +170,38 @@ static void cl_som_imx7_setup_gpmi_nand(void) {}
 
 #define CL_SOM_IMX7_ETH1_PHY_NRST	IMX_GPIO_NR(1, 4)
 
+#define CL_SOM_IMX7_FEC_DEV_ID_PRI 0
+#define CL_SOM_IMX7_FEC_DEV_ID_SEC 1
+#define CL_SOM_IMX7_PCA953X_PHY_RST_SEC 4
+#define CL_SOM_IMX7_FEC_PHYADDR_PRI CONFIG_FEC_MXC_PHYADDR
+#define CL_SOM_IMX7_FEC_PHYADDR_SEC 0x5
+/* PHY address in board revision <= 1.3 */
+#define CL_SOM_IMX7_FEC_PHYADDR_PRI_1_3 0x0
+#define CL_SOM_IMX7_FEC_PHYADDR_SEC_1_3 0x1
+#define CL_SOM_IMX7_FEC_PHY_RST_DLY 30
+
 /*
  * cl_som_imx7_rgmii_rework() - Ethernet PHY configuration.
  */
 static void cl_som_imx7_rgmii_rework(struct phy_device *phydev)
 {
 	unsigned short val;
+
+	if ((phydev->addr == CL_SOM_IMX7_FEC_PHYADDR_PRI) ||
+	    (phydev->addr == CL_SOM_IMX7_FEC_PHYADDR_SEC))
+		board_rev = CL_SOM_IMX7_REV_1_4;
+	else
+		board_rev = CL_SOM_IMX7_REV_1_3;
+
+	if (board_rev == CL_SOM_IMX7_REV_1_4) {
+		/** RTL8211E-VB-CG - add TX and RX delay */
+		phy_write(phydev, MDIO_DEVAD_NONE, 0x1f, 0x07);
+		phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0xa4);
+		val=phy_read(phydev, MDIO_DEVAD_NONE, 0x1c);
+		val |= (0x1 << 13) | (0x1 << 12) | (0x1 << 11);
+		phy_write(phydev, MDIO_DEVAD_NONE, 0x1c, val);
+		return;
+	}
 
 	/* Ar8031 phy SmartEEE feature cause link status generates glitch,
 	 * which cause ethernet link down/up issue, so disable SmartEEE
@@ -249,12 +276,6 @@ static int cl_som_imx7_handle_mac_address(char *env_var, uint eeprom_bus,
 	return eth_setenv_enetaddr(env_var, enetaddr);
 }
 
-#define CL_SOM_IMX7_FEC_DEV_ID_PRI 0
-#define CL_SOM_IMX7_FEC_DEV_ID_SEC 1
-#define CL_SOM_IMX7_PCA953X_PHY_RST_SEC 4
-#define CL_SOM_IMX7_FEC_PHYADDR_PRI CONFIG_FEC_MXC_PHYADDR
-#define CL_SOM_IMX7_FEC_PHYADDR_SEC 1
-
 /*
  * cl_som_imx7_eth_init_pri() - primary Ethernet interface initialization
  *
@@ -264,6 +285,8 @@ static int cl_som_imx7_handle_mac_address(char *env_var, uint eeprom_bus,
  */
 static int cl_som_imx7_eth_init_pri(bd_t *bis)
 {
+	int ret;
+
 	/* set Ethernet MAC address environment */
 	cl_som_imx7_handle_mac_address("ethaddr", CONFIG_SYS_I2C_EEPROM_BUS,
 				       "1st MAC Address");
@@ -273,12 +296,21 @@ static int cl_som_imx7_eth_init_pri(bd_t *bis)
 	/* PHY reset */
 	gpio_request(CL_SOM_IMX7_ETH1_PHY_NRST, "eth1_phy_nrst");
 	gpio_direction_output(CL_SOM_IMX7_ETH1_PHY_NRST, 0);
-	mdelay(10);
+	mdelay(CL_SOM_IMX7_FEC_PHY_RST_DLY);
 	gpio_set_value(CL_SOM_IMX7_ETH1_PHY_NRST, 1);
+	mdelay(CL_SOM_IMX7_FEC_PHY_RST_DLY);
 
-	return fecmxc_initialize_multi(bis, CL_SOM_IMX7_FEC_DEV_ID_PRI,
-				       CL_SOM_IMX7_FEC_PHYADDR_PRI,
-				       IMX_FEC_BASE, IMX_FEC_BASE);
+	ret = fecmxc_initialize_multi(bis, CL_SOM_IMX7_FEC_DEV_ID_PRI,
+				      CL_SOM_IMX7_FEC_PHYADDR_PRI,
+				      IMX_FEC_BASE, IMX_FEC_BASE);
+	if (!ret) {
+		return 0;
+	}
+	ret = fecmxc_initialize_multi(bis, CL_SOM_IMX7_FEC_DEV_ID_PRI,
+				      CL_SOM_IMX7_FEC_PHYADDR_PRI_1_3,
+				      IMX_FEC_BASE, IMX_FEC_BASE);
+
+	return ret;
 }
 
 /*
@@ -308,13 +340,20 @@ static int cl_som_imx7_eth_init_sec(bd_t *bis)
 		puts ("Failed to select the SOM I2C bus\n");
 		return -1;
 	}
+	ret = fecmxc_initialize_multi(bis, CL_SOM_IMX7_FEC_DEV_ID_SEC,
+				      CL_SOM_IMX7_FEC_PHYADDR_SEC,
+				      ENET2_IPS_BASE_ADDR, IMX_FEC_BASE);
+	if (!ret) {
+		return 0;
+	}
+
 	ret = pca953x_set_dir(CONFIG_SYS_I2C_PCA953X_ADDR,
 			      1 << CL_SOM_IMX7_PCA953X_PHY_RST_SEC,
 			      PCA953X_DIR_OUT <<
 			      CL_SOM_IMX7_PCA953X_PHY_RST_SEC);
 	ret |= pca953x_set_val(CONFIG_SYS_I2C_PCA953X_ADDR,
 			       1 << CL_SOM_IMX7_PCA953X_PHY_RST_SEC, 0);
-	mdelay(10);
+	mdelay(CL_SOM_IMX7_FEC_PHY_RST_DLY);
 	ret |= pca953x_set_val(CONFIG_SYS_I2C_PCA953X_ADDR,
 			       1 << CL_SOM_IMX7_PCA953X_PHY_RST_SEC,
 			       1 << CL_SOM_IMX7_PCA953X_PHY_RST_SEC);
@@ -323,9 +362,11 @@ static int cl_som_imx7_eth_init_sec(bd_t *bis)
 		return -1;
 	}
 	/* MAC initialization with the primary MDIO bus */
-	return fecmxc_initialize_multi(bis, CL_SOM_IMX7_FEC_DEV_ID_SEC,
-				       CL_SOM_IMX7_FEC_PHYADDR_SEC,
-				       ENET2_IPS_BASE_ADDR, IMX_FEC_BASE);
+	ret = fecmxc_initialize_multi(bis, CL_SOM_IMX7_FEC_DEV_ID_SEC,
+				      CL_SOM_IMX7_FEC_PHYADDR_SEC_1_3,
+				      ENET2_IPS_BASE_ADDR, IMX_FEC_BASE);
+
+	return ret;
 }
 
 int board_eth_init(bd_t *bis)
@@ -335,6 +376,7 @@ int board_eth_init(bd_t *bis)
 	ret = cl_som_imx7_eth_init_pri(bis);
 	if (ret)
 		puts ("Ethernet initialization failure: primary interface\n");
+
 	ret |= cl_som_imx7_eth_init_sec(bis);
 	if (ret)
 		puts ("Ethernet initialization failure: secondary interface\n");
@@ -626,10 +668,12 @@ int checkboard(void)
 #ifdef CONFIG_OF_BOARD_SETUP
 #include <malloc.h>
 #include "../common/common.h"
-
+#define FDT_PHYADDR_PRI "/soc/aips-bus@30800000/ethernet@30be0000/mdio/ethernet-phy@0"
+#define FDT_PHYADDR_SEC "/soc/aips-bus@30800000/ethernet@30be0000/mdio/ethernet-phy@1"
 int fdt_board_adjust(void)
 {
 	int ret = 0;
+	u32 flip_val;
 	u32 cpurev = get_cpu_rev();
 
 	/* Disable features not supported by i.MX7Solo */
@@ -652,6 +696,13 @@ int fdt_board_adjust(void)
 		/* Enable eMMC and disable GPMI */
 		fdt_node_enable("/soc/aips-bus@30800000/usdhc@30b60000");
 		fdt_node_disable("/soc/gpmi-nand@33002000");
+	}
+	/* Update PHY address if needed */
+	if (board_rev == CL_SOM_IMX7_REV_1_4) {
+		flip_val = FLIP_32B(CL_SOM_IMX7_FEC_PHYADDR_PRI);
+		ret = fdt_prop_set(FDT_PHYADDR_PRI, "reg", &flip_val, 4, 0);
+		flip_val = FLIP_32B(CL_SOM_IMX7_FEC_PHYADDR_SEC);
+		ret = fdt_prop_set(FDT_PHYADDR_SEC, "reg", &flip_val, 4, 0);
 	}
 
 #ifdef CONFIG_VIDEO

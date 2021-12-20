@@ -157,7 +157,6 @@ static iomux_v3_cfg_t const usb_otg1_pads[] = {
 };
 
 PADS_SET(usb_otg1_pads)
-
 #ifdef CONFIG_NAND_MXS
 
 #define GPMI_PAD_CTRL		(PAD_CTL_DSE_3P3V_49OHM | PAD_CTL_PUE | \
