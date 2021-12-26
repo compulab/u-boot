@@ -248,6 +248,10 @@ int lists_bind_fdt(struct udevice *parent, ofnode node, struct udevice **devp,
 			log_debug("Driver '%s' refuses to bind\n", entry->name);
 			continue;
 		}
+		if (ret == -EPFNOSUPPORT) {
+			log_debug("Driver '%s' not supported\n", entry->name);
+			continue;
+		}
 		if (ret) {
 			dm_warn("Error binding driver '%s': %d\n", entry->name,
 				ret);
