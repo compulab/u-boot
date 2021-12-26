@@ -377,7 +377,7 @@ static int cm_fx6_setup_usb_host(void) { return 0; }
 #define ENET_PAD_CTRL		(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
 				 PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
 
-static int mx6_rgmii_rework(struct phy_device *phydev)
+static int mx6_rgmii_rework_atheros(struct phy_device *phydev)
 {
 	unsigned short val;
 
@@ -407,12 +407,58 @@ static int mx6_rgmii_rework(struct phy_device *phydev)
 	val |= 0x0100;
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, val);
 
+	/* introduce rx clock delay */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x0);
+	val = phy_read(phydev, MDIO_DEVAD_NONE, 0x1e);
+	val |= 0x08000;
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, val);
+
+	return 0;
+}
+
+static int mx6_rgmii_rework_realtek(struct phy_device *phydev)
+{
+#define TXDLY_MASK ((1 << 13) | (1 << 12))
+#define RXDLY_MASK ((1 << 13) | (1 << 11))
+
+	unsigned short val;
+
+	/* introduce tx clock delay */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1f, 0x7);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0xa4);
+
+	val = phy_read(phydev, MDIO_DEVAD_NONE, 0x1c);
+	val |= TXDLY_MASK;
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1c, val);
+
+	/* introduce rx clock delay */
+	val = phy_read(phydev, MDIO_DEVAD_NONE, 0x1c);
+	val |= RXDLY_MASK;
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1c, val);
+
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1f, 0x0);
 	return 0;
 }
 
 int board_phy_config(struct phy_device *phydev)
 {
-	mx6_rgmii_rework(phydev);
+#define PHY_VENDOR_ID_MASK (( 1<<5 ) - 1 )
+#define PHY_ATEROS_ID  0x7
+#define PHY_REALTEK_ID 0x11
+	unsigned short val = phy_read(phydev, MDIO_DEVAD_NONE, 0x3);
+
+	val = (( val >> 4 ) & PHY_VENDOR_ID_MASK);
+
+	switch (val) {
+	case PHY_ATEROS_ID:
+		mx6_rgmii_rework_atheros(phydev);
+		break;
+	case PHY_REALTEK_ID:
+		mx6_rgmii_rework_realtek(phydev);
+		break;
+	default:
+		break;
+	}
 
 	if (phydev->drv->config)
 		return phydev->drv->config(phydev);
