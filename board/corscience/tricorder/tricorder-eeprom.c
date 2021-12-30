@@ -167,15 +167,13 @@ int tricorder_eeprom_write(unsigned devaddr, const char *name,
 	print_buffer(0, &eeprom, 1, sizeof(eeprom), 16);
 #endif
 
-	eeprom_init(CONFIG_SYS_EEPROM_BUS_NUM);
-
 	ret = eeprom_write(devaddr, 0, (unsigned char *)&eeprom,
-			TRICORDER_EEPROM_SIZE);
+			TRICORDER_EEPROM_SIZE, CONFIG_SYS_EEPROM_BUS_NUM);
 	if (ret)
 		printf("Tricorder: Could not write EEPROM content!\n");
 
 	ret = eeprom_read(devaddr, 0, (unsigned char *)&eeprom_verify,
-			TRICORDER_EEPROM_SIZE);
+			TRICORDER_EEPROM_SIZE, CONFIG_SYS_EEPROM_BUS_NUM);
 	if (ret)
 		printf("Tricorder: Could not read EEPROM content!\n");
 

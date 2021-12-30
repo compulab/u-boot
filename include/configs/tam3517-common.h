@@ -251,7 +251,8 @@ struct tam3517_module_info {
 do {								\
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE); \
 	if (eeprom_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0,		\
-		(void *)info, sizeof(*info)))			\
+		(void *)info, sizeof(*info),			\
+		CONFIG_SYS_EEPROM_BUS_NUM))			\
 		ret = 1;					\
 	else							\
 		ret = 0;					\

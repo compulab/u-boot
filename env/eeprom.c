@@ -31,14 +31,13 @@ static int eeprom_bus_read(unsigned dev_addr, unsigned offset,
 #if defined(CONFIG_I2C_ENV_EEPROM_BUS)
 	int old_bus = i2c_get_bus_num();
 
-	if (old_bus != CONFIG_I2C_ENV_EEPROM_BUS)
-		i2c_set_bus_num(CONFIG_I2C_ENV_EEPROM_BUS);
-#endif
+	rcode = eeprom_read(dev_addr, offset, buffer, cnt,
+			    CONFIG_I2C_ENV_EEPROM_BUS);
 
-	rcode = eeprom_read(dev_addr, offset, buffer, cnt);
-
-#if defined(CONFIG_I2C_ENV_EEPROM_BUS)
 	i2c_set_bus_num(old_bus);
+#else
+	rcode = eeprom_read(dev_addr, offset, buffer, cnt,
+			    CONFIG_SYS_EEPROM_BUS_NUM);
 #endif
 
 	return rcode;
@@ -51,14 +50,13 @@ static int eeprom_bus_write(unsigned dev_addr, unsigned offset,
 #if defined(CONFIG_I2C_ENV_EEPROM_BUS)
 	int old_bus = i2c_get_bus_num();
 
-	if (old_bus != CONFIG_I2C_ENV_EEPROM_BUS)
-		i2c_set_bus_num(CONFIG_I2C_ENV_EEPROM_BUS);
-#endif
+	rcode = eeprom_write(dev_addr, offset, buffer, cnt,
+			     CONFIG_I2C_ENV_EEPROM_BUS);
 
-	rcode = eeprom_write(dev_addr, offset, buffer, cnt);
-
-#if defined(CONFIG_I2C_ENV_EEPROM_BUS)
 	i2c_set_bus_num(old_bus);
+#else
+	rcode = eeprom_write(dev_addr, offset, buffer, cnt,
+			     CONFIG_SYS_EEPROM_BUS_NUM);
 #endif
 
 	return rcode;
