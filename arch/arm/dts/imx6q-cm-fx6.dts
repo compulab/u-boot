@@ -86,6 +86,7 @@
 		regulator-max-microvolt = <5000000>;
 		gpio = <&gpio7 8 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
+		regulator-always-on;
 	};
 
 	reg_usb_otg_vbus: usb_otg_vbus {
@@ -95,6 +96,7 @@
 		regulator-max-microvolt = <5000000>;
 		gpio = <&gpio3 22 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
+		regulator-always-on;
 	};
 
 	sound-analog {
@@ -378,7 +380,7 @@
 	vbus-supply = <&reg_usb_otg_vbus>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_usbotg>;
-	dr_mode = "otg";
+	dr_mode = "host";
 	status = "okay";
 };
 

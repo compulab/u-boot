@@ -313,7 +313,7 @@ static int cm_fx6_setup_usb_otg(void)
 						MUX_PAD_CTRL(WEAK_PULLDOWN));
 	clrbits_le32(&iomux->gpr[1], IOMUXC_GPR1_OTG_ID_MASK);
 	/* disable ext. charger detect, or it'll affect signal quality at dp. */
-	return gpio_direction_output(SB_FX6_USB_OTG_PWR, 0);
+	return gpio_direction_output(SB_FX6_USB_OTG_PWR, 1);
 }
 
 int board_usb_phy_mode(int port)
