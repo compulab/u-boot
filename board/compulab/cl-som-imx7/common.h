@@ -11,6 +11,7 @@
 
 #ifdef CONFIG_FSL_ESDHC
 #define CL_SOM_IMX7_GPIO_USDHC1_CD	IMX_GPIO_NR(5, 0)
+#define FLIP_32B(val) ((val>>24)&0xff) | ((val<<8)&0xff0000) | ((val>>8)&0xff00) | ((val<<24)&0xff000000)
 PADS_SET_PROT(usdhc1_pads);
 #endif /* CONFIG_FSL_ESDHC */
 PADS_SET_PROT(uart1_pads);
@@ -47,6 +48,13 @@ typedef enum {
 	CL_SOM_IMX7_IOTG,
 	CL_SOM_IMX7_OTHER,
 } cl_som_imx7_base;
+
+/* CL-SOM-iMX7 board revision */
+typedef enum {
+       CL_SOM_IMX7_REV_1_3,
+       CL_SOM_IMX7_REV_1_4,
+       CL_SOM_IMX7_REV_UNKNOWN,
+} cl_som_imx7_rev;
 
 extern cl_som_imx7_base cl_som_imx7_base_id;
 
