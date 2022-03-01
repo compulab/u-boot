@@ -3,7 +3,7 @@
 VERSION = 2018
 PATCHLEVEL = 11
 SUBLEVEL =
-EXTRAVERSION = -cl-som-imx7-hab-1.1
+EXTRAVERSION = -cl-som-imx7-hab-1.2
 NAME =
 
 # *DOCUMENTATION*
