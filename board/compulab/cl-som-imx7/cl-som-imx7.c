@@ -668,6 +668,8 @@ int checkboard(void)
 #ifdef CONFIG_OF_BOARD_SETUP
 #include <malloc.h>
 #include "../common/common.h"
+
+#define FDT_FEC0_NODE "/soc/aips-bus@30800000/ethernet@30be0000"
 #define FDT_PHYADDR_PRI "/soc/aips-bus@30800000/ethernet@30be0000/mdio/ethernet-phy@0"
 #define FDT_PHYADDR_SEC "/soc/aips-bus@30800000/ethernet@30be0000/mdio/ethernet-phy@1"
 int fdt_board_adjust(void)
@@ -700,14 +702,16 @@ int fdt_board_adjust(void)
 	/* Update PHY address if needed */
 	if (board_rev == CL_SOM_IMX7_REV_1_4) {
 		flip_val = FLIP_32B(CL_SOM_IMX7_FEC_PHYADDR_PRI);
-		ret = fdt_prop_set(FDT_PHYADDR_PRI, "reg", &flip_val, 4, 0);
+		ret |= fdt_prop_set(FDT_PHYADDR_PRI, "reg", &flip_val, 4, 0);
 		flip_val = FLIP_32B(CL_SOM_IMX7_FEC_PHYADDR_SEC);
-		ret = fdt_prop_set(FDT_PHYADDR_SEC, "reg", &flip_val, 4, 0);
+		ret |= fdt_prop_set(FDT_PHYADDR_SEC, "reg", &flip_val, 4, 0);
+		fdt_prop_del(FDT_FEC0_NODE, "phy-reset-gpios");
+		fdt_node_delete("/regulator-phy1-nrst");
 	}
 
 #ifdef CONFIG_VIDEO
 	/* Update display timing parameters */
-	ret = fdt_board_adjust_display();
+	ret |= fdt_board_adjust_display();
 #endif /* CONFIG_VIDEO */
 
 	return ret;
