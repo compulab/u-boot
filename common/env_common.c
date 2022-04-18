@@ -265,7 +265,11 @@ void env_relocate(void)
 		set_default_env("!bad CRC");
 #endif
 	} else {
+#if defined(CONFIG_ENV_START_DEFAULT)
+		set_default_env(NULL);
+#else
 		env_relocate_spec();
+#endif
 	}
 }
 

@@ -241,6 +241,11 @@ config ENV_UBI_VOLUME
 
 endif
 
+config ENV_START_DEFAULT
+	bool "Always use default environment"
+	default n
+	help
+	  Always use default environment.
 endmenu
 
 config BOOTDELAY

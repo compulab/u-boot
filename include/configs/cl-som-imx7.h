@@ -274,5 +274,11 @@
 
 /* Miscellaneous */
 #define CONFIG_DISPLAY_BOARDINFO_LATE
+#ifdef ENV_START_DEFAULT
+#ifdef CONFIG_SYS_PROMPT
+#undef CONFIG_SYS_PROMPT
+#define CONFIG_SYS_PROMPT="CL-SOM-iMX7-PROD # "
+#endif
+#endif
 
 #endif	/* __CONFIG_H */
