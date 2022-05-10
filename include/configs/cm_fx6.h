@@ -155,6 +155,10 @@
 			"setenv fdtfile imx6q-utilite-pro.dtb; fi; " \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine dtb to use; fi; \0" \
+	"try_get_usb_ip="\
+		"usb start; for iface in 'r8152#0' 'axg0' 'mcs0'; do echo Trying interface ${iface}; setenv ethact ${iface}; dhcp; if test $? -eq 0; then exit; fi; done\0" \
+	"ocado_bootcmd="\
+		"run try_get_usb_ip; if test $? -ne 0; then setenv ethact FEC; dhcp; fi; if tftpboot 0x10800000 $serverip:botpc/$ethaddr/botpc-uboot.scr; then source 0x10800000; else run bootssd; fi\0" \
 	BOOTENV
 
 #define CONFIG_PREBOOT		"usb start;sf probe"
@@ -165,6 +169,11 @@
 	func(SATA, sata, 0)
 
 #include <config_distro_bootcmd.h>
+#ifdef CONFIG_BOOTCOMMAND
+#undef CONFIG_BOOTCOMMAND
+#endif
+
+#define CONFIG_BOOTCOMMAND "run ocado_bootcmd"
 #else
 #define CONFIG_EXTRA_ENV_SETTINGS
 #endif
