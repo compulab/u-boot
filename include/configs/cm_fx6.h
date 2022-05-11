@@ -155,6 +155,8 @@
 			"setenv fdtfile imx6q-utilite-pro.dtb; fi; " \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine dtb to use; fi; \0" \
+	"bootssd="\
+		"run sataargs; setenv satadev 0; sata init; load sata 0 0x10800000 zImage; load sata 0 0x15000000 imx6q-ocado-500-botpc.dtb; bootz 0x10800000 - 0x15000000\0" \
 	"try_get_usb_ip="\
 		"usb start; for iface in 'r8152#0' 'axg0' 'mcs0'; do echo Trying interface ${iface}; setenv ethact ${iface}; dhcp; if test $? -eq 0; then exit; fi; done\0" \
 	"ocado_bootcmd="\
