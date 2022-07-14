@@ -166,6 +166,9 @@
 
 #define CONFIG_CONS_INDEX		1
 
+/* FDT Update */
+#define CONFIG_OF_BOARD_SETUP		1
+
 /* SPL defines. */
 #define CONFIG_SPL_TEXT_BASE		0x40300350
 #define CONFIG_SPL_MAX_SIZE		(64 * 1024)
