@@ -1662,7 +1662,7 @@ endif
 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.modpost
 
 quiet_cmd_genenv = GENENV $@
-cmd_genenv = $(OBJCOPY) --dump-section .rodata.default_environment=$@ env/common.o; \
+cmd_genenv = $(OBJCOPY) --dump-section .rodata.default_environment=$@ common/env_common.o; \
 	sed --in-place -e 's/\x00/\x0A/g' $@
 
 u-boot-initial-env: u-boot.bin
