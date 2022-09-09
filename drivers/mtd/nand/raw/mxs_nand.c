@@ -1089,12 +1089,19 @@ int mxs_nand_alloc_buffers(struct mxs_nand_info *nand_info)
 	return 0;
 }
 
+__weak int mxs_nand_board_init() {
+	return 0;
+}
 /*
  * Initializes the NFC hardware.
  */
 int mxs_nand_init_dma(struct mxs_nand_info *info)
 {
 	int i = 0, j, ret = 0;
+
+	ret = mxs_nand_board_init();
+	if (ret)
+		return ret;
 
 	info->desc = malloc(sizeof(struct mxs_dma_desc *) *
 				MXS_NAND_DMA_DESCRIPTOR_COUNT);
