@@ -1138,9 +1138,6 @@ u-boot.imx: SPL u-boot.img FORCE
 	@dd if=SPL of=$@ bs=1K seek=0 conv=notrunc 2>/dev/null
 	@dd if=u-boot.img of=$@ bs=1K seek=63 conv=notrunc 2>/dev/null
 
-u-boot-initial-env:
-	touch u-boot-initial-env
-
 OBJCOPYFLAGS_u-boot-with-spl.bin = -I binary -O binary \
 				   --pad-to=$(CONFIG_SPL_PAD_TO)
 u-boot-with-spl.bin: spl/u-boot-spl.bin $(SPL_PAYLOAD) FORCE
@@ -1823,6 +1820,13 @@ endif
 	$(Q)$(MAKE) KBUILD_MODULES=$(if $(CONFIG_MODULES),1)   \
 	$(build)=$(build-dir) $(@:.ko=.o)
 	$(Q)$(MAKE) -f $(srctree)/scripts/Makefile.modpost
+
+quiet_cmd_genenv = GENENV $@
+cmd_genenv = $(OBJCOPY) --dump-section .rodata.default_environment=$@ env/common.o; \
+	sed --in-place -e 's/\x00/\x0A/g' $@
+
+u-boot-initial-env: u-boot.bin
+	$(call if_changed,genenv)
 
 # Consistency checks
 # ---------------------------------------------------------------------------
