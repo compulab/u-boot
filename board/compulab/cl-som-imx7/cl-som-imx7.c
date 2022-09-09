@@ -162,6 +162,13 @@ static void cl_som_imx7_setup_gpmi_nand(void)
 	cl_som_imx7_gpmi_nand_pads_set();
 	set_clk_nand();
 }
+
+int mxs_nand_board_init() {
+	if (nand_enabled)
+		return 0;
+	else
+		return -ENODEV;
+}
 #else /* !CONFIG_NAND_MXS */
 static void cl_som_imx7_setup_gpmi_nand(void) {}
 #endif /* CONFIG_NAND_MXS */
