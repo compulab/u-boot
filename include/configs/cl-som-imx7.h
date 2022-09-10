@@ -115,6 +115,20 @@
 		"if run loadscript; then " \
 			"run bootscript; " \
 		"fi;\0" \
+	"usbargs=setenv bootargs console=${console},${baudrate} " \
+		"root=/dev/sda2 rootwait rw\0" \
+	"usb_config=usb start;\0" \
+	"usbboot=" \
+		"if run usb_config; then " \
+			"setenv usbdev ${usbdev_def}; " \
+			"setenv storagetype usb;" \
+			"setenv storagedev ${usbdev}:${usbpart};" \
+			"if run loadkernel; then " \
+				"if run loadfdt; then " \
+					"run storagebootcmd;" \
+				"fi; " \
+			"fi; " \
+		"fi;\0" \
 	"sdboot=setenv mmcdev ${mmcdev_def}; setenv mmcblk 0; run mmcboot\0" \
 	"emmcbootscript=setenv mmcdev 1; setenv mmcblk 2; run mmcbootscript\0" \
 	"emmcboot=setenv mmcdev 1; setenv mmcblk 2; run mmcboot\0" \
@@ -133,8 +147,8 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"echo SD boot attempt ...; run sdbootscript; run sdboot; " \
+	"echo USB boot attempt ...; run usbbootscript; run usbboot; " \
 	"echo eMMC boot attempt ...; run emmcbootscript; run emmcboot; " \
-	"echo USB boot attempt ...; run usbbootscript; " \
 	"echo NAND boot attempt  ...; run nandboot"
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
