@@ -676,9 +676,9 @@ int checkboard(void)
 #include <malloc.h>
 #include "../common/common.h"
 
-#define FDT_FEC0_NODE "/soc/aips-bus@30800000/ethernet@30be0000"
-#define FDT_PHYADDR_PRI "/soc/aips-bus@30800000/ethernet@30be0000/mdio/ethernet-phy@0"
-#define FDT_PHYADDR_SEC "/soc/aips-bus@30800000/ethernet@30be0000/mdio/ethernet-phy@1"
+#define FDT_FEC0_NODE "/ethernet@30be0000"
+#define FDT_PHYADDR_PRI "/ethernet@30be0000/mdio/ethernet-phy@0"
+#define FDT_PHYADDR_SEC "/ethernet@30be0000/mdio/ethernet-phy@1"
 int fdt_board_adjust(void)
 {
 	int ret = 0;
