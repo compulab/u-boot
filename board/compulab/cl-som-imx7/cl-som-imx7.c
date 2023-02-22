@@ -676,9 +676,9 @@ int checkboard(void)
 #include <malloc.h>
 #include "../common/common.h"
 
-#define FDT_FEC0_NODE "/soc/aips-bus@30800000/ethernet@30be0000"
-#define FDT_PHYADDR_PRI "/soc/aips-bus@30800000/ethernet@30be0000/mdio/ethernet-phy@0"
-#define FDT_PHYADDR_SEC "/soc/aips-bus@30800000/ethernet@30be0000/mdio/ethernet-phy@1"
+#define FDT_FEC0_NODE "/soc/bus@30800000/ethernet@30be0000"
+#define FDT_PHYADDR_PRI "/soc/bus@30800000/ethernet@30be0000/mdio/ethernet-phy@0"
+#define FDT_PHYADDR_SEC "/soc/bus@30800000/ethernet@30be0000/mdio/ethernet-phy@1"
 int fdt_board_adjust(void)
 {
 	int ret = 0;
@@ -688,23 +688,23 @@ int fdt_board_adjust(void)
 	/* Disable features not supported by i.MX7Solo */
 	if (((cpurev & 0xFF000) >> 12) == MXC_CPU_MX7S) {
 		/* FEC2 with PHY */
-		fdt_node_disable("/soc/aips-bus@30800000/ethernet@30bf0000");
-		fdt_node_disable("/soc/aips-bus@30800000/ethernet@30be0000/mdio/ethernet-phy@1");
+		fdt_node_disable("/soc/bus@30800000/ethernet@30bf0000");
+		fdt_node_disable("/soc/bus@30800000/ethernet@30be0000/mdio/ethernet-phy@1");
 		/* PCIe */
 		fdt_node_disable("/soc/pcie@0x33800000");
 		/* USB Host HSIC */
-		fdt_node_disable("/soc/aips-bus@30800000/usb@30b20000");
+		fdt_node_disable("/soc/bus@30800000/usb@30b20000");
 	}
 
 	/* Main storage setup */
 	if (nand_enabled) {
 		/* Enable GPMI and disable eMMC */
-		fdt_node_enable("/soc/gpmi-nand@33002000");
-		fdt_node_disable("/soc/aips-bus@30800000/usdhc@30b60000");
+		fdt_node_enable("/soc/nand-controller@33002000");
+		fdt_node_disable("/soc/bus@30800000/mmc@30b60000");
 	} else {
 		/* Enable eMMC and disable GPMI */
-		fdt_node_enable("/soc/aips-bus@30800000/usdhc@30b60000");
-		fdt_node_disable("/soc/gpmi-nand@33002000");
+		fdt_node_enable("/soc/bus@30800000/mmc@30b60000");
+		fdt_node_disable("/soc/nand-controller@33002000");
 	}
 	/* Update PHY address if needed */
 	if (board_rev == CL_SOM_IMX7_REV_1_4) {
