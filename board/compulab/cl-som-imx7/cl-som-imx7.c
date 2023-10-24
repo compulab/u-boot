@@ -578,13 +578,14 @@ int board_init(void)
 }
 
 #ifdef CONFIG_POWER
+#define PFUZE3000_I2C_BUS CL_SOM_IMX7_I2C_BUS_PMIC
 int power_init_board(void)
 {
 	struct pmic *p;
 	int ret;
 	unsigned int reg, rev_id;
 
-	ret = power_pfuze3000_init(CL_SOM_IMX7_I2C_BUS_PMIC);
+	ret = power_pfuze3000_init(PFUZE3000_I2C_BUS);
 	if (ret)
 		return ret;
 
@@ -598,7 +599,93 @@ int power_init_board(void)
 	printf("PMIC: PFUZE3000 DEV_ID=0x%x REV_ID=0x%x\n", reg, rev_id);
 
 	/* disable Low Power Mode during standby mode */
-	pmic_reg_write(p, PFUZE3000_LDOGCTL, 0x1);
+	pmic_reg_read(p, PFUZE3000_LDOGCTL, &reg);
+	reg |= 0x1;
+	ret = pmic_reg_write(p, PFUZE3000_LDOGCTL, reg);
+	if (ret)
+		return ret;
+
+	ret = pmic_reg_write(p, PFUZE3000_SW1AMODE, 0xc);
+	if (ret)
+		return ret;
+
+	ret = pmic_reg_write(p, PFUZE3000_SW1BMODE, 0xc);
+	if (ret)
+		return ret;
+
+	ret = pmic_reg_write(p, PFUZE3000_SW2MODE, 0xc);
+	if (ret)
+		return ret;
+
+	ret = pmic_reg_write(p, PFUZE3000_SW3MODE, 0xc);
+	if (ret)
+		return ret;
+
+	/* set SW1A standby voltage 0.975V */
+	pmic_reg_read(p, PFUZE3000_SW1ASTBY, &reg);
+	reg &= ~0x3f;
+	reg |= PFUZE3000_SW1AB_SETP(9750);
+	ret = pmic_reg_write(p, PFUZE3000_SW1ASTBY, reg);
+	if (ret)
+		return ret;
+
+	/* set SW1B standby voltage 0.975V */
+	pmic_reg_read(p, PFUZE3000_SW1BSTBY, &reg);
+	reg &= ~0x3f;
+	reg |= PFUZE3000_SW1AB_SETP(9750);
+	ret = pmic_reg_write(p, PFUZE3000_SW1BSTBY, reg);
+	if (ret)
+		return ret;
+
+	/* set SW1A/VDD_ARM_IN step ramp up time from 16us to 4us/25mV */
+	pmic_reg_read(p, PFUZE3000_SW1ACONF, &reg);
+	reg &= ~0xc0;
+	reg |= 0x40;
+	ret = pmic_reg_write(p, PFUZE3000_SW1ACONF, reg);
+	if (ret)
+		return ret;
+
+	/* set SW1B/VDD_SOC_IN step ramp up time from 16us to 4us/25mV */
+	pmic_reg_read(p, PFUZE3000_SW1BCONF, &reg);
+	reg &= ~0xc0;
+	reg |= 0x40;
+	ret = pmic_reg_write(p, PFUZE3000_SW1BCONF, reg);
+	if (ret)
+		return ret;
+
+	/* set VDD_ARM_IN to 1.350V */
+	pmic_reg_read(p, PFUZE3000_SW1AVOLT, &reg);
+	reg &= ~0x3f;
+	reg |= PFUZE3000_SW1AB_SETP(13500);
+	ret = pmic_reg_write(p, PFUZE3000_SW1AVOLT, reg);
+	if (ret)
+		return ret;
+
+	/* set VDD_SOC_IN to 1.350V */
+	pmic_reg_read(p, PFUZE3000_SW1BVOLT, &reg);
+	reg &= ~0x3f;
+	reg |= PFUZE3000_SW1AB_SETP(13500);
+	ret = pmic_reg_write(p, PFUZE3000_SW1BVOLT, reg);
+	if (ret)
+		return ret;
+
+	/* set DDR_1_5V to 1.350V */
+	pmic_reg_read(p, PFUZE3000_SW3VOLT, &reg);
+	reg &= ~0x0f;
+	reg |= PFUZE3000_SW3_SETP(13500);
+	ret = pmic_reg_write(p, PFUZE3000_SW3VOLT, reg);
+	if (ret)
+		return ret;
+
+	/* set VGEN2_1V5 to 1.5V */
+	pmic_reg_read(p, PFUZE3000_VLDO2CTL, &reg);
+	reg &= ~0x0f;
+	reg |= PFUZE3000_VLDO_SETP(15000);
+	/*  enable  */
+	reg |= 0x10;
+	ret = pmic_reg_write(p, PFUZE3000_VLDO2CTL, reg);
+	if (ret)
+		return ret;
 
 	return 0;
 }
