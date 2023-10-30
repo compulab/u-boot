@@ -653,26 +653,26 @@ int power_init_board(void)
 	if (ret)
 		return ret;
 
-	/* set VDD_ARM_IN to 1.350V */
+	/* set VDD_ARM_IN to 1.225V */
 	pmic_reg_read(p, PFUZE3000_SW1AVOLT, &reg);
 	reg &= ~0x3f;
-	reg |= PFUZE3000_SW1AB_SETP(13500);
+	reg |= PFUZE3000_SW1AB_SETP(12250);
 	ret = pmic_reg_write(p, PFUZE3000_SW1AVOLT, reg);
 	if (ret)
 		return ret;
 
-	/* set VDD_SOC_IN to 1.350V */
+	/* set VDD_SOC_IN to 1.225V */
 	pmic_reg_read(p, PFUZE3000_SW1BVOLT, &reg);
 	reg &= ~0x3f;
-	reg |= PFUZE3000_SW1AB_SETP(13500);
+	reg |= PFUZE3000_SW1AB_SETP(12250);
 	ret = pmic_reg_write(p, PFUZE3000_SW1BVOLT, reg);
 	if (ret)
 		return ret;
 
-	/* set DDR_1_5V to 1.350V */
+	/* set DDR_1_5V to 1.225V */
 	pmic_reg_read(p, PFUZE3000_SW3VOLT, &reg);
 	reg &= ~0x0f;
-	reg |= PFUZE3000_SW3_SETP(13500);
+	reg |= PFUZE3000_SW3_SETP(12250);
 	ret = pmic_reg_write(p, PFUZE3000_SW3VOLT, reg);
 	if (ret)
 		return ret;
