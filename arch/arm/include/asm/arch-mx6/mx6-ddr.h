@@ -448,6 +448,8 @@ struct mx6_mmdc_calibration {
 	u32 p1_mpwrdlctl;
 	/* lpddr2 zq hw calibration */
 	u32 mpzqlp2ctl;
+	/* new field */
+	u32 mdrwd;
 };
 
 /* configure iomux (pinctl/padctl) */

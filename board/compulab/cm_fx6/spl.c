@@ -39,47 +39,47 @@ enum ddr_config {
  * it as is at this point.
  */
 #define CM_FX6_DDR_IOMUX_CFG \
-	.dram_sdqs0	= 0x00000038, \
-	.dram_sdqs1	= 0x00000038, \
-	.dram_sdqs2	= 0x00000038, \
-	.dram_sdqs3	= 0x00000038, \
-	.dram_sdqs4	= 0x00000038, \
-	.dram_sdqs5	= 0x00000038, \
-	.dram_sdqs6	= 0x00000038, \
-	.dram_sdqs7	= 0x00000038, \
-	.dram_dqm0	= 0x00000038, \
-	.dram_dqm1	= 0x00000038, \
-	.dram_dqm2	= 0x00000038, \
-	.dram_dqm3	= 0x00000038, \
-	.dram_dqm4	= 0x00000038, \
-	.dram_dqm5	= 0x00000038, \
-	.dram_dqm6	= 0x00000038, \
-	.dram_dqm7	= 0x00000038, \
-	.dram_cas	= 0x00000038, \
-	.dram_ras	= 0x00000038, \
-	.dram_sdclk_0	= 0x00000038, \
-	.dram_sdclk_1	= 0x00000038, \
+	.dram_sdqs0	= 0x00000030, \
+	.dram_sdqs1	= 0x00000030, \
+	.dram_sdqs2	= 0x00000030, \
+	.dram_sdqs3	= 0x00000030, \
+	.dram_sdqs4	= 0x00000030, \
+	.dram_sdqs5	= 0x00000030, \
+	.dram_sdqs6	= 0x00000030, \
+	.dram_sdqs7	= 0x00000030, \
+	.dram_dqm0	= 0x00000030, \
+	.dram_dqm1	= 0x00000030, \
+	.dram_dqm2	= 0x00000030, \
+	.dram_dqm3	= 0x00000030, \
+	.dram_dqm4	= 0x00000030, \
+	.dram_dqm5	= 0x00000030, \
+	.dram_dqm6	= 0x00000030, \
+	.dram_dqm7	= 0x00000030, \
+	.dram_cas	= 0x00000030, \
+	.dram_ras	= 0x00000030, \
+	.dram_sdclk_0	= 0x00000030, \
+	.dram_sdclk_1	= 0x00000030, \
 	.dram_sdcke0	= 0x00003000, \
 	.dram_sdcke1	= 0x00003000, \
-	.dram_reset	= 0x00000038, \
+	.dram_reset	= 0x00000030, \
 	.dram_sdba2	= 0x00000000, \
-	.dram_sdodt0	= 0x00000038, \
-	.dram_sdodt1	= 0x00000038,
+	.dram_sdodt0	= 0x00000030, \
+	.dram_sdodt1	= 0x00000030,
 
 #define CM_FX6_GPR_IOMUX_CFG \
-	.grp_b0ds	= 0x00000038, \
-	.grp_b1ds	= 0x00000038, \
-	.grp_b2ds	= 0x00000038, \
-	.grp_b3ds	= 0x00000038, \
-	.grp_b4ds	= 0x00000038, \
-	.grp_b5ds	= 0x00000038, \
-	.grp_b6ds	= 0x00000038, \
-	.grp_b7ds	= 0x00000038, \
-	.grp_addds	= 0x00000038, \
+	.grp_b0ds	= 0x00000030, \
+	.grp_b1ds	= 0x00000030, \
+	.grp_b2ds	= 0x00000030, \
+	.grp_b3ds	= 0x00000030, \
+	.grp_b4ds	= 0x00000030, \
+	.grp_b5ds	= 0x00000030, \
+	.grp_b6ds	= 0x00000030, \
+	.grp_b7ds	= 0x00000030, \
+	.grp_addds	= 0x00000030, \
 	.grp_ddrmode_ctl = 0x00020000, \
 	.grp_ddrpke	= 0x00000000, \
 	.grp_ddrmode	= 0x00020000, \
-	.grp_ctlds	= 0x00000038, \
+	.grp_ctlds	= 0x00000030, \
 	.grp_ddr_type	= 0x000C0000,
 
 #define SOM_IMX6_QDP_DDR_IOMUX_CFG \
@@ -203,18 +203,19 @@ static void spl_mx6s_dram_init(enum ddr_config dram_config, bool reset)
 }
 
 static struct mx6_mmdc_calibration cm_fx6_calib_q = {
-	.p0_mpwldectrl0	= 0x00630068,
-	.p0_mpwldectrl1	= 0x0068005D,
-	.p0_mpdgctrl0	= 0x04140428,
-	.p0_mpdgctrl1	= 0x037C037C,
-	.p0_mprddlctl	= 0x3C30303A,
-	.p0_mpwrdlctl	= 0x3A344038,
-	.p1_mpwldectrl0	= 0x0035004C,
-	.p1_mpwldectrl1	= 0x00170026,
-	.p1_mpdgctrl0	= 0x0374037C,
-	.p1_mpdgctrl1	= 0x0350032C,
-	.p1_mprddlctl	= 0x30322A3C,
-	.p1_mpwrdlctl	= 0x48304A3E,
+	.p0_mpwldectrl0	= 0x001F001F,
+	.p0_mpwldectrl1	= 0x001F001F,
+	.p0_mpdgctrl0	= 0x43270338,
+	.p0_mpdgctrl1	= 0x03200314,
+	.p0_mprddlctl	= 0x4B434748,
+	.p0_mpwrdlctl	= 0x38444542,
+	.p1_mpwldectrl0	= 0x001F001F,
+	.p1_mpwldectrl1	= 0x001F001F,
+	.p1_mpdgctrl0	= 0x431A032F,
+	.p1_mpdgctrl1	= 0x03200263,
+	.p1_mprddlctl	= 0x4445404C,
+	.p1_mpwrdlctl	= 0x4935493A,
+	.mdrwd = 0x000026d2,
 };
 
 static struct mx6_ddr_sysinfo cm_fx6_sysinfo_q = {

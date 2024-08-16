@@ -1168,6 +1168,7 @@ void mx6_lpddr2_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	mmdc0->mprddlctl = calib->p0_mprddlctl;
 	mmdc0->mpwrdlctl = calib->p0_mpwrdlctl;
 	mmdc0->mpzqlp2ctl = calib->mpzqlp2ctl;
+	mmdc0->mdrwd = calib->mdrwd;
 
 	/* Read data DQ Byte0-3 delay */
 	mmdc0->mprddqby0dl = 0x33333333;

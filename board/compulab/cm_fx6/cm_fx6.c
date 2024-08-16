@@ -772,6 +772,7 @@ int dram_init_banksize(void)
 }
 #endif
 
+#include <fsl_mmdc.h>
 int dram_init(void)
 {
 	gd->ram_size = imx_ddr_size();
