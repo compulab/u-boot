@@ -776,7 +776,7 @@ int fdt_board_adjust(void)
 		fdt_node_disable("/soc/aips-bus@30800000/ethernet@30bf0000");
 		fdt_node_disable("/soc/aips-bus@30800000/ethernet@30be0000/mdio/ethernet-phy@1");
 		/* PCIe */
-		fdt_node_disable("/soc/pcie@0x33800000");
+		fdt_node_disable("/soc/pcie@33800000");
 		/* USB Host HSIC */
 		fdt_node_disable("/soc/aips-bus@30800000/usb@30b20000");
 	}
