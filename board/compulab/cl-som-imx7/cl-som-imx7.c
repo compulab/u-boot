@@ -727,15 +727,14 @@ int checkboard(void)
 {
 	int ret;
 	char *mode;
+	unsigned char revision;
+	unsigned char revision_string[6];
 
 	if (IS_ENABLED(CONFIG_ARMV7_BOOT_SEC_DEFAULT))
 		mode = "secure";
 	else
 		mode = "non-secure";
 
-	printf("Board: CL-SOM-iMX7 in %s mode\n", mode);
-
-	setenv("board_name", "CL-SOM-iMX7");
 	cl_som_imx7_base_i2c_init = cl_som_imx7_setup_i2c1();
 	ret = cl_eeprom_layout_setup(&cl_som_am57x_layout,
 				     cl_som_am57x_eeprom_buf,
@@ -744,6 +743,15 @@ int checkboard(void)
 				     CONFIG_SYS_I2C_EEPROM_ADDR);
 	if (ret)
 		printf("Module EEPROM layout initialization failure\n");
+
+	ret = cl_som_am57x_layout.read(&cl_som_am57x_layout, "Major Revision", &revision, 1);
+	sprintf(revision_string, "%d.%d" ,(revision / 100), ((revision % 100)/10) );
+
+	printf("Board: CL-SOM-iMX7 %s in %s mode\n", revision_string, mode);
+
+	setenv("board_name", "CL-SOM-iMX7");
+	setenv("board_revision", revision_string);
+
 	if (cl_som_imx7_base_i2c_init)
 		ret = cl_eeprom_layout_setup(&sb_som_am57x_layout,
 					     sb_som_am57x_eeprom_buf,
