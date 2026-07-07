@@ -241,3 +241,7 @@ void board_boot_order(u32 *spl_boot_list)
 		break;
 	}
 }
+
+void mxs_dma_init(void) {                                                  
+    return;                                                          
+}                                                                          
