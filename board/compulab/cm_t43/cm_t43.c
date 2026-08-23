@@ -257,35 +257,8 @@ int board_eth_init(bd_t *bis)
 
 #ifdef CONFIG_OF_BOARD_SETUP
 #include "fdt_support.h"
-
-#define FLIP_32B(val) ((val>>24)&0xff) | ((val<<8)&0xff0000) | \
-	((val>>8)&0xff00) | ((val<<24)&0xff000000)
-#define FDT_PHYADDR_PRI "/ocp/ethernet@4a100000/slave@4a100200"
-#define FDT_PHYADDR_SEC "/ocp/ethernet@4a100000/slave@4a100300"
-
 int ft_board_setup(void *blob, bd_t *bd)
 {
-	u32 phy_id[2];
-
-	if (cpsw_slaves[0].phy_addr != PHY_PRI_ADDR_REALTEK)
-		return 0;/* Not a Realtek PHY */
-
-	/* Resize FDT to be on the safe side */
-	fdt_shrink_to_minimum(blob);
-
-	/* Update primary Ethernet interface PHY ID */
-	phy_id[0] = fdt_getprop_u32_default(blob, FDT_PHYADDR_PRI, "phy_id", 0);
-	phy_id[0] = FLIP_32B(phy_id[0]);
-	phy_id[1] = FLIP_32B(PHY_PRI_ADDR_REALTEK);
-	do_fixup_by_path(blob, FDT_PHYADDR_PRI, "phy_id", phy_id,
-			 sizeof(phy_id), 0);
-	/* Update secondary Ethernet interface PHY ID */
-	phy_id[0] = fdt_getprop_u32_default(blob, FDT_PHYADDR_SEC, "phy_id", 0);
-	phy_id[0] = FLIP_32B(phy_id[0]);
-	phy_id[1] = FLIP_32B(PHY_SEC_ADDR_REALTEK);
-	do_fixup_by_path(blob, FDT_PHYADDR_SEC, "phy_id", phy_id,
-			 sizeof(phy_id), 0);
-
 	return 0;
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
