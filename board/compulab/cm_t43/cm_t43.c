@@ -66,6 +66,14 @@ static void cpsw_control(int enabled)
 #define PHY_PRI_ADDR_REALTEK 4
 #define PHY_SEC_ADDR_REALTEK 5
 #define PHY_INIT_DLY 30
+#define FDTFILE_ATHEROS "am437x-sbc-t43-legacy.dtb"
+#define FDTFILE_REALTEK "am437x-sbc-t43.dtb"
+
+static void set_fdtfile_if_unset(const char *fdtfile)
+{
+	if (!getenv("fdtfile"))
+		setenv("fdtfile", fdtfile);
+}
 
 static struct cpsw_slave_data cpsw_slaves[] = {
 	{
@@ -126,10 +134,12 @@ int board_phy_config(struct phy_device *phydev)
 		case OUI_PHY_ATHEROS:
 			cpsw_slaves[0].phy_addr = PHY_PRI_ADDR_ATHEROS;
 			cpsw_slaves[1].phy_addr = PHY_SEC_ADDR_ATHEROS;
+			set_fdtfile_if_unset(FDTFILE_ATHEROS);
 			break;
 		case OUI_PHY_REALTEK:
 			cpsw_slaves[0].phy_addr = PHY_PRI_ADDR_REALTEK;
 			cpsw_slaves[1].phy_addr = PHY_SEC_ADDR_REALTEK;
+			set_fdtfile_if_unset(FDTFILE_REALTEK);
 			break;
 		default:
 			printf("%s: PHY not detected\n", __func__);
