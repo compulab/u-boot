@@ -136,6 +136,16 @@
 	"console=ttyO0,115200n8\0" \
 	"kernel=zImage-cm-t43\0" \
 	"bootscr=bootscr.img\0" \
+	"firmware=cm-t43-firmware\0" \
+	"firmware_mmcdev=0\0" \
+	"firmware_size=0xc0000\0" \
+	"loadfirmware=mmc dev ${firmware_mmcdev} && mmc rescan && " \
+		"load mmc ${firmware_mmcdev} ${loadaddr} ${firmware}\0" \
+	"updatefirmware=if run loadfirmware; then " \
+		"sf probe 0 && " \
+		"sf erase 0 ${firmware_size} && " \
+		"sf write ${loadaddr} 0 ${firmware_size}; " \
+		"fi\0" \
 	"emmcroot=/dev/mmcblk1p2 rw\0" \
 	"emmcrootfstype=ext4 rootwait\0" \
 	"emmcargs=setenv bootargs console=${console} " \
