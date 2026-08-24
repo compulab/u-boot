@@ -136,7 +136,7 @@
 	"console=ttyO0,115200n8\0" \
 	"kernel=zImage-cm-t43\0" \
 	"bootscr=bootscr.img\0" \
-	"emmcroot=/dev/mmcblk0p2 rw\0" \
+	"emmcroot=/dev/mmcblk1p2 rw\0" \
 	"emmcrootfstype=ext4 rootwait\0" \
 	"emmcargs=setenv bootargs console=${console} " \
 		"root=${emmcroot} " \
